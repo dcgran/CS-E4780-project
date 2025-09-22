@@ -1,0 +1,12 @@
+patterns:
+  - name: google_ascent
+    structure: SEQ
+    events:
+      - { type: GOOG, alias: a }
+      - { type: GOOG, alias: b }
+      - { type: GOOG, alias: c }
+    condition:
+      all:
+        - { op: "<", left: "a.Peak Price", right: "b.Peak Price" }
+        - { op: "<", left: "b.Peak Price", right: "c.Peak Price" }
+    within: 3m

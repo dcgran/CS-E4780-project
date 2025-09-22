@@ -9,10 +9,13 @@ class FileInputStream(InputStream):
     """
     def __init__(self, file_path: str):
         super().__init__()
-        # TODO: reading the entire content of the input file here is very inefficient
         with open(file_path, "r") as f:
-            for line in f.readlines():
-                self._stream.put(line)
+            lines = f.readlines()
+            # Skip header if it starts with 'ride_id' (possibly quoted)
+            if lines and ('ride_id' in lines[0]):
+                lines = lines[1:]
+            for line in lines:
+                self._stream.put(line.strip())
         self.close()
 
 

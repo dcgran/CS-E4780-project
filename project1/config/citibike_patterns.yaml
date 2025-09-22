@@ -1,0 +1,95 @@
+patterns:
+  - name: rapid_depletion_5_in_10m
+    structure: SEQ
+    events:
+      - { type: StationDelta, alias: a }
+      - { type: StationDelta, alias: b }
+      - { type: StationDelta, alias: c }
+      - { type: StationDelta, alias: d }
+      - { type: StationDelta, alias: e }
+    condition:
+      all:
+        - { op: "<", left: "a.delta", right: 0 }
+        - { op: "<", left: "b.delta", right: 0 }
+        - { op: "<", left: "c.delta", right: 0 }
+        - { op: "<", left: "d.delta", right: 0 }
+        - { op: "<", left: "e.delta", right: 0 }
+        - { op: "==", left: "a.station_id", right: "b.station_id" }
+        - { op: "==", left: "b.station_id", right: "c.station_id" }
+        - { op: "==", left: "c.station_id", right: "d.station_id" }
+        - { op: "==", left: "d.station_id", right: "e.station_id" }
+    within: 10m
+  - name: surge_arrivals_5_in_10m
+    structure: SEQ
+    events:
+      - { type: StationDelta, alias: a }
+      - { type: StationDelta, alias: b }
+      - { type: StationDelta, alias: c }
+      - { type: StationDelta, alias: d }
+      - { type: StationDelta, alias: e }
+    condition:
+      all:
+        - { op: ">", left: "a.delta", right: 0 }
+        - { op: ">", left: "b.delta", right: 0 }
+        - { op: ">", left: "c.delta", right: 0 }
+        - { op: ">", left: "d.delta", right: 0 }
+        - { op: ">", left: "e.delta", right: 0 }
+        - { op: "==", left: "a.station_id", right: "b.station_id" }
+        - { op: "==", left: "b.station_id", right: "c.station_id" }
+        - { op: "==", left: "c.station_id", right: "d.station_id" }
+        - { op: "==", left: "d.station_id", right: "e.station_id" }
+    within: 10m
+  - name: round_trip_same_station_under_30m
+    structure: SEQ
+    events:
+      - { type: StationDelta, alias: a }
+      - { type: StationDelta, alias: b }
+    condition:
+      all:
+        - { op: "==", left: "a.ride_id", right: "b.ride_id" }
+        - { op: "==", left: "a.station_id", right: "b.station_id" }
+        - { op: "<", left: "a.delta", right: 0 }
+        - { op: ">", left: "b.delta", right: 0 }
+    within: 30m
+  - name: commute_flow_exchange_to_medical_3_legs_45m
+    structure: SEQ
+    events:
+      - { type: StationDelta, alias: s1 }
+      - { type: StationDelta, alias: s2 }
+      - { type: StationDelta, alias: s3 }
+    condition:
+      all:
+        - { op: "==", left: "s1.station_id", right: "CONST:JC116" }
+        - { op: "==", left: "s2.station_id", right: "CONST:JC110" }
+        - { op: "==", left: "s3.station_id", right: "CONST:JC110" }
+        - { op: "<", left: "s1.delta", right: 0 }
+        - { op: ">", left: "s2.delta", right: 0 }
+        - { op: ">", left: "s3.delta", right: 0 }
+    within: 45m
+  - name: round_trip_same_station_under_30m
+    structure: SEQ
+    events:
+      - { type: StationDelta, alias: a }
+      - { type: StationDelta, alias: b }
+    condition:
+      all:
+        - { op: "==", left: "a.ride_id", right: "b.ride_id" }
+        - { op: "==", left: "a.station_id", right: "b.station_id" }
+        - { op: "<", left: "a.delta", right: 0 }
+        - { op: ">", left: "b.delta", right: 0 }
+    within: 30m
+  - name: commute_flow_exchange_to_medical_3_legs_45m
+    structure: SEQ
+    events:
+      - { type: StationDelta, alias: s1 }
+      - { type: StationDelta, alias: s2 }
+      - { type: StationDelta, alias: s3 }
+    condition:
+      all:
+        - { op: "==", left: "s1.station_id", right: "CONST:JC116" }
+        - { op: "==", left: "s2.station_id", right: "CONST:JC110" }
+        - { op: "==", left: "s3.station_id", right: "CONST:JC110" }
+        - { op: "<", left: "s1.delta", right: 0 }
+        - { op: ">", left: "s2.delta", right: 0 }
+        - { op: ">", left: "s3.delta", right: 0 }
+    within: 45m

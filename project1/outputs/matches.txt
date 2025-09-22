@@ -1,0 +1,449 @@
+4: {'ride_id': 'EAF1916E632C2D43', 'bike_id': 'classic_bike', 'station_id': 'JC116', 'station_name': 'Exchange Pl', 'ts': 2025-08-27 22:01:49.602000, 'delta': -1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': -4, 'occupancy_after': -5}
+{'ride_id': '2263567A2CC3A074', 'bike_id': 'classic_bike', 'station_id': 'JC110', 'station_name': 'JC Medical Center', 'ts': 2025-08-27 22:27:43.664000, 'delta': 1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 11, 'occupancy_after': 12}
+{'ride_id': 'EAF1916E632C2D43', 'bike_id': 'classic_bike', 'station_id': 'JC110', 'station_name': 'JC Medical Center', 'ts': 2025-08-27 22:28:19.606000, 'delta': 1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 8, 'occupancy_after': 9}
+
+4: {'ride_id': '2263567A2CC3A074', 'bike_id': 'classic_bike', 'station_id': 'JC116', 'station_name': 'Exchange Pl', 'ts': 2025-08-27 22:01:09.939000, 'delta': -1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': -6, 'occupancy_after': -7}
+{'ride_id': '2263567A2CC3A074', 'bike_id': 'classic_bike', 'station_id': 'JC110', 'station_name': 'JC Medical Center', 'ts': 2025-08-27 22:27:43.664000, 'delta': 1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 11, 'occupancy_after': 12}
+{'ride_id': 'EAF1916E632C2D43', 'bike_id': 'classic_bike', 'station_id': 'JC110', 'station_name': 'JC Medical Center', 'ts': 2025-08-27 22:28:19.606000, 'delta': 1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 8, 'occupancy_after': 9}
+
+3: {'ride_id': 'ACBB67B640A83889', 'bike_id': 'classic_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-23 11:15:48.140000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 61, 'occupancy_after': 60}
+{'ride_id': 'ACBB67B640A83889', 'bike_id': 'classic_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-23 11:21:44.361000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 60, 'occupancy_after': 61}
+
+3: {'ride_id': 'DCA4E52CFBAE60DD', 'bike_id': 'classic_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-07 13:49:20.010000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 60, 'occupancy_after': 59}
+{'ride_id': 'DCA4E52CFBAE60DD', 'bike_id': 'classic_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-07 14:08:48.479000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 59, 'occupancy_after': 60}
+
+3: {'ride_id': '534C0480C8D65552', 'bike_id': 'classic_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-21 12:10:27.829000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 59, 'occupancy_after': 58}
+{'ride_id': '534C0480C8D65552', 'bike_id': 'classic_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-21 12:21:10.815000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 58, 'occupancy_after': 59}
+
+3: {'ride_id': '829F5B1F851F363F', 'bike_id': 'classic_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-06 15:16:43.352000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 61, 'occupancy_after': 60}
+{'ride_id': '829F5B1F851F363F', 'bike_id': 'classic_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-06 15:33:54.448000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 60, 'occupancy_after': 61}
+
+3: {'ride_id': 'AC6D3309DB1DF6EF', 'bike_id': 'electric_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-07 17:31:20.426000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 56, 'occupancy_after': 55}
+{'ride_id': 'AC6D3309DB1DF6EF', 'bike_id': 'electric_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-07 17:32:34.692000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 55, 'occupancy_after': 56}
+
+3: {'ride_id': '87A8EBF68B24DD80', 'bike_id': 'electric_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-02 17:54:06.418000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 64, 'occupancy_after': 63}
+{'ride_id': '87A8EBF68B24DD80', 'bike_id': 'electric_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-02 17:58:36.767000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 63, 'occupancy_after': 64}
+
+3: {'ride_id': '256BFCF27A576A3B', 'bike_id': 'classic_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-16 14:18:48.561000, 'delta': -1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 56, 'occupancy_after': 55}
+{'ride_id': '256BFCF27A576A3B', 'bike_id': 'classic_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-16 14:25:25.281000, 'delta': 1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 55, 'occupancy_after': 56}
+
+3: {'ride_id': '393D29AE241DB092', 'bike_id': 'classic_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-10 14:41:38.017000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 59, 'occupancy_after': 58}
+{'ride_id': '393D29AE241DB092', 'bike_id': 'classic_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-10 14:42:49.084000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 58, 'occupancy_after': 59}
+
+3: {'ride_id': 'F67DA6ED13EDC99E', 'bike_id': 'classic_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-08 20:01:11.968000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 66, 'occupancy_after': 65}
+{'ride_id': 'F67DA6ED13EDC99E', 'bike_id': 'classic_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-08 20:07:18.479000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 65, 'occupancy_after': 66}
+
+3: {'ride_id': 'D5E295DA640FEAF7', 'bike_id': 'classic_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-08 20:11:13.671000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 66, 'occupancy_after': 65}
+{'ride_id': 'D5E295DA640FEAF7', 'bike_id': 'classic_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-08 20:15:11.878000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 65, 'occupancy_after': 66}
+
+3: {'ride_id': '04DEB616958DDCB4', 'bike_id': 'classic_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-29 20:38:06.861000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 54, 'occupancy_after': 53}
+{'ride_id': '04DEB616958DDCB4', 'bike_id': 'classic_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-29 20:50:02.203000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 53, 'occupancy_after': 54}
+
+3: {'ride_id': '28D21096972C849A', 'bike_id': 'classic_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-15 18:26:59.170000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 67, 'occupancy_after': 66}
+{'ride_id': '28D21096972C849A', 'bike_id': 'classic_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-15 18:40:20.921000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 66, 'occupancy_after': 67}
+
+3: {'ride_id': 'DB9FFA302FA1B474', 'bike_id': 'classic_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-14 19:55:17.908000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 67, 'occupancy_after': 66}
+{'ride_id': 'DB9FFA302FA1B474', 'bike_id': 'classic_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-14 20:02:18.656000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 66, 'occupancy_after': 67}
+
+3: {'ride_id': '25A766200E99F6D5', 'bike_id': 'electric_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-25 17:55:03.905000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 65, 'occupancy_after': 64}
+{'ride_id': '25A766200E99F6D5', 'bike_id': 'electric_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-25 18:01:47.645000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 64, 'occupancy_after': 65}
+
+3: {'ride_id': 'D41B24D2A5E0CC91', 'bike_id': 'electric_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-02 21:07:45.200000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 57, 'occupancy_after': 56}
+{'ride_id': 'D41B24D2A5E0CC91', 'bike_id': 'electric_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-02 21:19:09.668000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 56, 'occupancy_after': 57}
+
+3: {'ride_id': '133711026F58EC21', 'bike_id': 'classic_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-23 08:08:17.838000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 61, 'occupancy_after': 60}
+{'ride_id': '133711026F58EC21', 'bike_id': 'classic_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-23 08:30:17.902000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 60, 'occupancy_after': 61}
+
+3: {'ride_id': '59CC6EABE593E931', 'bike_id': 'classic_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-24 13:05:22.081000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 53, 'occupancy_after': 52}
+{'ride_id': '59CC6EABE593E931', 'bike_id': 'classic_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-24 13:31:09.896000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 52, 'occupancy_after': 53}
+
+3: {'ride_id': '60BA27506612721D', 'bike_id': 'classic_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-03 19:00:16.696000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 53, 'occupancy_after': 52}
+{'ride_id': '60BA27506612721D', 'bike_id': 'classic_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-03 19:20:21.741000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 52, 'occupancy_after': 53}
+
+3: {'ride_id': '10E107E30502194D', 'bike_id': 'electric_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-27 16:40:42.422000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 51, 'occupancy_after': 50}
+{'ride_id': '10E107E30502194D', 'bike_id': 'electric_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-27 16:51:16.058000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 50, 'occupancy_after': 51}
+
+3: {'ride_id': '8C4B3DDF05FD2B4E', 'bike_id': 'electric_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-24 17:53:43.628000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 54, 'occupancy_after': 53}
+{'ride_id': '8C4B3DDF05FD2B4E', 'bike_id': 'electric_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-24 18:05:55.727000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 53, 'occupancy_after': 54}
+
+3: {'ride_id': '7373C3A32C784911', 'bike_id': 'classic_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-31 13:20:15.615000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 51, 'occupancy_after': 50}
+{'ride_id': '7373C3A32C784911', 'bike_id': 'classic_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-31 13:29:33.160000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 50, 'occupancy_after': 51}
+
+3: {'ride_id': '576338F486B09FBB', 'bike_id': 'classic_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-31 13:32:03.671000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 51, 'occupancy_after': 50}
+{'ride_id': '576338F486B09FBB', 'bike_id': 'classic_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-31 13:59:58.496000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 50, 'occupancy_after': 51}
+
+3: {'ride_id': '4AF2655035A684CD', 'bike_id': 'classic_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-17 19:18:33.846000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 66, 'occupancy_after': 65}
+{'ride_id': '4AF2655035A684CD', 'bike_id': 'classic_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-17 19:37:10.843000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 65, 'occupancy_after': 66}
+
+3: {'ride_id': 'AB72DEA390497F2B', 'bike_id': 'classic_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-16 11:35:52.343000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 65, 'occupancy_after': 64}
+{'ride_id': 'AB72DEA390497F2B', 'bike_id': 'classic_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-16 12:00:53.425000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 64, 'occupancy_after': 65}
+
+3: {'ride_id': '4016BEAC818C90D1', 'bike_id': 'classic_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-27 12:51:17.388000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 55, 'occupancy_after': 54}
+{'ride_id': '4016BEAC818C90D1', 'bike_id': 'classic_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-27 13:10:17.413000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 54, 'occupancy_after': 55}
+
+3: {'ride_id': '3F0B28DBECE0B702', 'bike_id': 'classic_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-11 16:40:23.170000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 53, 'occupancy_after': 52}
+{'ride_id': '3F0B28DBECE0B702', 'bike_id': 'classic_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-11 16:47:45.185000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 52, 'occupancy_after': 53}
+
+3: {'ride_id': '27893D8DA5B8A138', 'bike_id': 'classic_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-22 20:25:37.876000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 52, 'occupancy_after': 51}
+{'ride_id': '27893D8DA5B8A138', 'bike_id': 'classic_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-22 20:33:41.466000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 51, 'occupancy_after': 52}
+
+3: {'ride_id': '460D233F594AFE59', 'bike_id': 'classic_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-15 17:02:10.556000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 48, 'occupancy_after': 47}
+{'ride_id': '460D233F594AFE59', 'bike_id': 'classic_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-15 17:12:15.670000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 47, 'occupancy_after': 48}
+
+3: {'ride_id': 'DC904175BFB55CC6', 'bike_id': 'electric_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-17 17:02:22.838000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 75, 'occupancy_after': 74}
+{'ride_id': 'DC904175BFB55CC6', 'bike_id': 'electric_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-17 17:17:14.586000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 74, 'occupancy_after': 75}
+
+3: {'ride_id': '9DE71773058EDB8A', 'bike_id': 'classic_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-04 13:27:11.156000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 49, 'occupancy_after': 48}
+{'ride_id': '9DE71773058EDB8A', 'bike_id': 'classic_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-04 13:44:39.808000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 48, 'occupancy_after': 49}
+
+3: {'ride_id': 'E24CD3B798B2167F', 'bike_id': 'classic_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-13 13:39:35.769000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 48, 'occupancy_after': 47}
+{'ride_id': 'E24CD3B798B2167F', 'bike_id': 'classic_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-13 14:04:33.979000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 47, 'occupancy_after': 48}
+
+3: {'ride_id': '561D7AFA544F2B65', 'bike_id': 'classic_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-11 14:11:57.636000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 48, 'occupancy_after': 47}
+{'ride_id': '561D7AFA544F2B65', 'bike_id': 'classic_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-11 14:27:54.220000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 47, 'occupancy_after': 48}
+
+3: {'ride_id': '23C31914CA6037E1', 'bike_id': 'electric_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-11 20:00:07.963000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 47, 'occupancy_after': 46}
+{'ride_id': '23C31914CA6037E1', 'bike_id': 'electric_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-11 20:13:47.139000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 46, 'occupancy_after': 47}
+
+3: {'ride_id': '50DFFA0DEFDBA482', 'bike_id': 'electric_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-22 21:07:42.352000, 'delta': -1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 46, 'occupancy_after': 45}
+{'ride_id': '50DFFA0DEFDBA482', 'bike_id': 'electric_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-22 21:35:47.668000, 'delta': 1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 45, 'occupancy_after': 46}
+
+3: {'ride_id': 'FFE090F0E5FC7031', 'bike_id': 'electric_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-06 11:18:50.925000, 'delta': -1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 75, 'occupancy_after': 74}
+{'ride_id': 'FFE090F0E5FC7031', 'bike_id': 'electric_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-06 11:25:14.127000, 'delta': 1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 74, 'occupancy_after': 75}
+
+3: {'ride_id': '916AED97987D6E6B', 'bike_id': 'electric_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-21 18:55:32.202000, 'delta': -1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 45, 'occupancy_after': 44}
+{'ride_id': '916AED97987D6E6B', 'bike_id': 'electric_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-21 19:08:56.569000, 'delta': 1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 44, 'occupancy_after': 45}
+
+3: {'ride_id': 'E7126C69EE0D61AC', 'bike_id': 'classic_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-20 09:20:29.757000, 'delta': -1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 75, 'occupancy_after': 74}
+{'ride_id': 'E7126C69EE0D61AC', 'bike_id': 'classic_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-20 09:30:58.850000, 'delta': 1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 74, 'occupancy_after': 75}
+
+3: {'ride_id': '3105A0828AF09B56', 'bike_id': 'electric_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-15 22:56:42.406000, 'delta': -1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 75, 'occupancy_after': 74}
+{'ride_id': '3105A0828AF09B56', 'bike_id': 'electric_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-15 23:14:39.978000, 'delta': 1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 74, 'occupancy_after': 75}
+
+3: {'ride_id': 'CEDBCB8542EA1B82', 'bike_id': 'classic_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-24 13:04:32.788000, 'delta': -1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 45, 'occupancy_after': 44}
+{'ride_id': 'CEDBCB8542EA1B82', 'bike_id': 'classic_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-24 13:31:23.311000, 'delta': 1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 44, 'occupancy_after': 45}
+
+3: {'ride_id': '99D6CB7C96E0BD67', 'bike_id': 'electric_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-22 15:51:54.440000, 'delta': -1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 48, 'occupancy_after': 47}
+{'ride_id': '99D6CB7C96E0BD67', 'bike_id': 'electric_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-22 16:02:37.060000, 'delta': 1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 47, 'occupancy_after': 48}
+
+3: {'ride_id': 'FC7D514ACCB9500A', 'bike_id': 'classic_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-09 19:48:55.840000, 'delta': -1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 71, 'occupancy_after': 70}
+{'ride_id': 'FC7D514ACCB9500A', 'bike_id': 'classic_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-09 19:54:45.251000, 'delta': 1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 70, 'occupancy_after': 71}
+
+3: {'ride_id': '5B96517828010A98', 'bike_id': 'electric_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-23 15:20:11.190000, 'delta': -1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 49, 'occupancy_after': 48}
+{'ride_id': '5B96517828010A98', 'bike_id': 'electric_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-23 15:21:40.368000, 'delta': 1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 48, 'occupancy_after': 49}
+
+3: {'ride_id': '3EF24838F95E5E2F', 'bike_id': 'electric_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-15 17:27:39.875000, 'delta': -1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 48, 'occupancy_after': 47}
+{'ride_id': '3EF24838F95E5E2F', 'bike_id': 'electric_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-15 17:40:37.304000, 'delta': 1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 47, 'occupancy_after': 48}
+
+3: {'ride_id': '3EDDBD860C829DB8', 'bike_id': 'electric_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-04 21:22:58.371000, 'delta': -1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 72, 'occupancy_after': 71}
+{'ride_id': '3EDDBD860C829DB8', 'bike_id': 'electric_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-04 21:40:51.784000, 'delta': 1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 71, 'occupancy_after': 72}
+
+3: {'ride_id': 'B72AB1C8FDE5ACD5', 'bike_id': 'electric_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-27 19:10:31.619000, 'delta': -1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 48, 'occupancy_after': 47}
+{'ride_id': 'B72AB1C8FDE5ACD5', 'bike_id': 'electric_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-27 19:25:33.692000, 'delta': 1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 47, 'occupancy_after': 48}
+
+3: {'ride_id': '93C32134C68A78BF', 'bike_id': 'classic_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-03 16:55:36.547000, 'delta': -1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 48, 'occupancy_after': 47}
+{'ride_id': '93C32134C68A78BF', 'bike_id': 'classic_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-03 17:18:32.939000, 'delta': 1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 47, 'occupancy_after': 48}
+
+3: {'ride_id': '73E0A62EA865C886', 'bike_id': 'electric_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-01 17:42:47.837000, 'delta': -1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 48, 'occupancy_after': 47}
+{'ride_id': '73E0A62EA865C886', 'bike_id': 'electric_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-01 17:58:02.596000, 'delta': 1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 47, 'occupancy_after': 48}
+
+3: {'ride_id': 'F7A857BFEFCBBED8', 'bike_id': 'electric_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-02 14:41:09.848000, 'delta': -1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 72, 'occupancy_after': 71}
+{'ride_id': 'F7A857BFEFCBBED8', 'bike_id': 'electric_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-02 15:04:00.599000, 'delta': 1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 71, 'occupancy_after': 72}
+
+3: {'ride_id': '40945C7F56B52950', 'bike_id': 'electric_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-11 20:54:22.387000, 'delta': -1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 50, 'occupancy_after': 49}
+{'ride_id': '40945C7F56B52950', 'bike_id': 'electric_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-11 21:05:03.365000, 'delta': 1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 49, 'occupancy_after': 50}
+
+3: {'ride_id': 'B7566C19A10EC67D', 'bike_id': 'classic_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-23 07:17:43.190000, 'delta': -1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 70, 'occupancy_after': 69}
+{'ride_id': 'B7566C19A10EC67D', 'bike_id': 'classic_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-23 07:28:00.685000, 'delta': 1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 69, 'occupancy_after': 70}
+
+3: {'ride_id': 'D454F9B2D538C7BE', 'bike_id': 'electric_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-19 13:51:35.090000, 'delta': -1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 70, 'occupancy_after': 69}
+{'ride_id': 'D454F9B2D538C7BE', 'bike_id': 'electric_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-19 14:06:42.063000, 'delta': 1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 69, 'occupancy_after': 70}
+
+3: {'ride_id': 'EC9C5292D9B32088', 'bike_id': 'electric_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-09 17:14:19.147000, 'delta': -1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 49, 'occupancy_after': 48}
+{'ride_id': 'EC9C5292D9B32088', 'bike_id': 'electric_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-09 17:43:20.072000, 'delta': 1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 48, 'occupancy_after': 49}
+
+3: {'ride_id': 'F1361D69C956ADD7', 'bike_id': 'electric_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-05 17:54:46.206000, 'delta': -1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 71, 'occupancy_after': 70}
+{'ride_id': 'F1361D69C956ADD7', 'bike_id': 'electric_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-05 18:01:25.831000, 'delta': 1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 70, 'occupancy_after': 71}
+
+3: {'ride_id': '9CFEE95CEDE8E2A1', 'bike_id': 'electric_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-09 16:41:45.908000, 'delta': -1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 50, 'occupancy_after': 49}
+{'ride_id': '9CFEE95CEDE8E2A1', 'bike_id': 'electric_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-09 17:03:40.388000, 'delta': 1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 49, 'occupancy_after': 50}
+
+3: {'ride_id': '06D0DE5764F384A1', 'bike_id': 'electric_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-29 18:34:52.267000, 'delta': -1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 50, 'occupancy_after': 49}
+{'ride_id': '06D0DE5764F384A1', 'bike_id': 'electric_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-29 18:49:23.433000, 'delta': 1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 49, 'occupancy_after': 50}
+
+3: {'ride_id': 'CBC485FDF6CB4491', 'bike_id': 'electric_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-19 20:39:36.996000, 'delta': -1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 50, 'occupancy_after': 49}
+{'ride_id': 'CBC485FDF6CB4491', 'bike_id': 'electric_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-19 20:51:01.759000, 'delta': 1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 49, 'occupancy_after': 50}
+
+3: {'ride_id': 'A1E4185B4ABBAA7D', 'bike_id': 'classic_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-23 01:45:13.993000, 'delta': -1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 50, 'occupancy_after': 49}
+{'ride_id': 'A1E4185B4ABBAA7D', 'bike_id': 'classic_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-23 01:46:54.855000, 'delta': 1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 49, 'occupancy_after': 50}
+
+3: {'ride_id': 'CB599C212D6854E5', 'bike_id': 'electric_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-17 12:42:24.209000, 'delta': -1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 71, 'occupancy_after': 70}
+{'ride_id': 'CB599C212D6854E5', 'bike_id': 'electric_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-17 12:49:42.326000, 'delta': 1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 70, 'occupancy_after': 71}
+
+3: {'ride_id': 'E3D88040DCA779A4', 'bike_id': 'electric_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-17 19:50:39.801000, 'delta': -1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 71, 'occupancy_after': 70}
+{'ride_id': 'E3D88040DCA779A4', 'bike_id': 'electric_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-17 20:03:37.215000, 'delta': 1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 70, 'occupancy_after': 71}
+
+3: {'ride_id': 'F55091D0989EF72F', 'bike_id': 'electric_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-25 16:28:42.171000, 'delta': -1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 70, 'occupancy_after': 69}
+{'ride_id': 'F55091D0989EF72F', 'bike_id': 'electric_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-25 16:47:02.656000, 'delta': 1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 69, 'occupancy_after': 70}
+
+3: {'ride_id': '81A0C19F2B89CDF8', 'bike_id': 'electric_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-13 01:00:33.488000, 'delta': -1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 50, 'occupancy_after': 49}
+{'ride_id': '81A0C19F2B89CDF8', 'bike_id': 'electric_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-13 01:15:25.805000, 'delta': 1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 49, 'occupancy_after': 50}
+
+3: {'ride_id': '876C7571B3A1EF77', 'bike_id': 'electric_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-11 20:53:45.741000, 'delta': -1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 50, 'occupancy_after': 49}
+{'ride_id': '876C7571B3A1EF77', 'bike_id': 'electric_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-11 21:04:14.124000, 'delta': 1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 49, 'occupancy_after': 50}
+
+3: {'ride_id': 'CBC77D9919F49EC9', 'bike_id': 'classic_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-24 03:01:45.290000, 'delta': -1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 69, 'occupancy_after': 68}
+{'ride_id': 'CBC77D9919F49EC9', 'bike_id': 'classic_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-24 03:11:27.206000, 'delta': 1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 68, 'occupancy_after': 69}
+
+3: {'ride_id': '3844FE2B66625783', 'bike_id': 'electric_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-06 22:39:29.900000, 'delta': -1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 53, 'occupancy_after': 52}
+{'ride_id': '3844FE2B66625783', 'bike_id': 'electric_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-06 22:40:50.811000, 'delta': 1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 52, 'occupancy_after': 53}
+
+3: {'ride_id': '58D09C7803885BD0', 'bike_id': 'electric_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-12 16:03:02.929000, 'delta': -1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 66, 'occupancy_after': 65}
+{'ride_id': '58D09C7803885BD0', 'bike_id': 'electric_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-12 16:31:29.126000, 'delta': 1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 65, 'occupancy_after': 66}
+
+3: {'ride_id': '4E7E701DB8C9B39C', 'bike_id': 'electric_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-27 10:21:13.062000, 'delta': -1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 66, 'occupancy_after': 65}
+{'ride_id': '4E7E701DB8C9B39C', 'bike_id': 'electric_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-27 10:37:20.315000, 'delta': 1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 65, 'occupancy_after': 66}
+
+3: {'ride_id': '66B5FDA66B1EAF06', 'bike_id': 'classic_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-23 20:26:08.782000, 'delta': -1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 63, 'occupancy_after': 62}
+{'ride_id': '66B5FDA66B1EAF06', 'bike_id': 'classic_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-23 20:29:57.542000, 'delta': 1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 62, 'occupancy_after': 63}
+
+3: {'ride_id': 'C03CC3528F84A4A6', 'bike_id': 'electric_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-08 00:14:34.105000, 'delta': -1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 55, 'occupancy_after': 54}
+{'ride_id': 'C03CC3528F84A4A6', 'bike_id': 'electric_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-08 00:20:57.839000, 'delta': 1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 54, 'occupancy_after': 55}
+
+3: {'ride_id': 'C35D42D80DB9987C', 'bike_id': 'classic_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-11 21:54:24.044000, 'delta': -1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 65, 'occupancy_after': 64}
+{'ride_id': 'C35D42D80DB9987C', 'bike_id': 'classic_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-11 22:01:18.316000, 'delta': 1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 64, 'occupancy_after': 65}
+
+3: {'ride_id': 'FD8E030F13B989F1', 'bike_id': 'electric_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-27 11:43:08.676000, 'delta': -1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 55, 'occupancy_after': 54}
+{'ride_id': 'FD8E030F13B989F1', 'bike_id': 'electric_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-27 12:02:45.556000, 'delta': 1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 54, 'occupancy_after': 55}
+
+3: {'ride_id': '2E2B0F234041C826', 'bike_id': 'electric_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-23 11:53:26.859000, 'delta': -1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 66, 'occupancy_after': 65}
+{'ride_id': '2E2B0F234041C826', 'bike_id': 'electric_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-23 11:56:14.711000, 'delta': 1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 65, 'occupancy_after': 66}
+
+3: {'ride_id': '0A3D327856C385E5', 'bike_id': 'electric_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-18 14:13:50.371000, 'delta': -1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 63, 'occupancy_after': 62}
+{'ride_id': '0A3D327856C385E5', 'bike_id': 'electric_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-18 14:16:22.281000, 'delta': 1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 62, 'occupancy_after': 63}
+
+3: {'ride_id': '6A094DD072F74166', 'bike_id': 'electric_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-07 22:18:55.534000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 58, 'occupancy_after': 57}
+{'ride_id': '6A094DD072F74166', 'bike_id': 'electric_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-07 22:41:21.876000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 57, 'occupancy_after': 58}
+
+3: {'ride_id': 'C5B8B1842FB8D923', 'bike_id': 'electric_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-20 20:38:19.636000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 62, 'occupancy_after': 61}
+{'ride_id': 'C5B8B1842FB8D923', 'bike_id': 'electric_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-20 20:48:59.783000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 61, 'occupancy_after': 62}
+
+3: {'ride_id': '52647DDFA1ACF2D5', 'bike_id': 'electric_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-09 20:33:11.584000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 62, 'occupancy_after': 61}
+{'ride_id': '52647DDFA1ACF2D5', 'bike_id': 'electric_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-09 20:44:08.065000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 61, 'occupancy_after': 62}
+
+3: {'ride_id': '569A36E838BA3DD9', 'bike_id': 'electric_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-15 14:16:49.632000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 65, 'occupancy_after': 64}
+{'ride_id': '569A36E838BA3DD9', 'bike_id': 'electric_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-15 14:23:07.620000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 64, 'occupancy_after': 65}
+
+3: {'ride_id': '72A0B448FE1FF9BD', 'bike_id': 'classic_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-30 21:53:10.587000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 65, 'occupancy_after': 64}
+{'ride_id': '72A0B448FE1FF9BD', 'bike_id': 'classic_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-30 21:55:19.635000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 64, 'occupancy_after': 65}
+
+1: {'ride_id': '26B8C6AAD94CA4BE', 'bike_id': 'electric_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-26 18:25:15.842000, 'delta': -1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 75, 'occupancy_after': 74}
+{'ride_id': '37ADC3687AC2FE79', 'bike_id': 'electric_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-26 18:27:58.448000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 71, 'occupancy_after': 70}
+{'ride_id': 'D82EFF36085EC981', 'bike_id': 'classic_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-26 18:29:29.541000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 62, 'occupancy_after': 61}
+{'ride_id': '06159D75032EAB2A', 'bike_id': 'classic_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-26 18:29:50.114000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': -95, 'occupancy_after': -96}
+{'ride_id': 'EA4A1BBCA657978A', 'bike_id': 'electric_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-26 18:30:11.147000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 23, 'occupancy_after': 22}
+
+1: {'ride_id': '12178E3126578CA5', 'bike_id': 'classic_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-28 19:27:46.130000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 59, 'occupancy_after': 58}
+{'ride_id': 'BA6C2C7BFEC96E45', 'bike_id': 'electric_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-28 19:33:04.575000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 69, 'occupancy_after': 68}
+{'ride_id': '5EE4555BE8412E2C', 'bike_id': 'electric_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-28 19:34:10.536000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 68, 'occupancy_after': 67}
+{'ride_id': 'D88326A8AC4AFB17', 'bike_id': 'electric_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-28 19:34:33.507000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': -217, 'occupancy_after': -218}
+{'ride_id': '82B732FDA4A432EE', 'bike_id': 'electric_bike', 'station_id': 'JC115', 'station_name': 'Grove St PATH', 'ts': 2025-08-28 19:34:38.369000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': -239, 'occupancy_after': -240}
+
+1: {'ride_id': '26BBA766344D4011', 'bike_id': 'classic_bike', 'station_id': 'JC014', 'station_name': 'Columbus Drive', 'ts': 2025-08-02 13:34:50.997000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': -80, 'occupancy_after': -81}
+{'ride_id': 'CA118B8F6D56B000', 'bike_id': 'classic_bike', 'station_id': 'JC014', 'station_name': 'Columbus Drive', 'ts': 2025-08-02 13:34:53.239000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': -53, 'occupancy_after': -54}
+{'ride_id': '6A8C74FE336DE5BD', 'bike_id': 'classic_bike', 'station_id': 'JC014', 'station_name': 'Columbus Drive', 'ts': 2025-08-02 13:38:44.512000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': -77, 'occupancy_after': -78}
+{'ride_id': '4E7317DE6B0B2F2F', 'bike_id': 'classic_bike', 'station_id': 'JC014', 'station_name': 'Columbus Drive', 'ts': 2025-08-02 13:38:46.739000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': -54, 'occupancy_after': -55}
+{'ride_id': '88560AC2E16D3220', 'bike_id': 'electric_bike', 'station_id': 'JC014', 'station_name': 'Columbus Drive', 'ts': 2025-08-02 13:43:48.315000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': -56, 'occupancy_after': -57}
+
+2: {'ride_id': '26BBA766344D4011', 'bike_id': 'classic_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-02 13:36:09.118000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 132, 'occupancy_after': 133}
+{'ride_id': 'CA118B8F6D56B000', 'bike_id': 'classic_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-02 13:36:24.201000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 120, 'occupancy_after': 121}
+{'ride_id': '6A8C74FE336DE5BD', 'bike_id': 'classic_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-02 13:40:13, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 128, 'occupancy_after': 129}
+{'ride_id': '4E7317DE6B0B2F2F', 'bike_id': 'classic_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-02 13:40:21.057000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 121, 'occupancy_after': 122}
+{'ride_id': '88560AC2E16D3220', 'bike_id': 'electric_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-02 13:45:13.472000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 122, 'occupancy_after': 123}
+
+1: {'ride_id': '06F2B408F6CEE7C6', 'bike_id': 'classic_bike', 'station_id': 'JC014', 'station_name': 'Columbus Drive', 'ts': 2025-08-02 13:29:30.441000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': -81, 'occupancy_after': -82}
+{'ride_id': '26BBA766344D4011', 'bike_id': 'classic_bike', 'station_id': 'JC014', 'station_name': 'Columbus Drive', 'ts': 2025-08-02 13:34:50.997000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': -80, 'occupancy_after': -81}
+{'ride_id': 'CA118B8F6D56B000', 'bike_id': 'classic_bike', 'station_id': 'JC014', 'station_name': 'Columbus Drive', 'ts': 2025-08-02 13:34:53.239000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': -53, 'occupancy_after': -54}
+{'ride_id': '6A8C74FE336DE5BD', 'bike_id': 'classic_bike', 'station_id': 'JC014', 'station_name': 'Columbus Drive', 'ts': 2025-08-02 13:38:44.512000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': -77, 'occupancy_after': -78}
+{'ride_id': '4E7317DE6B0B2F2F', 'bike_id': 'classic_bike', 'station_id': 'JC014', 'station_name': 'Columbus Drive', 'ts': 2025-08-02 13:38:46.739000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': -54, 'occupancy_after': -55}
+
+2: {'ride_id': '06F2B408F6CEE7C6', 'bike_id': 'classic_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-02 13:31:18.325000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 133, 'occupancy_after': 134}
+{'ride_id': '26BBA766344D4011', 'bike_id': 'classic_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-02 13:36:09.118000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 132, 'occupancy_after': 133}
+{'ride_id': 'CA118B8F6D56B000', 'bike_id': 'classic_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-02 13:36:24.201000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 120, 'occupancy_after': 121}
+{'ride_id': '6A8C74FE336DE5BD', 'bike_id': 'classic_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-02 13:40:13, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 128, 'occupancy_after': 129}
+{'ride_id': '4E7317DE6B0B2F2F', 'bike_id': 'classic_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-02 13:40:21.057000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 121, 'occupancy_after': 122}
+
+1: {'ride_id': '26BBA766344D4011', 'bike_id': 'classic_bike', 'station_id': 'JC014', 'station_name': 'Columbus Drive', 'ts': 2025-08-02 13:34:50.997000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': -80, 'occupancy_after': -81}
+{'ride_id': 'CA118B8F6D56B000', 'bike_id': 'classic_bike', 'station_id': 'JC014', 'station_name': 'Columbus Drive', 'ts': 2025-08-02 13:34:53.239000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': -53, 'occupancy_after': -54}
+{'ride_id': '6A8C74FE336DE5BD', 'bike_id': 'classic_bike', 'station_id': 'JC014', 'station_name': 'Columbus Drive', 'ts': 2025-08-02 13:38:44.512000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': -77, 'occupancy_after': -78}
+{'ride_id': '4E7317DE6B0B2F2F', 'bike_id': 'classic_bike', 'station_id': 'JC014', 'station_name': 'Columbus Drive', 'ts': 2025-08-02 13:38:46.739000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': -54, 'occupancy_after': -55}
+{'ride_id': 'FA42C25E6A43B4B6', 'bike_id': 'classic_bike', 'station_id': 'JC014', 'station_name': 'Columbus Drive', 'ts': 2025-08-02 13:42:40.977000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': -82, 'occupancy_after': -83}
+
+1: {'ride_id': 'CA118B8F6D56B000', 'bike_id': 'classic_bike', 'station_id': 'JC014', 'station_name': 'Columbus Drive', 'ts': 2025-08-02 13:34:53.239000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': -53, 'occupancy_after': -54}
+{'ride_id': '6A8C74FE336DE5BD', 'bike_id': 'classic_bike', 'station_id': 'JC014', 'station_name': 'Columbus Drive', 'ts': 2025-08-02 13:38:44.512000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': -77, 'occupancy_after': -78}
+{'ride_id': '4E7317DE6B0B2F2F', 'bike_id': 'classic_bike', 'station_id': 'JC014', 'station_name': 'Columbus Drive', 'ts': 2025-08-02 13:38:46.739000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': -54, 'occupancy_after': -55}
+{'ride_id': 'FA42C25E6A43B4B6', 'bike_id': 'classic_bike', 'station_id': 'JC014', 'station_name': 'Columbus Drive', 'ts': 2025-08-02 13:42:40.977000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': -82, 'occupancy_after': -83}
+{'ride_id': '88560AC2E16D3220', 'bike_id': 'electric_bike', 'station_id': 'JC014', 'station_name': 'Columbus Drive', 'ts': 2025-08-02 13:43:48.315000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': -56, 'occupancy_after': -57}
+
+1: {'ride_id': '26BBA766344D4011', 'bike_id': 'classic_bike', 'station_id': 'JC014', 'station_name': 'Columbus Drive', 'ts': 2025-08-02 13:34:50.997000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': -80, 'occupancy_after': -81}
+{'ride_id': 'CA118B8F6D56B000', 'bike_id': 'classic_bike', 'station_id': 'JC014', 'station_name': 'Columbus Drive', 'ts': 2025-08-02 13:34:53.239000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': -53, 'occupancy_after': -54}
+{'ride_id': '4E7317DE6B0B2F2F', 'bike_id': 'classic_bike', 'station_id': 'JC014', 'station_name': 'Columbus Drive', 'ts': 2025-08-02 13:38:46.739000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': -54, 'occupancy_after': -55}
+{'ride_id': 'FA42C25E6A43B4B6', 'bike_id': 'classic_bike', 'station_id': 'JC014', 'station_name': 'Columbus Drive', 'ts': 2025-08-02 13:42:40.977000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': -82, 'occupancy_after': -83}
+{'ride_id': '88560AC2E16D3220', 'bike_id': 'electric_bike', 'station_id': 'JC014', 'station_name': 'Columbus Drive', 'ts': 2025-08-02 13:43:48.315000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': -56, 'occupancy_after': -57}
+
+1: {'ride_id': '26BBA766344D4011', 'bike_id': 'classic_bike', 'station_id': 'JC014', 'station_name': 'Columbus Drive', 'ts': 2025-08-02 13:34:50.997000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': -80, 'occupancy_after': -81}
+{'ride_id': 'CA118B8F6D56B000', 'bike_id': 'classic_bike', 'station_id': 'JC014', 'station_name': 'Columbus Drive', 'ts': 2025-08-02 13:34:53.239000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': -53, 'occupancy_after': -54}
+{'ride_id': '6A8C74FE336DE5BD', 'bike_id': 'classic_bike', 'station_id': 'JC014', 'station_name': 'Columbus Drive', 'ts': 2025-08-02 13:38:44.512000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': -77, 'occupancy_after': -78}
+{'ride_id': 'FA42C25E6A43B4B6', 'bike_id': 'classic_bike', 'station_id': 'JC014', 'station_name': 'Columbus Drive', 'ts': 2025-08-02 13:42:40.977000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': -82, 'occupancy_after': -83}
+{'ride_id': '88560AC2E16D3220', 'bike_id': 'electric_bike', 'station_id': 'JC014', 'station_name': 'Columbus Drive', 'ts': 2025-08-02 13:43:48.315000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': -56, 'occupancy_after': -57}
+
+1: {'ride_id': '26BBA766344D4011', 'bike_id': 'classic_bike', 'station_id': 'JC014', 'station_name': 'Columbus Drive', 'ts': 2025-08-02 13:34:50.997000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': -80, 'occupancy_after': -81}
+{'ride_id': '6A8C74FE336DE5BD', 'bike_id': 'classic_bike', 'station_id': 'JC014', 'station_name': 'Columbus Drive', 'ts': 2025-08-02 13:38:44.512000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': -77, 'occupancy_after': -78}
+{'ride_id': '4E7317DE6B0B2F2F', 'bike_id': 'classic_bike', 'station_id': 'JC014', 'station_name': 'Columbus Drive', 'ts': 2025-08-02 13:38:46.739000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': -54, 'occupancy_after': -55}
+{'ride_id': 'FA42C25E6A43B4B6', 'bike_id': 'classic_bike', 'station_id': 'JC014', 'station_name': 'Columbus Drive', 'ts': 2025-08-02 13:42:40.977000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': -82, 'occupancy_after': -83}
+{'ride_id': '88560AC2E16D3220', 'bike_id': 'electric_bike', 'station_id': 'JC014', 'station_name': 'Columbus Drive', 'ts': 2025-08-02 13:43:48.315000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': -56, 'occupancy_after': -57}
+
+2: {'ride_id': '26BBA766344D4011', 'bike_id': 'classic_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-02 13:36:09.118000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 132, 'occupancy_after': 133}
+{'ride_id': 'CA118B8F6D56B000', 'bike_id': 'classic_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-02 13:36:24.201000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 120, 'occupancy_after': 121}
+{'ride_id': '6A8C74FE336DE5BD', 'bike_id': 'classic_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-02 13:40:13, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 128, 'occupancy_after': 129}
+{'ride_id': '4E7317DE6B0B2F2F', 'bike_id': 'classic_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-02 13:40:21.057000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 121, 'occupancy_after': 122}
+{'ride_id': 'FA42C25E6A43B4B6', 'bike_id': 'classic_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-02 13:44:43.840000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 134, 'occupancy_after': 135}
+
+2: {'ride_id': 'CA118B8F6D56B000', 'bike_id': 'classic_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-02 13:36:24.201000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 120, 'occupancy_after': 121}
+{'ride_id': '6A8C74FE336DE5BD', 'bike_id': 'classic_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-02 13:40:13, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 128, 'occupancy_after': 129}
+{'ride_id': '4E7317DE6B0B2F2F', 'bike_id': 'classic_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-02 13:40:21.057000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 121, 'occupancy_after': 122}
+{'ride_id': 'FA42C25E6A43B4B6', 'bike_id': 'classic_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-02 13:44:43.840000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 134, 'occupancy_after': 135}
+{'ride_id': '88560AC2E16D3220', 'bike_id': 'electric_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-02 13:45:13.472000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 122, 'occupancy_after': 123}
+
+2: {'ride_id': '26BBA766344D4011', 'bike_id': 'classic_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-02 13:36:09.118000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 132, 'occupancy_after': 133}
+{'ride_id': 'CA118B8F6D56B000', 'bike_id': 'classic_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-02 13:36:24.201000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 120, 'occupancy_after': 121}
+{'ride_id': '4E7317DE6B0B2F2F', 'bike_id': 'classic_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-02 13:40:21.057000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 121, 'occupancy_after': 122}
+{'ride_id': 'FA42C25E6A43B4B6', 'bike_id': 'classic_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-02 13:44:43.840000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 134, 'occupancy_after': 135}
+{'ride_id': '88560AC2E16D3220', 'bike_id': 'electric_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-02 13:45:13.472000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 122, 'occupancy_after': 123}
+
+2: {'ride_id': '26BBA766344D4011', 'bike_id': 'classic_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-02 13:36:09.118000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 132, 'occupancy_after': 133}
+{'ride_id': 'CA118B8F6D56B000', 'bike_id': 'classic_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-02 13:36:24.201000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 120, 'occupancy_after': 121}
+{'ride_id': '6A8C74FE336DE5BD', 'bike_id': 'classic_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-02 13:40:13, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 128, 'occupancy_after': 129}
+{'ride_id': 'FA42C25E6A43B4B6', 'bike_id': 'classic_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-02 13:44:43.840000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 134, 'occupancy_after': 135}
+{'ride_id': '88560AC2E16D3220', 'bike_id': 'electric_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-02 13:45:13.472000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 122, 'occupancy_after': 123}
+
+2: {'ride_id': '26BBA766344D4011', 'bike_id': 'classic_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-02 13:36:09.118000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 132, 'occupancy_after': 133}
+{'ride_id': '6A8C74FE336DE5BD', 'bike_id': 'classic_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-02 13:40:13, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 128, 'occupancy_after': 129}
+{'ride_id': '4E7317DE6B0B2F2F', 'bike_id': 'classic_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-02 13:40:21.057000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 121, 'occupancy_after': 122}
+{'ride_id': 'FA42C25E6A43B4B6', 'bike_id': 'classic_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-02 13:44:43.840000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 134, 'occupancy_after': 135}
+{'ride_id': '88560AC2E16D3220', 'bike_id': 'electric_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-02 13:45:13.472000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 122, 'occupancy_after': 123}
+
+1: {'ride_id': '06F2B408F6CEE7C6', 'bike_id': 'classic_bike', 'station_id': 'JC014', 'station_name': 'Columbus Drive', 'ts': 2025-08-02 13:29:30.441000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': -81, 'occupancy_after': -82}
+{'ride_id': '23F4F6E606557F2E', 'bike_id': 'classic_bike', 'station_id': 'JC014', 'station_name': 'Columbus Drive', 'ts': 2025-08-02 13:29:36.245000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': -136, 'occupancy_after': -137}
+{'ride_id': 'CA118B8F6D56B000', 'bike_id': 'classic_bike', 'station_id': 'JC014', 'station_name': 'Columbus Drive', 'ts': 2025-08-02 13:34:53.239000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': -53, 'occupancy_after': -54}
+{'ride_id': '6A8C74FE336DE5BD', 'bike_id': 'classic_bike', 'station_id': 'JC014', 'station_name': 'Columbus Drive', 'ts': 2025-08-02 13:38:44.512000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': -77, 'occupancy_after': -78}
+{'ride_id': '4E7317DE6B0B2F2F', 'bike_id': 'classic_bike', 'station_id': 'JC014', 'station_name': 'Columbus Drive', 'ts': 2025-08-02 13:38:46.739000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': -54, 'occupancy_after': -55}
+
+1: {'ride_id': '06F2B408F6CEE7C6', 'bike_id': 'classic_bike', 'station_id': 'JC014', 'station_name': 'Columbus Drive', 'ts': 2025-08-02 13:29:30.441000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': -81, 'occupancy_after': -82}
+{'ride_id': '23F4F6E606557F2E', 'bike_id': 'classic_bike', 'station_id': 'JC014', 'station_name': 'Columbus Drive', 'ts': 2025-08-02 13:29:36.245000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': -136, 'occupancy_after': -137}
+{'ride_id': '26BBA766344D4011', 'bike_id': 'classic_bike', 'station_id': 'JC014', 'station_name': 'Columbus Drive', 'ts': 2025-08-02 13:34:50.997000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': -80, 'occupancy_after': -81}
+{'ride_id': 'CA118B8F6D56B000', 'bike_id': 'classic_bike', 'station_id': 'JC014', 'station_name': 'Columbus Drive', 'ts': 2025-08-02 13:34:53.239000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': -53, 'occupancy_after': -54}
+{'ride_id': '4E7317DE6B0B2F2F', 'bike_id': 'classic_bike', 'station_id': 'JC014', 'station_name': 'Columbus Drive', 'ts': 2025-08-02 13:38:46.739000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': -54, 'occupancy_after': -55}
+
+1: {'ride_id': '06F2B408F6CEE7C6', 'bike_id': 'classic_bike', 'station_id': 'JC014', 'station_name': 'Columbus Drive', 'ts': 2025-08-02 13:29:30.441000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': -81, 'occupancy_after': -82}
+{'ride_id': '23F4F6E606557F2E', 'bike_id': 'classic_bike', 'station_id': 'JC014', 'station_name': 'Columbus Drive', 'ts': 2025-08-02 13:29:36.245000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': -136, 'occupancy_after': -137}
+{'ride_id': '26BBA766344D4011', 'bike_id': 'classic_bike', 'station_id': 'JC014', 'station_name': 'Columbus Drive', 'ts': 2025-08-02 13:34:50.997000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': -80, 'occupancy_after': -81}
+{'ride_id': 'CA118B8F6D56B000', 'bike_id': 'classic_bike', 'station_id': 'JC014', 'station_name': 'Columbus Drive', 'ts': 2025-08-02 13:34:53.239000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': -53, 'occupancy_after': -54}
+{'ride_id': '6A8C74FE336DE5BD', 'bike_id': 'classic_bike', 'station_id': 'JC014', 'station_name': 'Columbus Drive', 'ts': 2025-08-02 13:38:44.512000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': -77, 'occupancy_after': -78}
+
+1: {'ride_id': '06F2B408F6CEE7C6', 'bike_id': 'classic_bike', 'station_id': 'JC014', 'station_name': 'Columbus Drive', 'ts': 2025-08-02 13:29:30.441000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': -81, 'occupancy_after': -82}
+{'ride_id': '23F4F6E606557F2E', 'bike_id': 'classic_bike', 'station_id': 'JC014', 'station_name': 'Columbus Drive', 'ts': 2025-08-02 13:29:36.245000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': -136, 'occupancy_after': -137}
+{'ride_id': '26BBA766344D4011', 'bike_id': 'classic_bike', 'station_id': 'JC014', 'station_name': 'Columbus Drive', 'ts': 2025-08-02 13:34:50.997000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': -80, 'occupancy_after': -81}
+{'ride_id': '6A8C74FE336DE5BD', 'bike_id': 'classic_bike', 'station_id': 'JC014', 'station_name': 'Columbus Drive', 'ts': 2025-08-02 13:38:44.512000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': -77, 'occupancy_after': -78}
+{'ride_id': '4E7317DE6B0B2F2F', 'bike_id': 'classic_bike', 'station_id': 'JC014', 'station_name': 'Columbus Drive', 'ts': 2025-08-02 13:38:46.739000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': -54, 'occupancy_after': -55}
+
+1: {'ride_id': '23F4F6E606557F2E', 'bike_id': 'classic_bike', 'station_id': 'JC014', 'station_name': 'Columbus Drive', 'ts': 2025-08-02 13:29:36.245000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': -136, 'occupancy_after': -137}
+{'ride_id': '26BBA766344D4011', 'bike_id': 'classic_bike', 'station_id': 'JC014', 'station_name': 'Columbus Drive', 'ts': 2025-08-02 13:34:50.997000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': -80, 'occupancy_after': -81}
+{'ride_id': 'CA118B8F6D56B000', 'bike_id': 'classic_bike', 'station_id': 'JC014', 'station_name': 'Columbus Drive', 'ts': 2025-08-02 13:34:53.239000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': -53, 'occupancy_after': -54}
+{'ride_id': '6A8C74FE336DE5BD', 'bike_id': 'classic_bike', 'station_id': 'JC014', 'station_name': 'Columbus Drive', 'ts': 2025-08-02 13:38:44.512000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': -77, 'occupancy_after': -78}
+{'ride_id': '4E7317DE6B0B2F2F', 'bike_id': 'classic_bike', 'station_id': 'JC014', 'station_name': 'Columbus Drive', 'ts': 2025-08-02 13:38:46.739000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': -54, 'occupancy_after': -55}
+
+2: {'ride_id': '23F4F6E606557F2E', 'bike_id': 'classic_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-02 13:31:30.038000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 165, 'occupancy_after': 166}
+{'ride_id': '26BBA766344D4011', 'bike_id': 'classic_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-02 13:36:09.118000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 132, 'occupancy_after': 133}
+{'ride_id': 'CA118B8F6D56B000', 'bike_id': 'classic_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-02 13:36:24.201000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 120, 'occupancy_after': 121}
+{'ride_id': '6A8C74FE336DE5BD', 'bike_id': 'classic_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-02 13:40:13, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 128, 'occupancy_after': 129}
+{'ride_id': '4E7317DE6B0B2F2F', 'bike_id': 'classic_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-02 13:40:21.057000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 121, 'occupancy_after': 122}
+
+2: {'ride_id': '06F2B408F6CEE7C6', 'bike_id': 'classic_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-02 13:31:18.325000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 133, 'occupancy_after': 134}
+{'ride_id': '23F4F6E606557F2E', 'bike_id': 'classic_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-02 13:31:30.038000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 165, 'occupancy_after': 166}
+{'ride_id': 'CA118B8F6D56B000', 'bike_id': 'classic_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-02 13:36:24.201000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 120, 'occupancy_after': 121}
+{'ride_id': '6A8C74FE336DE5BD', 'bike_id': 'classic_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-02 13:40:13, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 128, 'occupancy_after': 129}
+{'ride_id': '4E7317DE6B0B2F2F', 'bike_id': 'classic_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-02 13:40:21.057000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 121, 'occupancy_after': 122}
+
+2: {'ride_id': '06F2B408F6CEE7C6', 'bike_id': 'classic_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-02 13:31:18.325000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 133, 'occupancy_after': 134}
+{'ride_id': '23F4F6E606557F2E', 'bike_id': 'classic_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-02 13:31:30.038000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 165, 'occupancy_after': 166}
+{'ride_id': '26BBA766344D4011', 'bike_id': 'classic_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-02 13:36:09.118000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 132, 'occupancy_after': 133}
+{'ride_id': 'CA118B8F6D56B000', 'bike_id': 'classic_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-02 13:36:24.201000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 120, 'occupancy_after': 121}
+{'ride_id': '4E7317DE6B0B2F2F', 'bike_id': 'classic_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-02 13:40:21.057000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 121, 'occupancy_after': 122}
+
+2: {'ride_id': '06F2B408F6CEE7C6', 'bike_id': 'classic_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-02 13:31:18.325000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 133, 'occupancy_after': 134}
+{'ride_id': '23F4F6E606557F2E', 'bike_id': 'classic_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-02 13:31:30.038000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 165, 'occupancy_after': 166}
+{'ride_id': '26BBA766344D4011', 'bike_id': 'classic_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-02 13:36:09.118000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 132, 'occupancy_after': 133}
+{'ride_id': 'CA118B8F6D56B000', 'bike_id': 'classic_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-02 13:36:24.201000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 120, 'occupancy_after': 121}
+{'ride_id': '6A8C74FE336DE5BD', 'bike_id': 'classic_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-02 13:40:13, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 128, 'occupancy_after': 129}
+
+2: {'ride_id': '06F2B408F6CEE7C6', 'bike_id': 'classic_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-02 13:31:18.325000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 133, 'occupancy_after': 134}
+{'ride_id': '23F4F6E606557F2E', 'bike_id': 'classic_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-02 13:31:30.038000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 165, 'occupancy_after': 166}
+{'ride_id': '26BBA766344D4011', 'bike_id': 'classic_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-02 13:36:09.118000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 132, 'occupancy_after': 133}
+{'ride_id': '6A8C74FE336DE5BD', 'bike_id': 'classic_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-02 13:40:13, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 128, 'occupancy_after': 129}
+{'ride_id': '4E7317DE6B0B2F2F', 'bike_id': 'classic_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-02 13:40:21.057000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 121, 'occupancy_after': 122}
+
+3: {'ride_id': 'E239CB5C7CA709D9', 'bike_id': 'electric_bike', 'station_id': 'JC008', 'station_name': 'Newport Pkwy', 'ts': 2025-08-06 00:34:46.702000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 575, 'occupancy_after': 574}
+{'ride_id': 'E239CB5C7CA709D9', 'bike_id': 'electric_bike', 'station_id': 'JC008', 'station_name': 'Newport Pkwy', 'ts': 2025-08-06 00:49:54.864000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 574, 'occupancy_after': 575}
+
+3: {'ride_id': '962EAC8E5A9A11AD', 'bike_id': 'electric_bike', 'station_id': 'JC008', 'station_name': 'Newport Pkwy', 'ts': 2025-08-20 12:05:58.018000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 574, 'occupancy_after': 573}
+{'ride_id': '962EAC8E5A9A11AD', 'bike_id': 'electric_bike', 'station_id': 'JC008', 'station_name': 'Newport Pkwy', 'ts': 2025-08-20 12:25:43.538000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 573, 'occupancy_after': 574}
+
+3: {'ride_id': 'F5BF21A05FDC5E1B', 'bike_id': 'electric_bike', 'station_id': 'JC008', 'station_name': 'Newport Pkwy', 'ts': 2025-08-01 11:13:05.223000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 574, 'occupancy_after': 573}
+{'ride_id': 'F5BF21A05FDC5E1B', 'bike_id': 'electric_bike', 'station_id': 'JC008', 'station_name': 'Newport Pkwy', 'ts': 2025-08-01 11:26:20.013000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 573, 'occupancy_after': 574}
+
+3: {'ride_id': 'AB41D247ACFDB133', 'bike_id': 'electric_bike', 'station_id': 'JC008', 'station_name': 'Newport Pkwy', 'ts': 2025-08-10 13:44:56.271000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 574, 'occupancy_after': 573}
+{'ride_id': 'AB41D247ACFDB133', 'bike_id': 'electric_bike', 'station_id': 'JC008', 'station_name': 'Newport Pkwy', 'ts': 2025-08-10 13:59:36.597000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 573, 'occupancy_after': 574}
+
+3: {'ride_id': '247305F8332800A0', 'bike_id': 'electric_bike', 'station_id': 'JC008', 'station_name': 'Newport Pkwy', 'ts': 2025-08-15 11:29:35.099000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 575, 'occupancy_after': 574}
+{'ride_id': '247305F8332800A0', 'bike_id': 'electric_bike', 'station_id': 'JC008', 'station_name': 'Newport Pkwy', 'ts': 2025-08-15 11:44:25.516000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 574, 'occupancy_after': 575}
+
+3: {'ride_id': 'EDEE41009FBCEEF4', 'bike_id': 'electric_bike', 'station_id': 'JC008', 'station_name': 'Newport Pkwy', 'ts': 2025-08-10 23:07:42.468000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 575, 'occupancy_after': 574}
+{'ride_id': 'EDEE41009FBCEEF4', 'bike_id': 'electric_bike', 'station_id': 'JC008', 'station_name': 'Newport Pkwy', 'ts': 2025-08-10 23:33:53.227000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 574, 'occupancy_after': 575}
+
+2: {'ride_id': '0D8F66B3091FCBF7', 'bike_id': 'classic_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-12 18:39:19.698000, 'delta': 1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 484, 'occupancy_after': 485}
+{'ride_id': 'D5BB872E4665D252', 'bike_id': 'classic_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-12 18:39:21.697000, 'delta': 1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 483, 'occupancy_after': 484}
+{'ride_id': 'A213B78A81F4D893', 'bike_id': 'classic_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-12 18:39:30.717000, 'delta': 1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 481, 'occupancy_after': 482}
+{'ride_id': '5B4E85BD99C8D59D', 'bike_id': 'electric_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-12 18:41:55.461000, 'delta': 1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 215, 'occupancy_after': 216}
+{'ride_id': 'DA0AF81BDC83EB8B', 'bike_id': 'electric_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-12 18:43:35.187000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 653, 'occupancy_after': 654}
+
+2: {'ride_id': '60B9E45299A2C7F4', 'bike_id': 'classic_bike', 'station_id': 'JC008', 'station_name': 'Newport Pkwy', 'ts': 2025-08-24 18:23:41.084000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 805, 'occupancy_after': 806}
+{'ride_id': '8DB116947D96E1CE', 'bike_id': 'electric_bike', 'station_id': 'JC008', 'station_name': 'Newport Pkwy', 'ts': 2025-08-24 18:31:28.305000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 101, 'occupancy_after': 102}
+{'ride_id': 'C0AB161032AF7D0F', 'bike_id': 'electric_bike', 'station_id': 'JC008', 'station_name': 'Newport Pkwy', 'ts': 2025-08-24 18:31:52.445000, 'delta': 1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 339, 'occupancy_after': 340}
+{'ride_id': '367636E2443D79F7', 'bike_id': 'electric_bike', 'station_id': 'JC008', 'station_name': 'Newport Pkwy', 'ts': 2025-08-24 18:31:54.937000, 'delta': 1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 321, 'occupancy_after': 322}
+{'ride_id': '98FF119B5976A214', 'bike_id': 'electric_bike', 'station_id': 'JC008', 'station_name': 'Newport Pkwy', 'ts': 2025-08-24 18:32:07.776000, 'delta': 1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': 322, 'occupancy_after': 323}
+
+2: {'ride_id': '94F0483DC241C59B', 'bike_id': 'classic_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-18 18:58:15.638000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 225, 'occupancy_after': 226}
+{'ride_id': '6E9EB0174F7B7481', 'bike_id': 'classic_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-18 19:00:47.571000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 615, 'occupancy_after': 616}
+{'ride_id': 'ABFA647AE22AE30F', 'bike_id': 'classic_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-18 19:02:13.527000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 579, 'occupancy_after': 580}
+{'ride_id': '8EC433AD5EF9B04C', 'bike_id': 'classic_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-18 19:04:17.360000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 77, 'occupancy_after': 78}
+{'ride_id': '87DEDB617D84E0AF', 'bike_id': 'classic_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-18 19:07:05.645000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 785, 'occupancy_after': 786}
+
+2: {'ride_id': '415CE4958E4C0DAD', 'bike_id': 'electric_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-18 18:59:43.824000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 451, 'occupancy_after': 452}
+{'ride_id': '6E9EB0174F7B7481', 'bike_id': 'classic_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-18 19:00:47.571000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 615, 'occupancy_after': 616}
+{'ride_id': 'ABFA647AE22AE30F', 'bike_id': 'classic_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-18 19:02:13.527000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 579, 'occupancy_after': 580}
+{'ride_id': '8EC433AD5EF9B04C', 'bike_id': 'classic_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-18 19:04:17.360000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 77, 'occupancy_after': 78}
+{'ride_id': '87DEDB617D84E0AF', 'bike_id': 'classic_bike', 'station_id': 'JC006', 'station_name': 'Warren St', 'ts': 2025-08-18 19:07:05.645000, 'delta': 1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': 785, 'occupancy_after': 786}
+
+1: {'ride_id': '6AB3E257BF690BC3', 'bike_id': 'electric_bike', 'station_id': 'JC116', 'station_name': 'Exchange Pl', 'ts': 2025-08-30 17:10:29.545000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': -261, 'occupancy_after': -262}
+{'ride_id': '335AC8B6F1DBB761', 'bike_id': 'electric_bike', 'station_id': 'JC116', 'station_name': 'Exchange Pl', 'ts': 2025-08-30 17:10:30.878000, 'delta': -1, 'member_casual': 'member', 'event_type': 'StationDelta', 'occupancy_before': -184, 'occupancy_after': -185}
+{'ride_id': 'B3B6C486C02BF59E', 'bike_id': 'electric_bike', 'station_id': 'JC116', 'station_name': 'Exchange Pl', 'ts': 2025-08-30 17:16:46.338000, 'delta': -1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': -185, 'occupancy_after': -186}
+{'ride_id': '3083E2529529A141', 'bike_id': 'electric_bike', 'station_id': 'JC116', 'station_name': 'Exchange Pl', 'ts': 2025-08-30 17:17:10.524000, 'delta': -1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': -134, 'occupancy_after': -135}
+{'ride_id': 'CCE682D3F83A2926', 'bike_id': 'electric_bike', 'station_id': 'JC116', 'station_name': 'Exchange Pl', 'ts': 2025-08-30 17:17:18.653000, 'delta': -1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': -128, 'occupancy_after': -129}
+
+1: {'ride_id': '0706C30B7455CF1D', 'bike_id': 'classic_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-08 23:32:40.246000, 'delta': -1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': -86, 'occupancy_after': -87}
+{'ride_id': 'F76F6930F9FADB3F', 'bike_id': 'classic_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-08 23:32:46.332000, 'delta': -1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': -97, 'occupancy_after': -98}
+{'ride_id': '98373B284FE48753', 'bike_id': 'classic_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-08 23:34:05.172000, 'delta': -1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': -4, 'occupancy_after': -5}
+{'ride_id': 'E76D49434760CF79', 'bike_id': 'classic_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-08 23:34:12.865000, 'delta': -1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': -49, 'occupancy_after': -50}
+{'ride_id': 'A5DE2459B6A3E626', 'bike_id': 'classic_bike', 'station_id': 'JC013', 'station_name': 'Marin Light Rail', 'ts': 2025-08-08 23:34:23.575000, 'delta': -1, 'member_casual': 'casual', 'event_type': 'StationDelta', 'occupancy_before': -50, 'occupancy_after': -51}
+
