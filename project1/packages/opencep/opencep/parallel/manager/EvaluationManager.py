@@ -5,7 +5,7 @@ It internally activates and uses a CEP evaluation mechanism.
 """
 from abc import ABC
 
-from stream.Stream import InputStream, OutputStream
+from opencep.stream.Stream import InputStream, OutputStream
 from opencep.base.DataFormatter import DataFormatter
 
 

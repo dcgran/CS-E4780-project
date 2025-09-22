@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from collections import Callable
+from typing import Callable
 
 from opencep.base.Pattern import Pattern
 from opencep.misc.LegacyStatistics import MissingStatisticsException

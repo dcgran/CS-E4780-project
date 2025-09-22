@@ -1,7 +1,7 @@
 import heapq
 from datetime import datetime
 from opencep.base.Event import Event
-from stream.Stream import OutputStream
+from opencep.stream.Stream import OutputStream
 from opencep.tree.Tree import Tree
 from opencep.tree.evaluation.TreeBasedEvaluationMechanism import TreeBasedEvaluationMechanism
 

@@ -1,7 +1,7 @@
 from abc import ABC
 
 from opencep.base.DataFormatter import DataFormatter
-from stream.Stream import InputStream, OutputStream
+from opencep.stream.Stream import InputStream, OutputStream
 
 
 class EvaluationMechanism(ABC):

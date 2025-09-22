@@ -5,7 +5,7 @@ from opencep.evaluation.EvaluationMechanismFactory import EvaluationMechanismPar
 from opencep.base.PatternMatch import *
 from typing import Set
 from opencep.base.DataFormatter import DataFormatter
-from stream.Stream import *
+from opencep.stream.Stream import *
 
 
 class RIPParallelExecutionAlgorithm(DataParallelExecutionAlgorithm, ABC):

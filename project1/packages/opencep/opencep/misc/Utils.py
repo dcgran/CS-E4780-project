@@ -12,7 +12,7 @@ from opencep.base.PatternStructure import SeqOperator
 from opencep.base.PatternMatch import PatternMatch
 from copy import deepcopy
 from functools import reduce
-from stream.Stream import Stream
+from opencep.stream.Stream import Stream
 
 
 def find_partial_match_by_timestamp(partial_matches: List[PatternMatch], timestamp: datetime):

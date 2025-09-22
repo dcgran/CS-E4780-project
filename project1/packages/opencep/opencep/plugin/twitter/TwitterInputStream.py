@@ -1,4 +1,4 @@
-from stream.FileStream import InputStream
+from opencep.stream.FileStream import InputStream
 import tweepy
 import plugin.twitter.TwitterCredentials
 import json

@@ -6,7 +6,7 @@ from opencep.base.Pattern import Pattern
 from opencep.evaluation.EvaluationMechanismFactory import EvaluationMechanismParameters
 from opencep.base.DataFormatter import DataFormatter
 from opencep.parallel.ParallelExecutionParameters import *
-from stream.Stream import *
+from opencep.stream.Stream import *
 
 
 class DataParallelEvaluationManager(ParallelEvaluationManager, ABC):
