@@ -1,6 +1,6 @@
 import os
 
-from stream.Stream import InputStream, OutputStream
+from opencep.stream.Stream import InputStream, OutputStream
 
 
 class FileInputStream(InputStream):

@@ -5,7 +5,7 @@ from opencep.base.Pattern import Pattern
 from opencep.adaptive.optimizer.Optimizer import Optimizer
 from opencep.plan.TreePlan import TreePlan
 from opencep.adaptive.statistics.StatisticsCollector import StatisticsCollector
-from stream.Stream import OutputStream
+from opencep.stream.Stream import OutputStream
 from opencep.tree.PatternMatchStorage import TreeStorageParameters
 from opencep.tree.Tree import Tree
 from opencep.tree.evaluation.TreeBasedEvaluationMechanism import TreeBasedEvaluationMechanism

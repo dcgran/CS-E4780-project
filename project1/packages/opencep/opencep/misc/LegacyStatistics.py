@@ -1,7 +1,7 @@
 from opencep.condition.Condition import Condition
 from opencep.base.Pattern import Pattern
 from opencep.base.PatternStructure import SeqOperator, PrimitiveEventStructure
-from stream.Stream import Stream
+from opencep.stream.Stream import Stream
 
 
 def get_condition_selectivity(arg1: PrimitiveEventStructure, arg2: PrimitiveEventStructure, condition: Condition,

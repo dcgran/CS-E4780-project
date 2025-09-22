@@ -1,9 +1,9 @@
 import os
 
-from CEP import CEP
-from stream.FileStream import FileOutputStream
-from plugin.twitter.TwitterDataFormatter import DummyTwitterEventTypeClassifier, TweetDataFormatter
-from plugin.twitter.TwitterInputStream import TwitterInputStream
+from opencep.CEP import CEP
+from opencep.stream.FileStream import FileOutputStream
+from opencep.plugin.twitter.TwitterDataFormatter import DummyTwitterEventTypeClassifier, TweetDataFormatter
+from opencep.plugin.twitter.TwitterInputStream import TwitterInputStream
 from datetime import timedelta
 from opencep.condition.Condition import Variable, SimpleCondition
 from opencep.condition.CompositeCondition import AndCondition

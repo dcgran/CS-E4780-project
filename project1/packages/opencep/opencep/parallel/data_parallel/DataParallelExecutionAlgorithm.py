@@ -4,7 +4,7 @@ from opencep.evaluation.EvaluationMechanismFactory import EvaluationMechanismPar
 from opencep.base.DataFormatter import DataFormatter
 from opencep.base.PatternMatch import *
 from opencep.parallel.platform.ParallelExecutionPlatform import ParallelExecutionPlatform, Lock
-from stream.Stream import *
+from opencep.stream.Stream import *
 from opencep.parallel.manager.EvaluationManager import EvaluationManager
 from opencep.parallel.manager.SequentialEvaluationManager import SequentialEvaluationManager
 from typing import Set, Callable

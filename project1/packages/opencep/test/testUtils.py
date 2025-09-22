@@ -2,18 +2,18 @@ import os
 import pathlib
 import sys
 
-from CEP import CEP
+from opencep.CEP import CEP
 from opencep.evaluation.EvaluationMechanismFactory import TreeBasedEvaluationMechanismParameters
 from opencep.adaptive.optimizer.OptimizerFactory import StatisticsDeviationAwareOptimizerParameters
-from stream.Stream import OutputStream
-from stream.FileStream import FileInputStream, FileOutputStream
+from opencep.stream.Stream import OutputStream
+from opencep.stream.FileStream import FileInputStream, FileOutputStream
 from opencep.misc.Utils import generate_matches
 from opencep.plan.TreeCostModels import TreeCostModels
 from opencep.plan.TreePlanBuilderFactory import TreePlanBuilderParameters
 from opencep.plan.TreePlanBuilderTypes import TreePlanBuilderTypes
 from plugin.stocks.Stocks import MetastockDataFormatter
-from stream.FileStream import FileInputStream, FileOutputStream
-from stream.Stream import OutputStream
+from opencep.stream.FileStream import FileInputStream, FileOutputStream
+from opencep.stream.Stream import OutputStream
 from opencep.tree.PatternMatchStorage import TreeStorageParameters
 from opencep.parallel.ParallelExecutionParameters import ParallelExecutionParameters
 from opencep.parallel.ParallelExecutionModes import ParallelExecutionModes

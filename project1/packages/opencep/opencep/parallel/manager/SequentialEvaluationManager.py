@@ -6,7 +6,7 @@ from opencep.evaluation.EvaluationMechanismFactory import (
     EvaluationMechanismFactory,
 )
 from opencep.parallel.manager.EvaluationManager import EvaluationManager
-from stream.Stream import InputStream, OutputStream
+from opencep.stream.Stream import InputStream, OutputStream
 from opencep.base.Pattern import Pattern
 from opencep.base.DataFormatter import DataFormatter
 

@@ -3,7 +3,7 @@ from typing import Dict
 from opencep.base.DataFormatter import DataFormatter
 from opencep.base.Event import Event
 from opencep.plan.TreePlan import TreePlan
-from stream.Stream import InputStream, OutputStream
+from opencep.stream.Stream import InputStream, OutputStream
 from opencep.misc.Utils import *
 from opencep.tree.nodes.LeafNode import LeafNode
 from opencep.tree.PatternMatchStorage import TreeStorageParameters

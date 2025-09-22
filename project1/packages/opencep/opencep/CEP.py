@@ -5,7 +5,7 @@ by invoking the rest of the system components.
 from opencep.base.DataFormatter import DataFormatter
 from opencep.parallel.EvaluationManagerFactory import EvaluationManagerFactory
 from opencep.parallel.ParallelExecutionParameters import ParallelExecutionParameters
-from stream.Stream import InputStream, OutputStream
+from opencep.stream.Stream import InputStream, OutputStream
 from opencep.base.Pattern import Pattern
 from opencep.evaluation.EvaluationMechanismFactory import EvaluationMechanismParameters
 from typing import List
