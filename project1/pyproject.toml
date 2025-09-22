@@ -1,0 +1,22 @@
+[project]
+name = "project1"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = ["opencep"]
+
+
+[tool.uv.workspace]
+members = ["packages/opencep"]
+
+[tool.uv.sources]
+opencep = { workspace = true }
+
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[dependency-groups]
+dev = ["mypy>=1.18.2", "ruff>=0.13.1"]
