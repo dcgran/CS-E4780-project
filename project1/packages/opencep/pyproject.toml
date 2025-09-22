@@ -1,0 +1,16 @@
+[project]
+name = "opencep"
+version = "0.1.0"
+description = "OpenCEP library (local copy)"
+requires-python = ">=3.9"
+dependencies = [
+  # Add any dependencies you discover OpenCEP needs
+  "numpy",
+]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["opencep"]
