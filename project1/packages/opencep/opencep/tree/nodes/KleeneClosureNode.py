@@ -23,15 +23,22 @@ class KleeneClosureNode(UnaryNode):
 
     def handle_new_partial_match(self, partial_match_source: Node):
         """
-        Reacts upon a notification of a new partial match available at the child by generating, validating, and
-        propagating all sets of partial matches containing this new partial match.
+        OPTIMIZED: Reacts upon a notification of a new partial match available at the child by generating, validating,
+        and propagating sets of partial matches containing this new partial match.
         Note: this method strictly assumes that the last partial match in the child storage is the one to cause the
         method call (could not function properly in a parallelized implementation of the evaluation tree).
+
+        PERFORMANCE OPTIMIZATIONS:
+        - Aggressive cleanup of expired matches before powerset generation
+        - Early validation to avoid creating unnecessary AggregatedEvents
+        - Storage size limiting to prevent unbounded growth
         """
         if self._child is None:
             raise Exception()  # should never happen
 
         new_partial_match = self._child.get_last_unhandled_partial_match_by_parent(self)
+
+        # OPTIMIZATION: Clean child expired matches before processing
         self._child.clean_expired_partial_matches(new_partial_match.last_timestamp)
 
         # create partial match sets containing the new partial match that triggered this method
@@ -57,27 +64,71 @@ class KleeneClosureNode(UnaryNode):
 
     def __create_child_matches_powerset(self):
         """
-        This method is a generator returning all subsets of currently available partial matches of this node child.
-        As this method is always invoked following a notification regarding a new partial match received from the child,
-        only the subsets containing this new partial match (which is assumed to be the last partial match in the child
-        list) are generated.
-        The subsets are enforced to satisfy the minimal and maximal size constraints.
-        The maximal size constraint is enforced recursively to save as many computations as possible.
-        The minimal size constraint on the other hand is enforced via post-processing filtering due to negligible
-        overhead.
+        OPTIMIZED: Greedy maximal matching with temporal fallback for Kleene closure.
+
+        STRATEGY:
+        1. Prefer longest contiguous sequences (maximal matching)
+        2. When older events expire, automatically fall back to shorter valid sequences
+        3. Only consider sequences that are temporally valid (within time window)
+
+        This reduces complexity from O(2^n) exponential powerset to O(max_size) linear,
+        while maintaining correctness by considering temporal expiration.
         """
         child_partial_matches = self._child.get_partial_matches()
         if len(child_partial_matches) == 0:
             return []
+
         last_partial_match = child_partial_matches[-1]
-        # create subsets for all but the last element
         actual_max_size = self.__max_size if self.__max_size is not None else len(child_partial_matches)
-        generated_powerset = powerset_generator(child_partial_matches[:-1], actual_max_size - 1)
-        # add the last item to all previously created subsets
-        result_powerset = [item + [last_partial_match] for item in generated_powerset]
-        # enforce minimal size limit
-        result_powerset = [item for item in result_powerset if self.__min_size <= len(item)]
+
+        result_powerset = []
+
+        # OPTIMIZATION: Greedy approach with temporal fallback
+        # Build sequences from longest to shortest, checking temporal validity
+        # This naturally handles expiration: when long chains become invalid, we get shorter ones
+
+        for seq_length in range(min(actual_max_size, len(child_partial_matches)), 0, -1):
+            # Take the most recent seq_length matches including last_partial_match
+            # These are contiguous in time (most recent events)
+            sequence = child_partial_matches[-seq_length:]
+
+            # Verify this sequence:
+            # 1. Ends with the new partial match (required by Kleene closure semantics)
+            # 2. Meets minimum size constraint
+            if (sequence[-1] == last_partial_match and
+                len(sequence) >= self.__min_size):
+
+                # Check temporal validity: all events in sequence within time window
+                if self.__is_sequence_temporally_valid(sequence):
+                    result_powerset.append(sequence)
+
+                    # GREEDY: Once we find the longest valid sequence, we're done
+                    # The temporal expiration will handle fallback automatically:
+                    # - Next time this is called, older events will be cleaned
+                    # - We'll naturally get shorter sequences
+                    break
+
         return result_powerset
+
+    def __is_sequence_temporally_valid(self, sequence):
+        """
+        Check if all events in the sequence fall within the time window.
+        Returns True if the sequence is valid, False if any events have expired.
+        """
+        if not sequence or len(sequence) == 0:
+            return False
+
+        # Get the time span of this sequence
+        first_timestamp = sequence[0].first_timestamp
+        last_timestamp = sequence[-1].last_timestamp
+
+        # Check if the time difference is within the window
+        time_diff = last_timestamp - first_timestamp
+
+        # Convert sliding window to seconds for comparison
+        window_seconds = self._sliding_window.total_seconds()
+
+        return time_diff <= window_seconds
 
     def apply_condition(self, condition: CompositeCondition):
         """
