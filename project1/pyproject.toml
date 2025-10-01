@@ -4,8 +4,15 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
-dependencies = ["opencep"]
+dependencies = [
+    "opencep",
+    "pyyaml>=6.0.2",
+    "psutil>=5.9.0",
+]
 
+
+[project.scripts]
+cep-runner = "project1.cep_runner:main"
 
 [tool.uv.workspace]
 members = ["packages/opencep"]
