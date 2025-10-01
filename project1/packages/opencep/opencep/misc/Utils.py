@@ -15,7 +15,7 @@ from functools import reduce
 from opencep.stream.Stream import Stream
 
 
-def find_partial_match_by_timestamp(partial_matches: List[PatternMatch], timestamp: datetime):
+def find_partial_match_by_timestamp(partial_matches: List[PatternMatch], timestamp):
     """
     Returns the partial match from the given list such that its timestamp is the closest to the given timestamp.
     The list is assumed to be sorted according to the earliest event timestamp.

@@ -67,7 +67,7 @@ class PatternMatchStorage:
         """
         return item in self._partial_matches
 
-    def try_clean_expired_partial_matches(self, earliest_timestamp: datetime):
+    def try_clean_expired_partial_matches(self, earliest_timestamp):
         """
         If the number of storage accesses exceeded a predefined threshold, perform a costly operation of removing
         expired partial matches.
@@ -77,7 +77,7 @@ class PatternMatchStorage:
         self._clean_expired_partial_matches(earliest_timestamp)
         self._access_count = 0
 
-    def _clean_expired_partial_matches(self, earliest_timestamp: datetime):
+    def _clean_expired_partial_matches(self, earliest_timestamp):
         """
         Removes pattern matches whose earliest earliest_timestamp violates the time window constraint.
         """
