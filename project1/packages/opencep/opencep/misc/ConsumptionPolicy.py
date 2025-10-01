@@ -48,7 +48,8 @@ class ConsumptionPolicy:
         """
         if primary_selection_strategy is None:
             primary_selection_strategy = DefaultConfig.PRIMARY_SELECTION_STRATEGY
-        if secondary_selection_strategy is None:
+        # Only apply default secondary strategy when primary is MATCH_ANY
+        if secondary_selection_strategy is None and primary_selection_strategy == SelectionStrategies.MATCH_ANY:
             secondary_selection_strategy = DefaultConfig.SECONDARY_SELECTION_STRATEGY
 
         if primary_selection_strategy != SelectionStrategies.MATCH_ANY:
