@@ -48,7 +48,10 @@ class MultiPatternTree:
         Returns True if the given match satisfies the window/confidence constraints of the given pattern
         and False otherwise.
         """
-        if match.last_timestamp - match.first_timestamp > pattern.window:
+        # PYTHON 3.13+ COMPATIBILITY FIX: Convert timedelta to seconds for comparison
+        time_span_seconds = match.last_timestamp - match.first_timestamp
+        window_seconds = pattern.window.total_seconds()
+        if time_span_seconds > window_seconds:
             return False
         return pattern.confidence is None or match.probability is None or match.probability >= pattern.confidence
 

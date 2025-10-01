@@ -103,19 +103,25 @@ class Node(ABC):
         """
         return self._unreported_matches.qsize() > 0
 
-    def clean_expired_partial_matches(self, last_timestamp: datetime):
+    def clean_expired_partial_matches(self, last_timestamp):
         """
         Removes partial matches whose earliest timestamp violates the time window constraint.
         Also removes the expired filtered events if the "single" consumption policy is enabled.
         """
         if not Node._is_partial_match_expiration_enabled():
             return
-        self._partial_matches.try_clean_expired_partial_matches(last_timestamp - self._sliding_window)
+        # PYTHON 3.13+ COMPATIBILITY FIX: Ensure consistent float timestamp calculations
+        window_seconds = float(self._sliding_window.total_seconds())
+        cutoff_timestamp = float(last_timestamp) - window_seconds
+        self._partial_matches.try_clean_expired_partial_matches(cutoff_timestamp)
         if len(self._single_event_types) == 0:
             # "single" consumption policy is disabled or no event types under the policy reach this node
             return
+        # PYTHON 3.13+ COMPATIBILITY FIX: Ensure consistent float timestamp comparisons
+        window_seconds = float(self._sliding_window.total_seconds())
+        cutoff_timestamp = float(last_timestamp) - window_seconds
         self._filtered_events = set([event for event in self._filtered_events
-                                    if event.min_timestamp >= last_timestamp - self._sliding_window])
+                                    if float(event.min_timestamp) >= cutoff_timestamp])
 
     def _add_partial_match(self, pm: PatternMatch):
         """
@@ -188,9 +194,11 @@ class Node(ABC):
         """
         Validates the condition stored in this node on the given set of events.
         """
-        min_timestamp = min([event.min_timestamp for event in events_for_new_match])
-        max_timestamp = max([event.max_timestamp for event in events_for_new_match])
-        return max_timestamp - min_timestamp <= self._sliding_window
+        # PYTHON 3.13+ COMPATIBILITY FIX: Ensure consistent float timestamp comparisons
+        min_timestamp = min([float(event.min_timestamp) for event in events_for_new_match])
+        max_timestamp = max([float(event.max_timestamp) for event in events_for_new_match])
+        window_seconds = float(self._sliding_window.total_seconds())
+        return (max_timestamp - min_timestamp) <= window_seconds
 
     ###################################### Parent- and topology-related methods
     def get_last_unhandled_partial_match_by_parent(self, parent):
