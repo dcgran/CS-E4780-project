@@ -61,17 +61,37 @@ class TreeBasedEvaluationMechanism(EvaluationMechanism, ABC):
         last_statistics_refresh_time = None
 
         for raw_event in events:
-            event = Event(raw_event, data_formatter)
-            if event.type not in self._event_types_listeners:
-                continue
-            self.__remove_expired_freezers(event)
-
-            if not self.__is_multi_pattern_mode and self.__statistics_collector is not None:
-                # TODO: support multi-pattern mode
-                last_statistics_refresh_time = self.__perform_reoptimization(last_statistics_refresh_time, event)
-
-            self._play_new_event_on_tree(event, matches)
-            self._get_matches(matches)
+            payload = data_formatter.parse_event(raw_event)
+            if isinstance(payload, list):
+                for p in payload:
+                    event = Event.__new__(Event)
+                    event.payload = p
+                    event.type = data_formatter.get_event_type(p)
+                    event.min_timestamp = event.max_timestamp = event.timestamp = data_formatter.get_event_timestamp(p)
+                    event.payload[Event.INDEX_ATTRIBUTE_NAME] = Event.counter
+                    event.probability = data_formatter.get_probability(p)
+                    if event.probability is not None and (event.probability < 0.0 or event.probability > 1.0):
+                        raise Exception("Invalid value for probability:%s" % (event.probability,))
+                    Event.counter += 1
+                    # process the event
+                    if event.type not in self._event_types_listeners:
+                        continue
+                    self.__remove_expired_freezers(event)
+                    if not self.__is_multi_pattern_mode and self.__statistics_collector is not None:
+                        # TODO: support multi-pattern mode
+                        last_statistics_refresh_time = self.__perform_reoptimization(last_statistics_refresh_time, event)
+                    self._play_new_event_on_tree(event, matches)
+                    self._get_matches(matches)
+            else:
+                event = Event(raw_event, data_formatter)
+                if event.type not in self._event_types_listeners:
+                    continue
+                self.__remove_expired_freezers(event)
+                if not self.__is_multi_pattern_mode and self.__statistics_collector is not None:
+                    # TODO: support multi-pattern mode
+                    last_statistics_refresh_time = self.__perform_reoptimization(last_statistics_refresh_time, event)
+                self._play_new_event_on_tree(event, matches)
+                self._get_matches(matches)
 
         # Now that we finished the input stream, if there were some pending matches somewhere in the tree, we will
         # collect them now
