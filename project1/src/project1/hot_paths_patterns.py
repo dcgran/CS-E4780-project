@@ -24,7 +24,7 @@ def create_hot_paths_patterns() -> List[Pattern]:
 
     structure = SeqOperator(
         KleeneClosureOperator(
-            PrimitiveEventStructure("BikeTrip", "a"), min_size=1, max_size=3
+            PrimitiveEventStructure("BikeTrip", "a"), min_size=1, max_size=10
         ),
         PrimitiveEventStructure("BikeTrip", "b"),
     )
