@@ -13,6 +13,8 @@ class PatternMatchStorage:
     subset of all stored matches that are deemed relevant to the given key (might return an empty list, a list
     containing a single object, multiple objects, or even the entire stored content). This behavior contradicts the
     "regular" container behavior fetching a single value corresponding to this key.
+
+    OPTIMIZATION: Implements efficient temporal cleanup based on sliding window.
     """
     def __init__(self, get_match_key: callable, sorted_by_arrival_order: bool, clean_up_interval: int):
         self._partial_matches = []
@@ -79,14 +81,18 @@ class PatternMatchStorage:
 
     def _clean_expired_partial_matches(self, earliest_timestamp):
         """
-        Removes pattern matches whose earliest earliest_timestamp violates the time window constraint.
+        Removes pattern matches whose earliest timestamp violates the time window constraint.
+        OPTIMIZED: More efficient cleanup for sorted storage with FIFO eviction.
         """
         if self._sorted_by_arrival_order:
+            # Find first valid match and slice
             count = find_partial_match_by_timestamp(self._partial_matches, earliest_timestamp)
-            self._partial_matches = self._partial_matches[count:]
+            if count > 0:
+                self._partial_matches = self._partial_matches[count:]
         else:
-            self._partial_matches = list(filter(lambda pm: pm.first_timestamp >= earliest_timestamp,
-                                                self._partial_matches))
+            # For unsorted storage, filter
+            self._partial_matches = [pm for pm in self._partial_matches
+                                   if pm.first_timestamp >= earliest_timestamp]
 
     def get_internal_buffer(self):
         """
