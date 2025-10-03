@@ -549,7 +549,136 @@ def run_hot_paths_cep(
     return metrics
 
 
-def print_results(metrics: Dict[str, Any]) -> None:
+def extract_longest_hot_paths(output_file: str, top_n: int = 10) -> list:
+    """Extract the longest hot path patterns from matches."""
+    import re
+
+    hot_stations = {"3186", "3183", "3203"}
+
+    # Parse matches - groups separated by empty lines
+    current_group: list[dict[str, Any]] = []
+    all_groups: list[list[dict[str, Any]]] = []
+
+    try:
+        with open(output_file, "r") as f:
+            for line in f:
+                stripped = line.strip()
+                if not stripped:
+                    # Empty line = end of group
+                    if current_group:
+                        all_groups.append(current_group)
+                        current_group = []
+                elif stripped == "{}":
+                    # Skip empty dict markers
+                    continue
+                else:
+                    # Parse event dict manually (ast.literal_eval fails on datetime)
+                    try:
+                        # Extract key fields using regex
+                        event = {}
+                        if m := re.search(r"'bike_id':\s*'([^']+)'", stripped):
+                            event["bike_id"] = m.group(1)
+                        if m := re.search(r"'start_station_id':\s*'([^']+)'", stripped):
+                            event["start_station_id"] = m.group(1)
+                        if m := re.search(r"'end_station_id':\s*'([^']+)'", stripped):
+                            event["end_station_id"] = m.group(1)
+                        if m := re.search(
+                            r"'start_station_name':\s*'([^']+)'", stripped
+                        ):
+                            event["start_station_name"] = m.group(1)
+                        if m := re.search(r"'end_station_name':\s*'([^']+)'", stripped):
+                            event["end_station_name"] = m.group(1)
+                        if m := re.search(r"'trip_duration':\s*(\d+)", stripped):
+                            event["trip_duration"] = int(m.group(1))
+                        if m := re.search(
+                            r"'started_at':\s*(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2})",
+                            stripped,
+                        ):
+                            event["started_at"] = m.group(1)
+                        if m := re.search(
+                            r"'ended_at':\s*(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2})",
+                            stripped,
+                        ):
+                            event["ended_at"] = m.group(1)
+
+                        if event:
+                            current_group.append(event)
+                    except Exception:
+                        pass
+
+            if current_group:
+                all_groups.append(current_group)
+    except Exception:
+        return []
+
+    # Find longest chains (by number of events)
+    hot_paths = []
+    for group in all_groups:
+        if not group:
+            continue
+
+        # Last event should end at hot station
+        last_event = group[-1]
+        end_station = last_event.get("end_station_id")
+        if end_station not in hot_stations:
+            continue
+
+        # Build path info
+        bike_id = last_event.get("bike_id")
+        path_length = len(group)
+        stations = []
+        for event in group:
+            stations.append(event.get("start_station_name", "Unknown"))
+        stations.append(last_event.get("end_station_name", "Unknown"))
+
+        start_time = group[0].get("started_at")
+        end_time = last_event.get("ended_at")
+        total_duration = sum(e.get("trip_duration", 0) for e in group)
+
+        hot_paths.append(
+            {
+                "bike_id": bike_id,
+                "path_length": path_length,
+                "stations": stations,
+                "start_time": start_time,
+                "end_time": end_time,
+                "total_duration_sec": total_duration,
+                "final_station": last_event.get("end_station_name"),
+                "final_station_id": last_event.get("end_station_id"),
+            }
+        )
+
+    # Sort by path length (longest first)
+    hot_paths.sort(key=lambda x: x["path_length"], reverse=True)
+    return hot_paths[:top_n]
+
+
+def print_longest_hot_paths(output_file: str, top_n: int = 10) -> None:
+    """Print the longest hot path patterns found."""
+    paths = extract_longest_hot_paths(output_file, top_n)
+
+    if not paths:
+        print(f"\n⚠️  No hot paths found in {output_file}")
+        return
+
+    print("\n" + "=" * 70)
+    print(f"🏆 TOP {len(paths)} LONGEST HOT PATHS")
+    print("=" * 70)
+
+    for i, path in enumerate(paths, 1):
+        duration_min = path["total_duration_sec"] / 60
+        station_chain = " → ".join(path["stations"])
+
+        print(f"\n#{i}. Bike #{path['bike_id']} - {path['path_length']} trips")
+        print(f"   🚴 Route: {station_chain}")
+        print(
+            f"   🎯 Final destination: {path['final_station']} (Station {path['final_station_id']})"
+        )
+        print(f"   ⏱️  Total journey: {duration_min:.1f} minutes")
+        print(f"   📅 Period: {path['start_time']} → {path['end_time']}")
+
+
+def print_results(metrics: Dict[str, Any], output_dir: str = "outputs") -> None:
     """Pretty print CEP results."""
     if "error" in metrics:
         print(f"❌ Error: {metrics['error']}")
@@ -626,6 +755,11 @@ def print_results(metrics: Dict[str, Any]) -> None:
 
     print("=" * 70)
 
+    # Show longest hot paths
+    output_file = os.path.join(output_dir, "matches.txt")
+    if os.path.exists(output_file):
+        print_longest_hot_paths(output_file, top_n=10)
+
 
 def main():
     """Main CLI entry point."""
@@ -691,7 +825,7 @@ Examples:
         if args.json:
             print(json.dumps(metrics, indent=2))
         else:
-            print_results(metrics)
+            print_results(metrics, output_dir=args.output)
 
     except KeyboardInterrupt:
         print("\n❌ Interrupted by user")
