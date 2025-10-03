@@ -82,3 +82,10 @@ class CitiBike2017Formatter(DataFormatter):
         if isinstance(started_at, datetime):
             return started_at.timestamp()
         return 0.0
+
+    def get_event_end_timestamp(self, event_payload: Dict[str, Any]) -> float | None:
+        """Return the trip end timestamp for proper duration handling."""
+        ended_at = event_payload.get("ended_at")
+        if isinstance(ended_at, datetime):
+            return ended_at.timestamp()
+        return None  # Fall back to start timestamp

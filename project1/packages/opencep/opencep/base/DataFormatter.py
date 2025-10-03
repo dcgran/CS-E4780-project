@@ -49,3 +49,11 @@ class DataFormatter(ABC):
         This method is optional for a DataFormatter subclass. By default, all event occurrences are non-probabilistic.
         """
         return None
+
+    def get_event_end_timestamp(self, event_payload: dict):
+        """
+        Deduces and returns the end timestamp of the event specified by the given payload.
+        For events with duration (e.g., trips, sessions), this should return the end time.
+        This method is optional. By default, returns None, causing Event to use start timestamp for max_timestamp.
+        """
+        return None
