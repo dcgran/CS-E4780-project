@@ -19,7 +19,10 @@ class Event:
     def __init__(self, raw_data: str, data_formatter: DataFormatter):
         self.payload = data_formatter.parse_event(raw_data)
         self.type = data_formatter.get_event_type(self.payload)
-        self.min_timestamp = self.max_timestamp = self.timestamp = data_formatter.get_event_timestamp(self.payload)
+        self.min_timestamp = self.timestamp = data_formatter.get_event_timestamp(self.payload)
+        # For events with duration, use end_timestamp if available
+        end_timestamp = data_formatter.get_event_end_timestamp(self.payload)
+        self.max_timestamp = end_timestamp if end_timestamp is not None else self.min_timestamp
         self.payload[Event.INDEX_ATTRIBUTE_NAME] = Event.counter
         self.probability = data_formatter.get_probability(self.payload)
         if self.probability is not None and (self.probability < 0.0 or self.probability > 1.0):
@@ -56,9 +59,9 @@ class AggregatedEvent(Event):
 
         self.primitive_events = events
 
-        # we assume the events to be sorted in ascending order of arrival
-        self.min_timestamp = self.timestamp = None if len(events) == 0 else events[0].timestamp
-        self.max_timestamp = None if len(events) == 0 else events[-1].timestamp
+        # Use first event's min_timestamp and last event's max_timestamp
+        self.min_timestamp = self.timestamp = None if len(events) == 0 else events[0].min_timestamp
+        self.max_timestamp = None if len(events) == 0 else events[-1].max_timestamp
 
     def __repr__(self):
         return "\n".join([str(e) for e in self.primitive_events])
