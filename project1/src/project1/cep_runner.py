@@ -82,7 +82,11 @@ class IntelligentEventFeeder:
         with open(file_path, "r") as f:
             self.all_lines = f.readlines()
 
-        if self.all_lines and ("ride_id" in self.all_lines[0]):
+        # Skip CSV header row (common header field names)
+        if self.all_lines and any(
+            header in self.all_lines[0].lower()
+            for header in ["ride_id", "tripduration", "starttime", "bikeid"]
+        ):
             self.all_lines = self.all_lines[1:]
 
         if max_lines is not None:
