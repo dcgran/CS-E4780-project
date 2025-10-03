@@ -57,8 +57,8 @@ class KleeneClosureNode(UnaryNode):
 
     def __create_child_matches_powerset(self):
         """
-        Generates subsets of partial matches using greedy maximal matching with temporal validation.
-        Prefers longest contiguous sequences and validates temporal constraints.
+        Generates subsets of partial matches using KC condition pre-filtering and temporal validation.
+        Pre-filters using KC condition hints to avoid building invalid sequences.
         """
         child_partial_matches = self._child.get_partial_matches()
         if len(child_partial_matches) == 0:
@@ -67,19 +67,67 @@ class KleeneClosureNode(UnaryNode):
         last_partial_match = child_partial_matches[-1]
         actual_max_size = self.__max_size if self.__max_size is not None else len(child_partial_matches)
 
+        # Pre-filter using KC condition hints to avoid building invalid sequences
+        filtered_matches = self.__prefilter_by_kc_condition(child_partial_matches, last_partial_match)
+
         result_powerset = []
 
-        for seq_length in range(min(actual_max_size, len(child_partial_matches)), 0, -1):
-            sequence = child_partial_matches[-seq_length:]
+        # Generate sequences from longest to shortest
+        for seq_length in range(min(actual_max_size, len(filtered_matches)), 0, -1):
+            sequence = filtered_matches[-seq_length:]
 
             if (sequence[-1] == last_partial_match and
                 len(sequence) >= self.__min_size):
 
                 if self.__is_sequence_temporally_valid(sequence):
                     result_powerset.append(sequence)
-                    break
 
         return result_powerset
+
+    def __prefilter_by_kc_condition(self, child_matches, triggering_match):
+        """
+        Pre-filter child matches using KC condition hints to avoid building sequences
+        that will be rejected. Uses the first KCIndexCondition with offset=1 to identify
+        grouping attributes (e.g., bike_id for bike trip chains).
+
+        This makes sequence generation generic while avoiding the performance cost of
+        building and validating sequences that mix incompatible events.
+        """
+        if not self._condition or not hasattr(self._condition, 'get_conditions_list'):
+            # No condition or not a composite condition - no filtering
+            return child_matches
+
+        # Find first KCIndexCondition with offset=1 (consecutive item comparison)
+        from opencep.condition.KCCondition import KCIndexCondition
+        kc_conditions = [c for c in self._condition.get_conditions_list() if isinstance(c, KCIndexCondition)]
+        grouping_condition = next((c for c in kc_conditions if c.get_offset() == 1), None)
+
+        if not grouping_condition:
+            # No grouping condition found - no filtering
+            return child_matches
+
+        # Extract grouping attribute from triggering match
+        if not hasattr(triggering_match, 'events') or len(triggering_match.events) == 0:
+            return child_matches
+
+        triggering_event = triggering_match.events[0]
+        if not hasattr(triggering_event, 'payload'):
+            return child_matches
+
+        # Use the getattr_func from the KC condition to extract the grouping value
+        triggering_value = grouping_condition._getattr_func(triggering_event.payload)
+
+        # Filter to only matches with the same grouping value
+        filtered = []
+        for pm in child_matches:
+            if hasattr(pm, 'events') and len(pm.events) > 0:
+                event = pm.events[0]
+                if hasattr(event, 'payload'):
+                    value = grouping_condition._getattr_func(event.payload)
+                    if value == triggering_value:
+                        filtered.append(pm)
+
+        return filtered if filtered else child_matches  # Fallback to all if filtering produces nothing
 
     def __is_sequence_temporally_valid(self, sequence):
         """
