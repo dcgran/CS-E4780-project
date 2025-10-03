@@ -20,6 +20,8 @@ from opencep.base.PatternStructure import (
     KleeneClosureOperator,
 )
 from opencep.condition.Condition import Variable, BinaryCondition
+from opencep.condition.CompositeCondition import AndCondition
+from opencep.condition.KCCondition import KCIndexCondition
 from opencep.misc.ConsumptionPolicy import ConsumptionPolicy
 from opencep.misc.SelectionStrategies import SelectionStrategies
 
@@ -34,28 +36,64 @@ def create_2017_hot_paths_patterns() -> List[Pattern]:
         PrimitiveEventStructure("BikeTrip", "b"),
     )
 
-    def extract_bike_id_from_kc(x):
-        """Handle both list (Kleene closure result) and dict (single event) types."""
+    # KC condition: same bike for all consecutive trips (a[i].bike == a[i+1].bike)
+    kc_same_bike = KCIndexCondition(
+        names={"a"},
+        getattr_func=lambda x: x.get("bike_id", ""),
+        relation_op=lambda bike1, bike2: bike1 == bike2,
+        offset=1,  # Compare each trip with the next one
+    )
+
+    # KC condition: station chaining (a[i].end_station == a[i+1].start_station)
+    # Use index-based approach: compare trip i's end with trip i+1's start
+    kc_station_chain = KCIndexCondition(
+        names={"a"},
+        getattr_func=lambda x: x,  # Pass the whole event
+        relation_op=lambda trip1, trip2: trip1.get("end_station_id", "")
+        == trip2.get("start_station_id", ""),
+        offset=1,
+    )
+
+    # SEQ condition: a[last].bike == b.bike AND a[last].end == b.start AND b.end in hot_stations
+    def extract_bike_and_end_station(x):
+        """Extract (bike_id, end_station_id) from last event in KC."""
         if isinstance(x, list):
-            return x[-1].get("bike_id", "") if x else ""
-        return x.get("bike_id", "") if hasattr(x, "get") else ""
+            if not x:
+                return (None, None)
+            return (x[-1].get("bike_id", ""), x[-1].get("end_station_id", ""))
+        return (
+            (x.get("bike_id", ""), x.get("end_station_id", ""))
+            if hasattr(x, "get")
+            else (None, None)
+        )
 
-    def extract_bike_and_station(x):
-        return (x.get("bike_id", ""), x.get("end_station_id", ""))
+    def extract_bike_start_and_end_station(x):
+        return (
+            x.get("bike_id", ""),
+            x.get("start_station_id", ""),
+            x.get("end_station_id", ""),
+        )
 
-    condition = BinaryCondition(
-        Variable("a", extract_bike_id_from_kc),
-        Variable("b", extract_bike_and_station),
-        lambda bike_a, bike_end_tuple: (
-            bike_a and bike_a == bike_end_tuple[0] and bike_end_tuple[1] in hot_stations
+    seq_condition = BinaryCondition(
+        Variable("a", extract_bike_and_end_station),
+        Variable("b", extract_bike_start_and_end_station),
+        lambda a_tuple, b_tuple: (
+            a_tuple[0] is not None  # Valid KC result
+            and a_tuple[0]  # Non-empty bike_id
+            and a_tuple[0] == b_tuple[0]  # Same bike: a[last].bike == b.bike
+            and a_tuple[1] == b_tuple[1]  # Chain continues: a[last].end == b.start
+            and b_tuple[2] in hot_stations  # b ends at hot station
         ),
     )
+
+    # Combine all conditions
+    condition = AndCondition(kc_same_bike, kc_station_chain, seq_condition)
 
     pattern = Pattern(
         structure,
         condition,
         timedelta(hours=1),
-        ConsumptionPolicy(primary_selection_strategy=SelectionStrategies.MATCH_SINGLE),
+        ConsumptionPolicy(primary_selection_strategy=SelectionStrategies.MATCH_ANY),
     )
 
     return [pattern]

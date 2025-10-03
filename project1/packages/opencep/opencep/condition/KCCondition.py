@@ -100,10 +100,13 @@ class KCIndexCondition(KCCondition):
         """
         Handles the evaluation of an offset-based condition.
         This can be a very time-consuming process for large power-sets.
+
+        FIX: For single-element sequences (or when offset >= len), return True (trivially valid)
+        since there are no pairs to validate. This allows KC to match single events.
         """
-        # offset too large restriction
+        # If offset is larger than sequence length, there are no pairs to check - trivially valid
         if self.__offset >= len(event_list):
-            return False
+            return True
 
         for i in range(len(event_list)):
             # test if i + offset meets index requirements ( 0 <= i <= len(event_list) - 1)

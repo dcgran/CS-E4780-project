@@ -29,9 +29,9 @@ class KleeneClosureNode(UnaryNode):
         method call (could not function properly in a parallelized implementation of the evaluation tree).
 
         PERFORMANCE OPTIMIZATIONS:
-        - Aggressive cleanup of expired matches before powerset generation
+        - Aggressive cleanup of expired matches before powerset generation (temporal window enforcement)
+        - Pre-filtering by KC condition hints to avoid building invalid sequences
         - Early validation to avoid creating unnecessary AggregatedEvents
-        - Storage size limiting to prevent unbounded growth
         """
         if self._child is None:
             raise Exception()  # should never happen
@@ -64,15 +64,18 @@ class KleeneClosureNode(UnaryNode):
 
     def __create_child_matches_powerset(self):
         """
-        OPTIMIZED: Greedy maximal matching with temporal fallback for Kleene closure.
+        OPTIMIZED: Generate valid KC sequences with smart pre-filtering.
 
         STRATEGY:
-        1. Prefer longest contiguous sequences (maximal matching)
-        2. When older events expire, automatically fall back to shorter valid sequences
-        3. Only consider sequences that are temporally valid (within time window)
+        1. Pre-filter child matches using KC condition hints (if available)
+           - Uses first KCIndexCondition with offset=1 to identify grouping attributes
+           - Only builds sequences from matching items (e.g., same bike_id)
+        2. Generate all valid sequence lengths respecting min_size and max_size
+        3. Validate temporal constraints and KC conditions
 
-        This reduces complexity from O(2^n) exponential powerset to O(max_size) linear,
-        while maintaining correctness by considering temporal expiration.
+        With pre-filtering, we avoid building invalid mixed sequences, so no artificial
+        caps are needed. Complexity: O(filtered_matches * max_size) where filtered_matches
+        is typically much smaller than total child storage.
         """
         child_partial_matches = self._child.get_partial_matches()
         if len(child_partial_matches) == 0:
@@ -81,34 +84,72 @@ class KleeneClosureNode(UnaryNode):
         last_partial_match = child_partial_matches[-1]
         actual_max_size = self.__max_size if self.__max_size is not None else len(child_partial_matches)
 
+        # OPTIMIZATION: Pre-filter using KC condition hints to avoid building invalid sequences
+        filtered_matches = self.__prefilter_by_kc_condition(child_partial_matches, last_partial_match)
+
         result_powerset = []
 
-        # OPTIMIZATION: Greedy approach with temporal fallback
-        # Build sequences from longest to shortest, checking temporal validity
-        # This naturally handles expiration: when long chains become invalid, we get shorter ones
-
-        for seq_length in range(min(actual_max_size, len(child_partial_matches)), 0, -1):
-            # Take the most recent seq_length matches including last_partial_match
-            # These are contiguous in time (most recent events)
-            sequence = child_partial_matches[-seq_length:]
+        # Generate sequences from longest to shortest
+        for seq_length in range(min(actual_max_size, len(filtered_matches)), 0, -1):
+            # Take the most recent seq_length matches
+            sequence = filtered_matches[-seq_length:]
 
             # Verify this sequence:
-            # 1. Ends with the new partial match (required by Kleene closure semantics)
+            # 1. Ends with the triggering match
             # 2. Meets minimum size constraint
             if (sequence[-1] == last_partial_match and
                 len(sequence) >= self.__min_size):
 
-                # Check temporal validity: all events in sequence within time window
+                # Check temporal validity and KC conditions
                 if self.__is_sequence_temporally_valid(sequence):
                     result_powerset.append(sequence)
 
-                    # GREEDY: Once we find the longest valid sequence, we're done
-                    # The temporal expiration will handle fallback automatically:
-                    # - Next time this is called, older events will be cleaned
-                    # - We'll naturally get shorter sequences
-                    break
-
         return result_powerset
+
+    def __prefilter_by_kc_condition(self, child_matches, triggering_match):
+        """
+        Pre-filter child matches using KC condition hints to avoid building sequences
+        that will be rejected. Uses the first KCIndexCondition with offset=1 to identify
+        grouping attributes (e.g., bike_id for bike trip chains).
+
+        This makes sequence generation generic while avoiding the performance cost of
+        building and validating sequences that mix incompatible events.
+        """
+        if not self._condition or not hasattr(self._condition, 'get_conditions_list'):
+            # No condition or not a composite condition - no filtering
+            return child_matches
+
+        # Find first KCIndexCondition with offset=1 (consecutive item comparison)
+        from opencep.condition.KCCondition import KCIndexCondition
+        kc_conditions = [c for c in self._condition.get_conditions_list() if isinstance(c, KCIndexCondition)]
+        grouping_condition = next((c for c in kc_conditions if c.get_offset() == 1), None)
+
+        if not grouping_condition:
+            # No grouping condition found - no filtering
+            return child_matches
+
+        # Extract grouping attribute from triggering match
+        if not hasattr(triggering_match, 'events') or len(triggering_match.events) == 0:
+            return child_matches
+
+        triggering_event = triggering_match.events[0]
+        if not hasattr(triggering_event, 'payload'):
+            return child_matches
+
+        # Use the getattr_func from the KC condition to extract the grouping value
+        triggering_value = grouping_condition._getattr_func(triggering_event.payload)
+
+        # Filter to only matches with the same grouping value
+        filtered = []
+        for pm in child_matches:
+            if hasattr(pm, 'events') and len(pm.events) > 0:
+                event = pm.events[0]
+                if hasattr(event, 'payload'):
+                    value = grouping_condition._getattr_func(event.payload)
+                    if value == triggering_value:
+                        filtered.append(pm)
+
+        return filtered if filtered else child_matches  # Fallback to all if filtering produces nothing
 
     def __is_sequence_temporally_valid(self, sequence):
         """
