@@ -1,8 +1,14 @@
 #!/usr/bin/env python3
-"""Intelligent CEP Runner with pattern-aware load shedding.
+"""CEP Runner with pattern-aware load shedding.
+
+Detects bike trip chains ending at hot NYC stations (2018 CitiBike data):
+- Station 519 (Pershing Square North) - Most popular
+- Station 435 (W 21 St & 6 Ave) - Second most popular
+- Station 3255 (8 Ave & W 31 St) - Third most popular
 
 Implements threading-based streaming where:
-- Feeder thread provides events via blocking queue
+- Feeder thread provides events via blocking queue with backpressure
+- Monitor thread shows real-time partial match counts
 - CEP runs once maintaining full pattern state
 - Load shedding protects events in active partial matches
 - Parameters adapt in real-time based on latency
@@ -576,7 +582,15 @@ def run_hot_paths_cep(
     max_lines: Optional[int] = None,
     verbose: bool = False,
 ) -> Dict[str, Any]:
-    """Run CEP with hot paths patterns - the main project requirement."""
+    """Run CEP with hot paths patterns - detects bike chains to NYC hot stations.
+
+    Detects bike trip chains ending at top 3 NYC stations from 2018 data:
+    - Station 519 (Pershing Square North)
+    - Station 435 (W 21 St & 6 Ave)
+    - Station 3255 (8 Ave & W 31 St)
+
+    Uses load shedding with real-time partial match monitoring.
+    """
 
     if verbose:
         print("=== Hot Paths CEP Runner ===")
@@ -957,27 +971,32 @@ def main():
     """Main CLI entry point."""
     parser = argparse.ArgumentParser(
         prog="cep_runner",
-        description="Adaptive CEP Runner - Hot paths detection with intelligent load shedding",
+        description="Adaptive CEP Runner - Hot paths detection with load shedding",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 LOAD SHEDDING:
   Priority 1: Protect events with bike_ids/stations in active partial matches
-  Priority 2: Protect events to/from target hot stations (3186, 3183, 3203)
+  Priority 2: Protect events to/from target hot stations (519, 435, 3255)
   Priority 3: Drop same-station round trips
   Priority 4: Adaptive sampling when latency exceeds target (50ms/batch)
 
+🎯 HOT STATIONS (2018 NYC):
+  Station 519 (Pershing Square North) - Most popular destination
+  Station 435 (W 21 St & 6 Ave) - Second most popular
+  Station 3255 (8 Ave & W 31 St) - Third most popular
+
 Examples:
-  # Test with 100 events
-  uv run cep-runner --input data/JC-201709-citibike-tripdata.csv --max-lines 100 --verbose
+  # Quick validation (1000 events)
+  uv run cep-runner --input data/201801-citibike-tripdata.csv --max-lines 1000 --verbose
 
-  # Medium scale test
-  uv run cep-runner --input data/JC-201709-citibike-tripdata.csv --max-lines 1000
+  # Medium scale test (10k events)
+  uv run cep-runner --input data/201801-citibike-tripdata.csv --max-lines 10000 --verbose
 
-  # Full September 2017 dataset (33,120 events)
-  uv run cep-runner --input data/JC-201709-citibike-tripdata.csv --verbose
+  # Full month (January 2018: ~940k events)
+  uv run cep-runner --input data/201801-citibike-tripdata.csv --verbose
 
   # JSON output for analysis
-  uv run cep-runner --input data/JC-201709-citibike-tripdata.csv --json
+  uv run cep-runner --input data/201801-citibike-tripdata.csv --max-lines 10000 --json
         """,
     )
 
