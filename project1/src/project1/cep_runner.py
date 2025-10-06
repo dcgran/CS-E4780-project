@@ -13,6 +13,7 @@ import argparse
 import json
 import os
 import psutil
+import queue
 import sys
 import threading
 import time
@@ -51,7 +52,9 @@ class EventFeeder:
         self.formatter = formatter
 
         self.input_stream = InputStream()
-        self.target_stations = {"3186", "3183", "3203"}
+        self.input_stream._stream = queue.Queue(maxsize=1000)  # Bounded queue for backpressure
+
+        self.target_stations = {"519", "435", "3255"}  # 2018 hot stations
 
         self.sampling_rate = 1.0
         self.target_latency_ms = 50.0
@@ -69,33 +72,40 @@ class EventFeeder:
         self.total_events_seen = 0
         self.lines_processed = 0
 
+        self.queue_full_waits = 0
+        self.total_queue_wait_time = 0.0
+
         self.adjustment_history: list[dict[str, float]] = []
         self.feeding_start_time = None
         self.feeding_end_time = None
 
         self.feeder_thread = None
+        self.monitor_thread = None
         self.exception = None
+        self.stop_monitoring = threading.Event()
 
-        self._prepare_streaming_data(file_path, max_lines)
+        # Count total lines for progress reporting (fast, just counts newlines)
+        self.total_lines = self._count_lines(file_path)
 
-    def _prepare_streaming_data(self, file_path: str, max_lines: Optional[int]):
-        with open(file_path, "r") as f:
-            self.all_lines = f.readlines()
-
-        # Skip CSV header row (common header field names)
-        if self.all_lines and any(
-            header in self.all_lines[0].lower()
-            for header in ["ride_id", "tripduration", "starttime", "bikeid"]
-        ):
-            self.all_lines = self.all_lines[1:]
-
-        if max_lines is not None:
-            self.all_lines = self.all_lines[:max_lines]
+    def _count_lines(self, file_path: str) -> int:
+        """Fast line count for progress reporting."""
+        count = 0
+        with open(file_path, "rb") as f:
+            for _ in f:
+                count += 1
+        # Subtract 1 for header if present
+        if count > 0:
+            count -= 1
+        if self.max_lines is not None:
+            count = min(count, self.max_lines)
 
         if self.verbose:
-            print(f"Prepared {len(self.all_lines)} events for streaming")
+            print(f"Streaming {count:,} events from file")
             print(f"Target latency: {self.target_latency_ms}ms per batch")
+            print(f"Bounded queue: 1000 events (backpressure enabled)")
             print("Pattern-aware load shedding enabled")
+
+        return count
 
     def _extract_partial_match_info(self):
         """Query CEP tree for partial matches to protect pattern-relevant events."""
@@ -165,7 +175,7 @@ class EventFeeder:
         except Exception:
             pass
 
-    def _should_keep_event(self, raw_event: str, batch_latency_ms: float) -> bool:
+    def _should_keep_event(self, raw_event: str, batch_latency_ms: float, queue_fill_pct: float = 0.0) -> bool:
         """Priority-based load shedding: protect partial matches, target stations, then sample."""
         parts = raw_event.split(",")
         if len(parts) < 12:
@@ -196,9 +206,14 @@ class EventFeeder:
                 self.shed_by_same_station += 1
                 return False
 
+            should_shed = False
             if batch_latency_ms > self.target_latency_ms:
-                import random
+                should_shed = True
+            if queue_fill_pct > 70:  # Queue is getting full - CEP can't keep up
+                should_shed = True
 
+            if should_shed:
+                import random
                 if random.random() > self.sampling_rate:
                     self.shed_by_sampling += 1
                     return False
@@ -212,61 +227,92 @@ class EventFeeder:
         try:
             self.feeding_start_time = time.time()
 
-            batch_size = 50 if len(self.all_lines) > 1000 else 20
+            batch_size = 50 if self.total_lines > 1000 else 20
             batch_start_time = time.time()
             events_in_batch = 0
+            idx = 0
 
             if self.verbose:
                 print(
                     f"Starting event feeding (batch size: {batch_size})"
                 )
 
-            for idx, line in enumerate(self.all_lines):
-                self.total_events_seen += 1
-                stripped = line.strip()
-                if not stripped:
-                    continue
+            # Stream from file on-demand
+            with open(self.file_path, "r") as f:
+                # Skip header
+                first_line = f.readline()
+                is_header = any(
+                    header in first_line.lower()
+                    for header in ["ride_id", "tripduration", "starttime", "bikeid"]
+                )
+                if not is_header:
+                    # Not a header, process it
+                    stripped = first_line.strip()
+                    if stripped:
+                        self.total_events_seen += 1
+                        if self._should_keep_event(stripped, 0.0):
+                            self._put_with_backpressure(stripped)
+                            self.lines_processed += 1
+                        else:
+                            self.events_dropped += 1
 
-                current_time = time.time()
-                if (
-                    current_time - self.last_metrics_update
-                    > self.metrics_update_interval
-                ):
-                    self._extract_partial_match_info()
-                    self.last_metrics_update = current_time
+                # Process remaining lines
+                for line in f:
+                    if self.max_lines is not None and idx >= self.max_lines:
+                        break
 
-                batch_elapsed = (current_time - batch_start_time) * 1000
-                batch_latency = batch_elapsed / max(1, events_in_batch)
+                    self.total_events_seen += 1
+                    idx += 1
+                    stripped = line.strip()
+                    if not stripped:
+                        continue
 
-                if self._should_keep_event(stripped, batch_latency):
-                    self.input_stream._stream.put(stripped)
-                    self.lines_processed += 1
-                    events_in_batch += 1
-                else:
-                    self.events_dropped += 1
+                    current_time = time.time()
+                    if (
+                        current_time - self.last_metrics_update
+                        > self.metrics_update_interval
+                    ):
+                        self._extract_partial_match_info()
+                        self.last_metrics_update = current_time
 
-                if events_in_batch >= batch_size:
-                    batch_time = time.time() - batch_start_time
-                    batch_latency_ms = (batch_time * 1000) / events_in_batch
-                    self.recent_latencies.append(batch_latency_ms)
+                    # Check queue fill level for adaptive backpressure
+                    queue_size = self.input_stream._stream.qsize()
+                    queue_fill_pct = (queue_size / 1000.0) * 100
 
-                    if len(self.recent_latencies) > 20:
-                        self.recent_latencies = self.recent_latencies[-20:]
+                    batch_elapsed = (current_time - batch_start_time) * 1000
+                    batch_latency = batch_elapsed / max(1, events_in_batch)
 
-                    self._adjust_sampling_rate(batch_latency_ms)
+                    if self._should_keep_event(stripped, batch_latency, queue_fill_pct):
+                        self._put_with_backpressure(stripped)
+                        self.lines_processed += 1
+                        events_in_batch += 1
+                    else:
+                        self.events_dropped += 1
 
-                    if self.verbose and idx % 1000 == 0:
-                        protected_pct = (
-                            self.events_protected / max(1, self.total_events_seen)
-                        ) * 100
-                        print(
-                            f"   Progress: {idx}/{len(self.all_lines)} events, "
-                            f"{self.lines_processed} kept, {self.events_dropped} dropped, "
-                            f"{protected_pct:.1f}% protected"
-                        )
+                    if events_in_batch >= batch_size:
+                        batch_time = time.time() - batch_start_time
+                        batch_latency_ms = (batch_time * 1000) / events_in_batch
+                        self.recent_latencies.append(batch_latency_ms)
 
-                    batch_start_time = time.time()
-                    events_in_batch = 0
+                        if len(self.recent_latencies) > 20:
+                            self.recent_latencies = self.recent_latencies[-20:]
+
+                        self._adjust_sampling_rate(batch_latency_ms, queue_fill_pct)
+
+                        if self.verbose and idx % 1000 == 0:
+                            protected_pct = (
+                                self.events_protected / max(1, self.total_events_seen)
+                            ) * 100
+                            print(
+                                f"   {idx}/{self.total_lines} events | "
+                                f"{self.lines_processed} kept | "
+                                f"{self.events_dropped} dropped | "
+                                f"{protected_pct:.1f}% protected | "
+                                f"queue: {queue_fill_pct:.0f}%"
+                            )
+
+                        batch_start_time = time.time()
+                        events_in_batch = 0
 
             self.input_stream.close()
             self.feeding_end_time = time.time()
@@ -281,20 +327,42 @@ class EventFeeder:
             self.input_stream.close()
             raise
 
-    def _adjust_sampling_rate(self, batch_latency_ms: float):
+    def _put_with_backpressure(self, event: str):
+        """Put event into queue, handling backpressure when full."""
+        try:
+            start_wait = time.time()
+            self.input_stream._stream.put(event, timeout=5.0)
+        except queue.Full:
+            # Queue full - this is backpressure from slow CEP
+            wait_time = time.time() - start_wait
+            self.queue_full_waits += 1
+            self.total_queue_wait_time += wait_time
+            # Try again with longer timeout
+            self.input_stream._stream.put(event, timeout=30.0)
+
+    def _adjust_sampling_rate(self, batch_latency_ms: float, queue_fill_pct: float):
         if len(self.recent_latencies) < 3:
             return
 
         avg_latency = sum(self.recent_latencies) / len(self.recent_latencies)
         latency_ratio = avg_latency / self.target_latency_ms
 
-        if latency_ratio > 2.0:
+        # Factor in queue backpressure - if queue is filling, shed more aggressively
+        pressure_factor = 1.0
+        if queue_fill_pct > 80:
+            pressure_factor = 1.5  # Much more aggressive
+        elif queue_fill_pct > 60:
+            pressure_factor = 1.2  # Somewhat more aggressive
+
+        effective_ratio = latency_ratio * pressure_factor
+
+        if effective_ratio > 2.0:
             self.sampling_rate = max(0.5, self.sampling_rate * 0.9)
             action = "AGGRESSIVE shedding"
-        elif latency_ratio > 1.5:
+        elif effective_ratio > 1.5:
             self.sampling_rate = max(0.7, self.sampling_rate * 0.95)
             action = "MODERATE shedding"
-        elif latency_ratio < 0.5:
+        elif effective_ratio < 0.5 and queue_fill_pct < 40:
             self.sampling_rate = min(1.0, self.sampling_rate * 1.1)
             action = "REDUCING shedding"
         else:
@@ -303,6 +371,7 @@ class EventFeeder:
         self.adjustment_history.append(
             {
                 "avg_latency_ms": avg_latency,
+                "queue_fill_pct": queue_fill_pct,
                 "sampling_rate": self.sampling_rate,
                 "protected_count": float(
                     len(self.protected_bike_ids) + len(self.protected_station_ids)
@@ -310,6 +379,143 @@ class EventFeeder:
                 "action": float(0) if action == "none" else float(1),
             }
         )
+
+    def _monitor_cep_progress(self):
+        """Monitor CEP progress and display real-time stats."""
+        last_processed = 0
+        start_time = time.time()
+        process = psutil.Process()
+
+        try:
+            while not self.stop_monitoring.is_set():
+                time.sleep(2.0)  # Update every 2 seconds
+
+                current_time = time.time()
+                elapsed = current_time - start_time
+
+                # Get current stats
+                queue_size = self.input_stream._stream.qsize()
+                queue_fill_pct = (queue_size / 1000.0) * 100
+                events_delta = self.lines_processed - last_processed
+                rate = events_delta / 2.0 if elapsed > 0 else 0
+
+                # Count partial matches in CEP tree using public API
+                partial_match_count = 0
+                total_matches_count = 0
+                try:
+                    eval_manager = self.cep_engine._CEP__evaluation_manager
+
+                    if hasattr(eval_manager, "_SequentialEvaluationManager__eval_mechanism"):
+                        eval_mechanism = eval_manager._SequentialEvaluationManager__eval_mechanism
+                        if hasattr(eval_mechanism, "_tree"):
+                            tree = eval_mechanism._tree
+                            visited = set()
+
+                            def count_node_matches(node):
+                                if not node:
+                                    return 0
+
+                                # Avoid counting same node twice
+                                node_id = id(node)
+                                if node_id in visited:
+                                    return 0
+                                visited.add(node_id)
+
+                                count = 0
+
+                                # Use public API to get partial matches
+                                if hasattr(node, "get_partial_matches"):
+                                    try:
+                                        pm_count = node.get_partial_matches()
+                                        if isinstance(pm_count, int):
+                                            count += pm_count
+                                        elif pm_count is not None:
+                                            count += len(pm_count)
+                                    except:
+                                        pass
+
+                                # Traverse tree using public methods if available
+                                if hasattr(node, "get_left_subtree"):
+                                    try:
+                                        left = node.get_left_subtree()
+                                        if left:
+                                            count += count_node_matches(left)
+                                    except:
+                                        pass
+
+                                if hasattr(node, "get_right_subtree"):
+                                    try:
+                                        right = node.get_right_subtree()
+                                        if right:
+                                            count += count_node_matches(right)
+                                    except:
+                                        pass
+
+                                # Fallback to parents if no subtrees
+                                if hasattr(node, "get_parents"):
+                                    try:
+                                        parents = node.get_parents()
+                                        if parents:
+                                            for parent in parents:
+                                                count += count_node_matches(parent)
+                                    except:
+                                        pass
+
+                                return count
+
+                            # Use public API to get root
+                            try:
+                                root = tree.get_root()
+                                if root:
+                                    partial_match_count = count_node_matches(root)
+                            except:
+                                # Fallback to leaves
+                                try:
+                                    leaves = tree.get_leaves()
+                                    if leaves:
+                                        for leaf in leaves:
+                                            partial_match_count += count_node_matches(leaf)
+                                except:
+                                    pass
+                except:
+                    pass
+
+                # Memory usage
+                mem_mb = process.memory_info().rss / 1024 / 1024
+
+                # Progress
+                progress_pct = (self.total_events_seen / max(1, self.total_lines)) * 100
+
+                if self.verbose:
+                    match_str = f"{partial_match_count} partial"
+                    if total_matches_count > 0:
+                        match_str = f"{partial_match_count} partial / {total_matches_count} matches"
+
+                    print(
+                        f"   CEP: {self.total_events_seen}/{self.total_lines} ({progress_pct:.1f}%) | "
+                        f"{rate:.0f} ev/s | "
+                        f"{match_str} | "
+                        f"queue: {queue_fill_pct:.0f}% | "
+                        f"{mem_mb:.0f}MB"
+                    )
+
+                last_processed = self.lines_processed
+
+        except Exception:
+            pass  # Silent failure for monitoring thread
+
+    def start_monitoring(self):
+        """Start the monitoring thread."""
+        self.monitor_thread = threading.Thread(
+            target=self._monitor_cep_progress, daemon=True
+        )
+        self.monitor_thread.start()
+
+    def stop_monitoring_thread(self):
+        """Stop the monitoring thread."""
+        self.stop_monitoring.set()
+        if self.monitor_thread:
+            self.monitor_thread.join(timeout=1.0)
 
     def start_feeding(self, output_stream):
         """Start the feeder thread."""
@@ -322,6 +528,7 @@ class EventFeeder:
         """Wait for feeder thread to complete."""
         if self.feeder_thread:
             self.feeder_thread.join()
+        self.stop_monitoring_thread()
         if self.exception:
             raise self.exception
 
@@ -346,6 +553,13 @@ class EventFeeder:
         print("   Shedding breakdown:")
         print(f"      Sampling: {self.shed_by_sampling}")
         print(f"      Same station: {self.shed_by_same_station}")
+
+        if self.queue_full_waits > 0:
+            avg_wait = self.total_queue_wait_time / self.queue_full_waits
+            print("    Backpressure stats:")
+            print(f"      Queue full events: {self.queue_full_waits:,}")
+            print(f"      Total wait time: {self.total_queue_wait_time:.2f}s")
+            print(f"      Avg wait per event: {avg_wait*1000:.1f}ms")
 
         if self.recent_latencies:
             avg_latency = sum(self.recent_latencies) / len(self.recent_latencies)
@@ -392,9 +606,9 @@ def run_hot_paths_cep(
     try:
         fmt = CitiBikeFormatter()
         if verbose:
-            print("Using CitiBikeFormatter")
+            print("Using CitiBike formatter (handles 2017/2018 formats)")
     except Exception as e:
-        print(f"Error: CitiBikeFormatter required but failed: {e}")
+        print(f"Error: CitiBike formatter initialization failed: {e}")
         return {"error": f"Formatter initialization failed: {e}"}
 
     cep_init_start = time.time()
@@ -438,17 +652,17 @@ def run_hot_paths_cep(
         feeder.wait_for_completion()
 
         if verbose:
-            print("Intelligent streaming completed successfully")
+            print("Streaming completed successfully")
             feeder._print_final_stats()
 
         lines_processed = feeder.lines_processed
 
     except Exception as e:
-        print(f"Intelligent streaming failed: {e}")
+        print(f"Streaming failed: {e}")
         import traceback
 
         traceback.print_exc()
-        return {"error": f"Intelligent streaming failed: {e}"}
+        return {"error": f"Streaming failed: {e}"}
 
     execution_end = time.time()
     total_execution_time = execution_end - execution_start
@@ -532,7 +746,7 @@ def extract_longest_hot_paths(output_file: str, top_n: int = 10) -> list:
     """Extract the longest hot path patterns from matches."""
     import re
 
-    hot_stations = {"3186", "3183", "3203"}
+    hot_stations = {"519", "435", "3255"}
 
     # Parse matches - groups separated by empty lines
     current_group: list[dict[str, Any]] = []
