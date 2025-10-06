@@ -44,8 +44,16 @@ class CitiBikeFormatter(DataFormatter):
             birth_year = parts[13] if len(parts) > 13 else ""
             gender = parts[14] if len(parts) > 14 else ""
 
-            started_at = datetime.strptime(starttime_str, "%Y-%m-%d %H:%M:%S")
-            ended_at = datetime.strptime(stoptime_str, "%Y-%m-%d %H:%M:%S")
+            # Handle both 2017 format (no microseconds) and 2018 format (with microseconds)
+            try:
+                started_at = datetime.strptime(starttime_str, "%Y-%m-%d %H:%M:%S.%f")
+            except ValueError:
+                started_at = datetime.strptime(starttime_str, "%Y-%m-%d %H:%M:%S")
+
+            try:
+                ended_at = datetime.strptime(stoptime_str, "%Y-%m-%d %H:%M:%S.%f")
+            except ValueError:
+                ended_at = datetime.strptime(stoptime_str, "%Y-%m-%d %H:%M:%S")
 
             return {
                 "trip_duration": int(tripduration) if tripduration.isdigit() else 0,
@@ -71,7 +79,7 @@ class CitiBikeFormatter(DataFormatter):
                 "duration_minutes": int(tripduration) / 60
                 if tripduration.isdigit()
                 else 0,
-                "is_hot_station_end": end_station_id in ["3186", "3183", "3203"],
+                "is_hot_station_end": end_station_id in ["519", "435", "3255"],
             }
 
         except (ValueError, IndexError):
