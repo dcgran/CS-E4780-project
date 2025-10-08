@@ -18,9 +18,9 @@ make setup
 **Option 2: Manual Download**
 
 1. Visit the CitiBike trip data archive: [https://s3.amazonaws.com/tripdata/index.html](https://s3.amazonaws.com/tripdata/index.html)
-2. Download `JC-201801-citibike-tripdata.csv.zip` manually, or use the commands below
-3. Extract the CSV file to the `data/` directory
-4. Sort the data file by timestamp:
+2. Download `2018-citibike-tripdata.zip` manually, or use the commands below
+3. Extract the CSV files to the `data/` directory
+4. Sort the data files by timestamp:
    ```bash
    make sort-data
    ```
@@ -28,11 +28,11 @@ make setup
 **Direct Download Link** (CitiBike S3 Bucket):
 
 ```bash
-# Download and extract January 2018 data
+# Download and extract 2018 NYC data
 cd data/
-curl -sL -o JC-201801-citibike-tripdata.csv.zip https://s3.amazonaws.com/tripdata/JC-201801-citibike-tripdata.csv.zip
-unzip JC-201801-citibike-tripdata.csv.zip
-rm JC-201801-citibike-tripdata.csv.zip
+curl -sL -o 2018-citibike-tripdata.zip https://s3.amazonaws.com/tripdata/2018-citibike-tripdata.zip
+unzip 2018-citibike-tripdata.zip
+rm 2018-citibike-tripdata.zip
 cd ..
 ```
 
@@ -72,19 +72,21 @@ uv run cep-runner --input data/201801-citibike-tripdata.csv --max-lines 10000 --
 
 The project includes a lean Makefile for easy task automation:
 
-| Command              | Description                                        |
-| -------------------- | -------------------------------------------------- |
-| `make help`          | Show all available commands                        |
-| `make setup`         | Complete setup (install + download + sort data)    |
-| `make install`       | Install dependencies with uv                       |
-| `make download-data` | Download January 2018 CitiBike data from S3 bucket |
-| `make sort-data`     | Sort CSV files by timestamp (required for CEP)     |
-| `make run-demo`      | Quick demo with 1,000 events                       |
-| `make run-full`      | Run CEP on full dataset                            |
-| `make benchmark`     | Generate JSON benchmark results (10k events)       |
-| `make clean`         | Clean output files and caches                      |
-| `make info`          | Show dataset information                           |
-| `make check-data`    | Check if CSV data files exist                      |
+| Command                   | Description                                     |
+| ------------------------- | ----------------------------------------------- |
+| `make help`               | Show all available commands                     |
+| `make setup`              | Complete setup (install + download + sort data) |
+| `make install`            | Install dependencies with uv                    |
+| `make download-data`      | Download 2018 NYC CitiBike data from S3 bucket  |
+| `make sort-data`          | Sort CSV files by timestamp (required for CEP)  |
+| `make run-demo`           | Quick demo with 1,000 events                    |
+| `make run-full`           | Run CEP on full dataset                         |
+| `make benchmark`          | Generate JSON benchmark results (10k events)    |
+| `make benchmark-baseline` | Run baseline (no load shedding) for evaluation  |
+| `make evaluate`           | Run complete performance evaluation             |
+| `make clean`              | Clean output files and caches                   |
+| `make info`               | Show dataset information                        |
+| `make check-data`         | Check if CSV data files exist                   |
 
 **First-time users**: Run `make setup` to install dependencies and prepare data files.
 

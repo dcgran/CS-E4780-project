@@ -50,20 +50,29 @@ class EventFeeder:
         formatter,
         max_lines: Optional[int] = None,
         verbose: bool = False,
+        no_load_shedding: bool = False,
+        latency_bound: Optional[float] = None,
     ):
         self.file_path = file_path
         self.max_lines = max_lines
         self.verbose = verbose
         self.cep_engine = cep_engine
         self.formatter = formatter
+        self.no_load_shedding = no_load_shedding
+        self.latency_bound = latency_bound
 
         self.input_stream = InputStream()
         self.input_stream._stream = queue.Queue(maxsize=1000)  # Bounded queue for backpressure
 
         self.target_stations = {"519", "435", "3255"}  # 2018 hot stations
 
-        self.sampling_rate = 1.0
-        self.target_latency_ms = 50.0
+        self.sampling_rate = 1.0 if no_load_shedding else 1.0
+        # Adjust target latency based on bound if specified
+        base_latency_ms = 50.0
+        if latency_bound is not None:
+            self.target_latency_ms = base_latency_ms * latency_bound
+        else:
+            self.target_latency_ms = base_latency_ms
         self.recent_latencies: list[float] = []
 
         self.protected_bike_ids: Set[str] = set()
@@ -183,6 +192,10 @@ class EventFeeder:
 
     def _should_keep_event(self, raw_event: str, batch_latency_ms: float, queue_fill_pct: float = 0.0) -> bool:
         """Priority-based load shedding: protect partial matches, target stations, then sample."""
+        # If load shedding is disabled, keep all events
+        if self.no_load_shedding:
+            return True
+            
         parts = raw_event.split(",")
         if len(parts) < 12:
             return False
@@ -581,6 +594,8 @@ def run_hot_paths_cep(
     output_dir: str,
     max_lines: Optional[int] = None,
     verbose: bool = False,
+    no_load_shedding: bool = False,
+    latency_bound: Optional[float] = None,
 ) -> Dict[str, Any]:
     """Run CEP with hot paths patterns - detects bike chains to NYC hot stations.
 
@@ -639,7 +654,9 @@ def run_hot_paths_cep(
     # Setup feeder
     stream_setup_start = time.time()
     try:
-        feeder = EventFeeder(input_file, cep, fmt, max_lines, verbose)
+        feeder = EventFeeder(
+            input_file, cep, fmt, max_lines, verbose, no_load_shedding, latency_bound
+        )
         output_stream = FileOutputStream(output_dir, "matches.txt", is_async=False)
         if verbose:
             print("Feeder prepared for pattern-aware streaming")
@@ -967,6 +984,94 @@ def print_results(metrics: Dict[str, Any], output_dir: str = "outputs") -> None:
         print_longest_hot_paths(output_file, top_n=10)
 
 
+def run_performance_evaluation(
+    input_file: str,
+    output_dir: str,
+    max_lines: Optional[int] = None,
+    verbose: bool = False,
+) -> None:
+    """Run complete performance evaluation with different latency bounds."""
+    
+    # Ensure output directory exists
+    Path(output_dir).mkdir(parents=True, exist_ok=True)
+    eval_dir = Path(output_dir) / "evaluation"
+    eval_dir.mkdir(exist_ok=True)
+    
+    print("Running Performance Evaluation")
+    print("=" * 50)
+    
+    # Step 1: Baseline (no load shedding)
+    print("Step 1/6: Running baseline (no load shedding)...")
+    baseline_metrics = run_hot_paths_cep(
+        input_file, str(eval_dir), max_lines, verbose=False, no_load_shedding=True
+    )
+    
+    # Save baseline results
+    with open(eval_dir / "baseline.json", "w") as f:
+        json.dump(baseline_metrics, f, indent=2)
+    
+    baseline_matches = baseline_metrics.get("matches_found", 0)
+    baseline_time = baseline_metrics.get("execution_time_ms", 0)
+    
+    print(f"Baseline: {baseline_matches} matches, {baseline_time:.2f}ms")
+    
+    # Steps 2-6: Different latency bounds
+    bounds = [0.1, 0.3, 0.5, 0.7, 0.9]
+    results = []
+    
+    for i, bound in enumerate(bounds, 2):
+        print(f"Step {i}/6: Running with {bound*100:.0f}% latency bound...")
+        
+        metrics = run_hot_paths_cep(
+            input_file, str(eval_dir), max_lines, verbose=False, latency_bound=bound
+        )
+        
+        # Save results
+        filename = f"latency_{bound*100:.0f}pct.json"
+        with open(eval_dir / filename, "w") as f:
+            json.dump(metrics, f, indent=2)
+        
+        matches = metrics.get("matches_found", 0)
+        time_ms = metrics.get("execution_time_ms", 0)
+        recall = (matches / baseline_matches * 100) if baseline_matches > 0 else 0
+        
+        results.append({
+            "bound": bound,
+            "matches": matches,
+            "recall": recall,
+            "time_ms": time_ms,
+        })
+        
+        print(f"{bound*100:.0f}% bound: {matches} matches ({recall:.1f}% recall), {time_ms:.2f}ms")
+    
+    # Generate summary report
+    print("\nPerformance Evaluation Summary")
+    print("=" * 60)
+    print(f"Baseline (no load shedding):")
+    print(f"  Matches: {baseline_matches}")
+    print(f"  Time: {baseline_time:.2f}ms")
+    print(f"  Events: {baseline_metrics.get('events_processed', 0)}")
+    print()
+    
+    print("Latency Bound | Matches | Recall | Time (ms) | Time Ratio")
+    print("-------------|---------|---------|-----------|----------")
+    
+    for result in results:
+        bound_pct = result["bound"] * 100
+        matches = result["matches"]
+        recall = result["recall"]
+        time_ms = result["time_ms"]
+        time_ratio = (time_ms / baseline_time * 100) if baseline_time > 0 else 0
+        
+        print(f"{bound_pct:>11.0f}% | {matches:>7} | {recall:>6.1f}% | {time_ms:>9.2f} | {time_ratio:>8.1f}%")
+    
+    print(f"\nResults saved to {eval_dir}/")
+    print("Files generated:")
+    print("  - baseline.json")
+    for bound in bounds:
+        print(f"  - latency_{bound*100:.0f}pct.json")
+
+
 def main():
     """Main CLI entry point."""
     parser = argparse.ArgumentParser(
@@ -980,7 +1085,7 @@ LOAD SHEDDING:
   Priority 3: Drop same-station round trips
   Priority 4: Adaptive sampling when latency exceeds target (50ms/batch)
 
-🎯 HOT STATIONS (2018 NYC):
+HOT STATIONS (2018 NYC):
   Station 519 (Pershing Square North) - Most popular destination
   Station 435 (W 21 St & 6 Ave) - Second most popular
   Station 3255 (8 Ave & W 31 St) - Third most popular
@@ -1019,6 +1124,21 @@ Examples:
         action="store_true",
         help="Output results as JSON instead of pretty print",
     )
+    parser.add_argument(
+        "--no-load-shedding",
+        action="store_true",
+        help="Disable load shedding (baseline run for evaluation)",
+    )
+    parser.add_argument(
+        "--latency-bound",
+        type=float,
+        help="Latency bound as fraction of baseline (0.1 = 10%, 0.5 = 50%, etc.)",
+    )
+    parser.add_argument(
+        "--evaluate",
+        action="store_true",
+        help="Run complete performance evaluation (baseline + all latency bounds)",
+    )
 
     args = parser.parse_args()
 
@@ -1027,14 +1147,22 @@ Examples:
         sys.exit(1)
 
     try:
-        metrics = run_hot_paths_cep(
-            args.input, args.output, max_lines=args.max_lines, verbose=args.verbose
-        )
-
-        if args.json:
-            print(json.dumps(metrics, indent=2))
+        if args.evaluate:
+            run_performance_evaluation(args.input, args.output, args.max_lines, args.verbose)
         else:
-            print_results(metrics, output_dir=args.output)
+            metrics = run_hot_paths_cep(
+                args.input, 
+                args.output, 
+                max_lines=args.max_lines, 
+                verbose=args.verbose,
+                no_load_shedding=args.no_load_shedding,
+                latency_bound=args.latency_bound
+            )
+
+            if args.json:
+                print(json.dumps(metrics, indent=2))
+            else:
+                print_results(metrics, output_dir=args.output)
 
     except KeyboardInterrupt:
         print("\nInterrupted by user")
