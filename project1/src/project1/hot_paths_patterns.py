@@ -34,7 +34,7 @@ def create_hot_paths_patterns() -> List[Pattern]:
     # KC condition: same bike for all consecutive trips (a[i].bike == a[i+1].bike)
     kc_same_bike = KCIndexCondition(
         names={"a"},
-        getattr_func=lambda x: x.get("bike_id", ""),
+        getattr_func=lambda x: x.get("bike_id", 0),
         relation_op=lambda bike1, bike2: bike1 == bike2,
         offset=1,  # Compare each trip with the next one
     )
@@ -55,16 +55,16 @@ def create_hot_paths_patterns() -> List[Pattern]:
         if isinstance(x, list):
             if not x:
                 return (None, None)
-            return (x[-1].get("bike_id", ""), x[-1].get("end_station_id", ""))
+            return (x[-1].get("bike_id", 0), x[-1].get("end_station_id", ""))
         return (
-            (x.get("bike_id", ""), x.get("end_station_id", ""))
+            (x.get("bike_id", 0), x.get("end_station_id", ""))
             if hasattr(x, "get")
             else (None, None)
         )
 
     def extract_bike_start_and_end_station(x):
         return (
-            x.get("bike_id", ""),
+            x.get("bike_id", 0),
             x.get("start_station_id", ""),
             x.get("end_station_id", ""),
         )
@@ -74,7 +74,7 @@ def create_hot_paths_patterns() -> List[Pattern]:
         Variable("b", extract_bike_start_and_end_station),
         lambda a_tuple, b_tuple: (
             a_tuple[0] is not None  # Valid KC result
-            and a_tuple[0]  # Non-empty bike_id
+            and a_tuple[0] != 0  # Valid bike_id (numeric)
             and a_tuple[0] == b_tuple[0]  # Same bike: a[last].bike == b.bike
             and a_tuple[1] == b_tuple[1]  # Chain continues: a[last].end == b.start
             and b_tuple[2] in hot_stations  # b ends at hot station

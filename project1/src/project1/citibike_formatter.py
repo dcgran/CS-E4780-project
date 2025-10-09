@@ -57,7 +57,7 @@ class CitiBikeFormatter(DataFormatter):
 
             return {
                 "trip_duration": int(tripduration) if tripduration.isdigit() else 0,
-                "bike_id": bike_id,
+                "bike_id": int(bike_id) if bike_id.isdigit() else 0,
                 "start_station_id": start_station_id,
                 "end_station_id": end_station_id,
                 "start_station_name": start_station_name,
