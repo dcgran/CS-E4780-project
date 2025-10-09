@@ -623,8 +623,6 @@ def run_hot_paths_cep(
         if verbose:
             print(f"Loaded {len(patterns)} optimized hot paths patterns")
             print("   OpenCEP Kleene closure optimizations enabled")
-            print("   Selection strategy: MATCH_SINGLE (reduces state explosion)")
-            print("   Candidate limiting: Max 100 partial matches per node")
 
     except Exception as e:
         print(f"Error loading patterns: {e}")
