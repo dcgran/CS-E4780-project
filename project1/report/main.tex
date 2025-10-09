@@ -35,7 +35,6 @@
 %% This version is used for drafting and final submission
 \documentclass[sigconf]{acmart}
 
-
 %% 
 %% To ensure 100% compatibility, please check the white list of
 %% approved LaTeX packages to be used with the Master Article Template at
@@ -113,13 +112,14 @@
 %% % Location of your graphics files for figures, here a sub-folder to the main project folder
 \graphicspath{{./images/}} 
 
+\usepackage{listings}
 
 \begin{document}
 
 %%
 %% The "title" command has an optional parameter,
 %% allowing the author to define a "short title" to be used in page headers.
-\title{Sample for ACM Hypertext Paper}
+\title{Project report}
 
 %%
 %% The "author" command and its associated commands are used to define
@@ -127,77 +127,31 @@
 %% Of note is the shared affiliation of the first two authors, and the
 %% "authornote" and "authornotemark" commands
 %% used to denote shared contribution to the research.
-\author{Ben Trovato}
-\authornote{Both authors contributed equally to this research.}
-\email{trovato@corporation.com}
-\orcid{1234-5678-9012}
-\author{G.K.M. Tobin}
-\authornotemark[1]
-\email{webmaster@marysville-ohio.com}
-\affiliation{%
-  \institution{Institute for Clarity in Documentation}
-  \streetaddress{P.O. Box 1212}
-  \city{Dublin}
-  \state{Ohio}
-  \country{USA}
-  \postcode{43017-6221}
-}
 
-\author{Lars Th{\o}rv{\"a}ld}
+\author{Daniel Granstr{\"o}m}
 \affiliation{%
-  \institution{The Th{\o}rv{\"a}ld Group}
+  \institution{Aalto University}
   \streetaddress{1 Th{\o}rv{\"a}ld Circle}
-  \city{Hekla}
-  \country{Iceland}}
-\email{larst@affiliation.org}
+  \city{Espoo}
+  \country{Finland}}
+\email{daniel.granstrom@aalto.fi}
 
-\author{Valerie B\'eranger}
+
+\author{Joonatan Korpela}
 \affiliation{%
-  \institution{Inria Paris-Rocquencourt}
-  \city{Rocquencourt}
-  \country{France}
+  \institution{Aalto University}
+  \city{Espoo}
+  \country{Finland}
 }
+\email{joonatan.korpela@aalto.fi}
 
-\author{Aparna Patel}
+\author{Mikael Siidorow}
 \affiliation{%
- \institution{Rajiv Gandhi University}
- \streetaddress{Rono-Hills}
- \city{Doimukh}
- \state{Arunachal Pradesh}
- \country{India}}
-
-\author{Huifen Chan}
-\affiliation{%
-  \institution{Tsinghua University}
-  \streetaddress{30 Shuangqing Rd}
-  \city{Haidian Qu}
-  \state{Beijing Shi}
-  \country{China}}
-
-\author{Charles Palmer}
-\affiliation{%
-  \institution{Palmer Research Laboratories}
-  \streetaddress{8600 Datapoint Drive}
-  \city{San Antonio}
-  \state{Texas}
-  \country{USA}
-  \postcode{78229}}
-\email{cpalmer@prl.com}
-
-\author{John Smith}
-\affiliation{%
-  \institution{The Thørväld Group}
-  \streetaddress{1 Th{\o}rv{\"a}ld Circle}
-  \city{Hekla}
-  \country{Iceland}}
-\email{jsmith@affiliation.org}
-
-\author{Julius P. Kumquat}
-\affiliation{%
-  \institution{The Kumquat Consortium}
-  \city{New York}
-  \country{USA}}
-\email{jpkumquat@consortium.net}
+  \institution{Aalto University}
+  \city{Espoo}
+  \country{Finland}
+}
+\email{mikael.siidorow@aalto.fi}
 
 %%
 %% By default, the full list of authors will be used in the page
@@ -285,18 +239,63 @@ Pay attention to the code comments about author information and add/remove autho
 
 Macro codes are offered (\texttt{e.g. authornote}) which may be used as well as indicating the corresponding author(s) for communication during publication.
 
-\subsection{General points on ACM papers}
-See the file `sample-sigconf.pdf' provided with this template set. It explains the basics of a number of structural features.
+\section{Real Introduction}
 
-Newer users of \LaTeX\ should take care to understand \LaTeX's special characters that need explicit escaping. Also be aware that typographic quotes and en-dash/em-dash hyphens are not used literally in TEX documents but are indicated with macros.
+In this report, we will explore the system architecture, implementation and performance evaluation of the course project.
 
-Overleaf has extensive documentation covering how to indicate typographic elements in \LaTeX code.
+The goal of the course project is to “implement a basic load shed- ding strategy for a CEP system to handle bursty workloads while ensuring low-latency processing based on codebase OpenCEP” [1]. The OpenCEP codebase is an unlicensed github repository which belongs to the user ilya-kolchinsky [2]. However, it claims to be a library and a framework for implementing complex event processing although it is impossible to install because the project is missing a pyproject.toml and setup.py file. Nevertheless, we made a copy of the project and fixed all the bugs in it to get started.
 
-\subsubsection{A Third-level Heading} 
-Note that level-three headings are inset into the beginning in the first paragraph of that section, regardless of line breaks in the source document.
+The project has been implemented using Python and the uv astral package and project manager, which is written in Rust [3]. The project uses git for version control and vscode as the text editor. To run the project, you must first clone the repository with git and install all required python packages using the command uv sync. Then to run the pattern recognition on some citibike test data, you need to run:
 
-Sections at all three levels are auto-numbered, so these do not need to be numbered in your text.
+\begin{lstlisting}
+uv run cep-run \
+    --patterns config/citibike_patterns.yaml \
+    --input test_small.csv \
+    --mode citibike --verbose
+\end{lstlisting}
 
+The goal of this project is to identify hot routes in CitiBike travel data, that is, identifying chains of bicycle trips that end at busy stations. This is a very important problem because CitiBike operators move hundreds of bicycles every day to balance the amount of bikes at each station. By identifying these hot paths, we can improve operational efficiency and maintain high availability of bikes.
+
+\section{System Architecture}
+
+The system architecture is built around dynamically adjusting internal parameters to handle resource exhaustion while maintaining low latency. The system reads the state of the CEP engine and makes load shedding decisions based on it.
+
+The system separates event ingestion, pattern processing and system monitoring into separate components. Events are filtered before CEP processing according to a four-tier priority queue. The priorities from highest to lowest are: partial match protection, target station events, noise elimination, and adaptive sampling. System monitoring provides data based on event processing latency which determines parameter adjustment. The system is optimized to maintain low latency rather than high throughput. When latency exceeds targets, sampling rate is lowered to reduce latency. The architecture assumes regular resource constraints.
+
+
+\section{Implementation}
+
+50-event batches, 1000-event bounded queue, 20-sample latency window, MATCH\_SINGLE selection strategy with 100-candidate limiting per node.
+
+\subsection{Program outline}
+
+At its core, the system is a script that loads test data from a file and streams it to the OpenCEP engine while applying appropriate load shedding strategies. When patterns in the data are found, the results are streamed into an output file while collecting performance metrics. These metrics are used to dynamically adapt the load shedding strategy to match the load on the system.
+
+The program consists of roughly 3 parts. First, the system creates the patterns to be detected using the create\_2017\_hot\_paths\_patterns function. It creates an OpenCEP Pattern object that models the query for the hot paths. Then an instance of the OpenCEP CEP class is initialized using the Pattern object.
+
+The system then creates an instance of the CitiBike2017Formatter class, which extends the OpenCEP DataFormatter. The system also creates an instance of our custom IntelligentEventFeeder class, which coordinates the load shedding logic and dynamically changes the shedding level based on performance.
+
+Finally, the CEP engine is run with the data formatter and IntelligentEventFeeder until the whole dataset has been processed. It also prints real-time logs of the found pattern matches and performance metrics to the standard output.
+
+After the whole data has been processed, the results are processed from the output file. Different kinds of metrics are collected from the result data, such as latency, throughput, memory usage, recall and event drop rate. Finally, the results and metrics are printed to the standard output.
+
+\subsection{Partial matches}
+
+\subsection{Load shedding}
+
+The IntelligentEventFeeder class coordinates the load shedding logic for the CEP system by streaming filtered events to the CEP engine. The IntelligentEventFeeder decides whether to keep or drop each event based on whether it is involved in a partial match, whether it is related to any of the target stations and the current sampling rate.
+
+An event is never dropped if it is in a partial match or if the target stations include the end station of the event. If the start station and end station of an event are the same, it is always dropped. Otherwise, the system will consider dropping the events if the event processing latency exceeds a given threshold or the length of the event queue is too big. These events are dropped randomly based on a sampling rate that changes based on the load on the system.
+
+The sampling rate is adjustated based on...
+
+\section{Performance Evaluation}
+
+Performance characterization occurs across multiple latency
+bounds (10\%-90\% of baseline) rather than single-point measurement.
+The framework supports both standard (50ms) and aggressive (5ms)
+base latency modes to accommodate different hardware capabilities
+and create meaningful load pressure scenarios
 
 %%
 %% The acknowledgments section is defined using the "acks" environment
