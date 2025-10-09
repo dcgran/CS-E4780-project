@@ -60,6 +60,13 @@ class KleeneClosureNode(UnaryNode):
         Generates subsets of partial matches using KC condition pre-filtering and temporal validation.
         Pre-filters using KC condition hints to avoid building invalid sequences.
         """
+        # Force immediate cleanup of expired matches to avoid processing stale data
+        storage = self._child.get_storage_unit()
+        if storage is not None and len(storage) > 0:
+            storage._clean_expired_partial_matches(
+                float(storage[-1].last_timestamp) - float(self._sliding_window.total_seconds())
+            )
+
         child_partial_matches = self._child.get_partial_matches()
         if len(child_partial_matches) == 0:
             return []
