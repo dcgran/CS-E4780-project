@@ -57,8 +57,7 @@ class KleeneClosureNode(UnaryNode):
 
     def __create_child_matches_powerset(self):
         """
-        Generates subsets of partial matches using KC condition pre-filtering and temporal validation.
-        Pre-filters using KC condition hints to avoid building invalid sequences.
+        Generates subsets of partial matches using indexed retrieval and temporal validation.
         """
         # Force immediate cleanup of expired matches to avoid processing stale data
         storage = self._child.get_storage_unit()
@@ -67,15 +66,16 @@ class KleeneClosureNode(UnaryNode):
                 float(storage[-1].last_timestamp) - float(self._sliding_window.total_seconds())
             )
 
-        child_partial_matches = self._child.get_partial_matches()
+        filter_value = self.__extract_grouping_value_for_indexed_retrieval()
+        child_partial_matches = self._child.get_partial_matches(filter_value) if filter_value is not None else self._child.get_partial_matches()
         if len(child_partial_matches) == 0:
             return []
 
         last_partial_match = child_partial_matches[-1]
         actual_max_size = self.__max_size if self.__max_size is not None else len(child_partial_matches)
 
-        # Pre-filter using KC condition hints to avoid building invalid sequences
-        filtered_matches = self.__prefilter_by_kc_condition(child_partial_matches, last_partial_match)
+        # Storage already filtered by grouping attribute, skip prefiltering
+        filtered_matches = child_partial_matches
 
         result_powerset = []
 
@@ -91,14 +91,40 @@ class KleeneClosureNode(UnaryNode):
 
         return result_powerset
 
+    def __extract_grouping_value_for_indexed_retrieval(self):
+        """
+        Extract the grouping attribute from the most recent partial match for indexed retrieval.
+        Returns the grouping value to filter by, or None if no grouping condition exists.
+        """
+        if not self._condition or not hasattr(self._condition, 'get_conditions_list'):
+            return None
+
+        from opencep.condition.KCCondition import KCIndexCondition
+        kc_conditions = [c for c in self._condition.get_conditions_list() if isinstance(c, KCIndexCondition)]
+        grouping_condition = next((c for c in kc_conditions if c.get_offset() == 1), None)
+
+        if not grouping_condition:
+            return None
+
+        storage = self._child.get_storage_unit()
+        if not storage or len(storage) == 0:
+            return None
+
+        recent_match = storage[-1]
+        if not hasattr(recent_match, 'events') or len(recent_match.events) == 0:
+            return None
+
+        recent_event = recent_match.events[0]
+        if not hasattr(recent_event, 'payload'):
+            return None
+
+        return grouping_condition._getattr_func(recent_event.payload)
+
     def __prefilter_by_kc_condition(self, child_matches, triggering_match):
         """
-        Pre-filter child matches using KC condition hints to avoid building sequences
+        Pre-filter child matches by grouping attribute to avoid building sequences
         that will be rejected. Uses the first KCIndexCondition with offset=1 to identify
-        grouping attributes (e.g., bike_id for bike trip chains).
-
-        This makes sequence generation generic while avoiding the performance cost of
-        building and validating sequences that mix incompatible events.
+        the grouping attribute.
         """
         if not self._condition or not hasattr(self._condition, 'get_conditions_list'):
             # No condition or not a composite condition - no filtering

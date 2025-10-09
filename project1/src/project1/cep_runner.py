@@ -29,6 +29,8 @@ from typing import Optional, Dict, Any, Set
 from opencep.CEP import CEP
 from opencep.stream.FileStream import FileOutputStream
 from opencep.stream.Stream import InputStream
+from opencep.tree.PatternMatchStorage import TreeStorageParameters
+from opencep.evaluation.EvaluationMechanismFactory import TreeBasedEvaluationMechanismParameters
 
 from project1.citibike_formatter import CitiBikeFormatter  # type: ignore
 from project1.hot_paths_patterns import create_hot_paths_patterns  # type: ignore
@@ -641,7 +643,15 @@ def run_hot_paths_cep(
 
     cep_init_start = time.time()
     try:
-        cep = CEP(patterns)
+        # Index storage by bike_id for O(log n) retrieval
+        storage_params = TreeStorageParameters(
+            sort_storage=True,
+            attributes_priorities={'bike_id': 0},
+            prioritize_sorting_by_timestamp=False  # bike_id primary, timestamp secondary
+        )
+        eval_params = TreeBasedEvaluationMechanismParameters(storage_params=storage_params)
+
+        cep = CEP(patterns, eval_mechanism_params=eval_params)
         if verbose:
             print("CEP initialized successfully")
     except Exception as e:
