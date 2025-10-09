@@ -33,6 +33,7 @@ class KleeneClosureNode(UnaryNode):
 
         new_partial_match = self._child.get_last_unhandled_partial_match_by_parent(self)
         self._child.clean_expired_partial_matches(new_partial_match.last_timestamp)
+        self.clean_expired_partial_matches(new_partial_match.last_timestamp)
 
         # create partial match sets containing the new partial match that triggered this method
         child_matches_powerset = self.__create_child_matches_powerset()
