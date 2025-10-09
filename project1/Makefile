@@ -52,7 +52,7 @@ benchmark: check-data ## Generate JSON benchmark results (10k events)
 	@echo "Generating benchmark results..."
 	@mkdir -p outputs
 	@echo "Benchmarking with data/201801-citibike-tripdata.csv (10k events)..."
-	uv run cep-runner --input data/201801-citibike-tripdata.csv --max-lines 10000 --json > outputs/benchmark_results.json
+	uv run cep-runner --input data/201801-citibike-tripdata.csv --max-lines 20000 --json > outputs/benchmark_results.json
 	@echo "✅ Benchmark results saved to outputs/benchmark_results.json"
 
 clean: ## Clean output files and caches
@@ -101,7 +101,12 @@ benchmark-baseline: check-data ## Run baseline (no load shedding) for evaluation
 
 evaluate: check-data ## Run performance evaluation (baseline + bounded runs)
 	@echo "Running performance evaluation..."
-	uv run cep-runner --evaluate --input data/201801-citibike-tripdata.csv --max-lines 10000
+	uv run cep-runner --evaluate --input data/201801-citibike-tripdata.csv --max-lines 15000 --verbose
+
+evaluate-aggressive: check-data ## Performance evaluation with aggressive latency bounds (forces load shedding)
+	@echo "Running aggressive performance evaluation (forces load shedding)..."
+	@echo "Using lower latency bounds to create system pressure on fast hardware..."
+	uv run cep-runner --evaluate-aggressive --input data/201801-citibike-tripdata.csv --max-lines 10000 --verbose
 
 setup: install download-data sort-data ## Complete setup for new users (install + download + sort data)
 	@echo "✅ Setup complete! Try 'make run-demo' to test the system."

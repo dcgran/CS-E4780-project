@@ -52,6 +52,7 @@ class EventFeeder:
         verbose: bool = False,
         no_load_shedding: bool = False,
         latency_bound: Optional[float] = None,
+        base_latency_ms: float = 50.0,
     ):
         self.file_path = file_path
         self.max_lines = max_lines
@@ -68,7 +69,6 @@ class EventFeeder:
 
         self.sampling_rate = 1.0 if no_load_shedding else 1.0
         # Adjust target latency based on bound if specified
-        base_latency_ms = 50.0
         if latency_bound is not None:
             self.target_latency_ms = base_latency_ms * latency_bound
         else:
@@ -596,6 +596,7 @@ def run_hot_paths_cep(
     verbose: bool = False,
     no_load_shedding: bool = False,
     latency_bound: Optional[float] = None,
+    base_latency_ms: float = 50.0,
 ) -> Dict[str, Any]:
     """Run CEP with hot paths patterns - detects bike chains to NYC hot stations.
 
@@ -655,7 +656,7 @@ def run_hot_paths_cep(
     stream_setup_start = time.time()
     try:
         feeder = EventFeeder(
-            input_file, cep, fmt, max_lines, verbose, no_load_shedding, latency_bound
+            input_file, cep, fmt, max_lines, verbose, no_load_shedding, latency_bound, base_latency_ms
         )
         output_stream = FileOutputStream(output_dir, "matches.txt", is_async=False)
         if verbose:
@@ -989,6 +990,7 @@ def run_performance_evaluation(
     output_dir: str,
     max_lines: Optional[int] = None,
     verbose: bool = False,
+    aggressive: bool = False,
 ) -> None:
     """Run complete performance evaluation with different latency bounds."""
     
@@ -1011,19 +1013,24 @@ def run_performance_evaluation(
         json.dump(baseline_metrics, f, indent=2)
     
     baseline_matches = baseline_metrics.get("matches_found", 0)
-    baseline_time = baseline_metrics.get("execution_time_ms", 0)
+    baseline_time = baseline_metrics.get("total_execution_seconds", 0) * 1000  # Convert to ms
     
     print(f"Baseline: {baseline_matches} matches, {baseline_time:.2f}ms")
     
     # Steps 2-6: Different latency bounds
-    bounds = [0.1, 0.3, 0.5, 0.7, 0.9]
+    bounds = [0.1, 0.3, 0.5, 0.7, 0.9]  # Standard bounds: 10%, 30%, 50%, 70%, 90%
+    if aggressive:
+        print("🚀 Using aggressive base latency (5ms instead of 50ms) to force load shedding")
     results = []
     
     for i, bound in enumerate(bounds, 2):
         print(f"Step {i}/6: Running with {bound*100:.0f}% latency bound...")
         
+        # Use aggressive base latency (5ms) instead of standard (50ms) to force load shedding
+        base_latency = 5.0 if aggressive else 50.0
+        
         metrics = run_hot_paths_cep(
-            input_file, str(eval_dir), max_lines, verbose=False, latency_bound=bound
+            input_file, str(eval_dir), max_lines, verbose=False, latency_bound=bound, base_latency_ms=base_latency
         )
         
         # Save results
@@ -1032,7 +1039,7 @@ def run_performance_evaluation(
             json.dump(metrics, f, indent=2)
         
         matches = metrics.get("matches_found", 0)
-        time_ms = metrics.get("execution_time_ms", 0)
+        time_ms = metrics.get("total_execution_seconds", 0) * 1000  # Convert to ms
         recall = (matches / baseline_matches * 100) if baseline_matches > 0 else 0
         
         results.append({
@@ -1050,7 +1057,7 @@ def run_performance_evaluation(
     print(f"Baseline (no load shedding):")
     print(f"  Matches: {baseline_matches}")
     print(f"  Time: {baseline_time:.2f}ms")
-    print(f"  Events: {baseline_metrics.get('events_processed', 0)}")
+    print(f"  Events: {baseline_metrics.get('lines_processed', 0)}")
     print()
     
     print("Latency Bound | Matches | Recall | Time (ms) | Time Ratio")
@@ -1139,6 +1146,11 @@ Examples:
         action="store_true",
         help="Run complete performance evaluation (baseline + all latency bounds)",
     )
+    parser.add_argument(
+        "--evaluate-aggressive",
+        action="store_true",
+        help="Run aggressive evaluation with lower latency bounds (forces load shedding)",
+    )
 
     args = parser.parse_args()
 
@@ -1147,8 +1159,14 @@ Examples:
         sys.exit(1)
 
     try:
-        if args.evaluate:
-            run_performance_evaluation(args.input, args.output, args.max_lines, args.verbose)
+        if args.evaluate or args.evaluate_aggressive:
+            run_performance_evaluation(
+                args.input, 
+                args.output, 
+                args.max_lines, 
+                args.verbose, 
+                aggressive=args.evaluate_aggressive
+            )
         else:
             metrics = run_hot_paths_cep(
                 args.input, 
