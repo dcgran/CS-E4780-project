@@ -168,6 +168,8 @@
 %% article.
 \begin{abstract}
 
+  The course project is available at \url{https://github.com/dcgran/CS-E4780-project}~\cite{CS-E4780-project}.
+
   This project develops a complex event processing (CEP) system to identify hot paths in the CitiBike data. The goal is to improve bike distribution by detecting where bikes are most often used. The system is built on OpenCEP, which is a unlicensed CEP framework that required several fixes and optimizations to function efficiently. Key improvements include reducing the computational cost of Kleene closure operations and correcting time window handling for trip events with duration.
 
   To manage data processing under heavy load, the system uses a pattern-aware load shedding strategy. Events are prioritized based on their importance to pattern completion and relevance to high-demand stations. Less critical events are dropped when latency exceeds target levels, which keeps the system responsive. The system runs three threads for event feeding, pattern matching, and monitoring, which allows continuous state tracking and low-latency performance.
