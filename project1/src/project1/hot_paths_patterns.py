@@ -22,7 +22,7 @@ from opencep.misc.SelectionStrategies import SelectionStrategies
 
 
 def create_hot_paths_patterns() -> List[Pattern]:
-    hot_stations = {"519", "435", "3255"}
+    hot_stations = {"402", "435", "497"}  # August 2018 top 3 destinations
 
     structure = SeqOperator(
         KleeneClosureOperator(

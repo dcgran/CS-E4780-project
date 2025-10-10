@@ -67,7 +67,7 @@ class EventFeeder:
         self.input_stream = InputStream()
         self.input_stream._stream = queue.Queue(maxsize=1000)  # Bounded queue for backpressure
 
-        self.target_stations = {"519", "435", "3255"}  # 2018 hot stations
+        self.target_stations = {"402", "435", "497"}  # August 2018 top 3 destinations
 
         self.sampling_rate = 1.0 if no_load_shedding else 1.0
         # Adjust target latency based on bound if specified
@@ -786,7 +786,7 @@ def extract_longest_hot_paths(output_file: str, top_n: int = 10) -> list:
     """Extract the longest hot path patterns from matches."""
     import re
 
-    hot_stations = {"519", "435", "3255"}
+    hot_stations = {"402", "435", "497"}  # August 2018 top 3 destinations
 
     # Parse matches - groups separated by empty lines
     current_group: list[dict[str, Any]] = []
@@ -809,7 +809,7 @@ def extract_longest_hot_paths(output_file: str, top_n: int = 10) -> list:
                     try:
                         # Extract key fields using regex
                         event = {}
-                        if m := re.search(r"'bike_id':\s*'([^']+)'", stripped):
+                        if m := re.search(r"'bike_id':\s*(\d+)", stripped):
                             event["bike_id"] = m.group(1)
                         if m := re.search(r"'start_station_id':\s*'([^']+)'", stripped):
                             event["start_station_id"] = m.group(1)
