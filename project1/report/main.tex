@@ -306,6 +306,8 @@ Table~\ref{tab:results} shows performance across configurations.
 
 \textbf{Scalability.} The baseline processes 20,000 events in 135.0 seconds at 148 events/sec with 41.7 MB peak memory. Under aggressive load shedding (10\% bound), throughput increases to 325 events/sec (+120\%) by dropping 43.7\% of events, achieving 2.2× faster processing at the cost of 35.7\% recall loss. At relaxed bounds, throughput decreases to 241-321 events/sec as fewer events are dropped. Memory footprint remains constant at 41.7-41.8 MB across all configurations, demonstrating efficient state management. The system detects trip chains of up to 4 trips within the 1-hour temporal window, validating the temporal filtering and cleanup strategy. OpenCEP's sequential-only evaluation prevents multi-core parallelism, limiting CPU utilization to a single core.
 
+\textbf{Resource Utilization.} CPU usage was dominated by single-core processing due to OpenCEP's sequential-only architecture, with no multi-core parallelization. Under load shedding, CPU remained the bottleneck as event filtering occurs before CEP processing. GPU was not utilized as pattern matching operations are CPU-bound. Memory footprint remained constant at 41.7--41.8 MB across all configurations, demonstrating efficient state management.
+
 \textbf{Optimization Impact.} The Kleene closure optimization ($O(2^n)$ $\rightarrow$ $O(n \cdot m)$) transformed an unusable system (which froze on powerset generation) into one processing 148 events/sec and detecting 182 patterns. This validates our complexity analysis and demonstrates why algorithmic optimization is critical for practical CEP applications.
 
 \subsection{Limitations}
@@ -323,7 +325,9 @@ The pattern-aware load shedding strategy keeps latency of the system low while p
 
 \subsection*{Team Contributions}
 
-The team organized weekly working sessions every Monday (2-3 hours) where we ideated the solution together. Granström set up the initial project structure. Siidorow imported the OpenCEP library and fixed critical bugs in the Kleene closure implementation and time window handling. Siidorow also implemented the baseline system. Granström enhanced the implementation and built the benchmarking suite. Korpela handled communications with course staff. All team members provided continuous feedback throughout development and contributed to writing the report.
+\textbf{Individual Contributions.} The team organized weekly working sessions every Monday (2-3 hours) where we ideated the solution together. Granström set up the initial project structure. Siidorow imported the OpenCEP library and fixed critical bugs in the Kleene closure implementation and time window handling. Siidorow also implemented the baseline system. Granström enhanced the implementation and built the benchmarking suite. Korpela handled communications with course staff. All team members provided continuous feedback throughout development and contributed to writing the report.
+
+\textbf{Design Decisions and Challenges.} The most important decisions our group made about the system design includes what load-shedding methods should be implemented and how partial matches are stored and prioritized. OpenCEP had many bottlenecks but we were able to resolve those with the multi-threaded event feeder design. These decisions were discussed and made in our weekly working sessions.
 
 %%
 %% The acknowledgments section is defined using the "acks" environment
