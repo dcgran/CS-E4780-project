@@ -67,7 +67,10 @@ class LeafNode(Node):
         """
         Inserts the given event to this leaf.
         """
-        self.clean_expired_partial_matches(event.timestamp)
+        if self._partial_matches:
+            conservative_cutoff = float(event.timestamp) - (2.0 * float(self._sliding_window.total_seconds()))
+            self._partial_matches._clean_expired_partial_matches(conservative_cutoff)
+
         self._validate_and_propagate_partial_match([event], event.probability)
 
     def _validate_new_match(self, events_for_new_match: List[Event]):

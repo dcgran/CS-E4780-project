@@ -1,11 +1,8 @@
-from typing import List, Set
 from functools import reduce
 from opencep.misc.Utils import calculate_joint_probability
 
 from opencep.base.Event import Event, AggregatedEvent
 from opencep.condition.CompositeCondition import CompositeCondition
-from opencep.base.PatternMatch import PatternMatch
-from opencep.misc.Utils import powerset_generator
 from opencep.tree.nodes.Node import Node, PatternParameters
 from opencep.tree.nodes.UnaryNode import UnaryNode
 
@@ -16,7 +13,7 @@ class KleeneClosureNode(UnaryNode):
     It generates and propagates sets of partial matches provided by its sole child.
     """
     def __init__(self, pattern_params: PatternParameters, min_size, max_size,
-                 parents: List[Node] = None, pattern_ids: int or Set[int] = None):
+                 parents: list[Node] | None = None, pattern_ids: int | set[int] | None = None):
         super().__init__(pattern_params, parents, pattern_ids)
         self.__min_size = min_size
         self.__max_size = max_size
@@ -32,11 +29,13 @@ class KleeneClosureNode(UnaryNode):
             raise Exception()  # should never happen
 
         new_partial_match = self._child.get_last_unhandled_partial_match_by_parent(self)
-        self._child.clean_expired_partial_matches(new_partial_match.last_timestamp)
-        self.clean_expired_partial_matches(new_partial_match.last_timestamp)
+
+        if self._partial_matches:
+            cutoff_timestamp = float(new_partial_match.last_timestamp) - float(self._sliding_window.total_seconds())
+            self._partial_matches._clean_expired_partial_matches(cutoff_timestamp)
 
         # create partial match sets containing the new partial match that triggered this method
-        child_matches_powerset = self.__create_child_matches_powerset()
+        child_matches_powerset = self.__create_child_matches_powerset(new_partial_match)
 
         for partial_match_set in child_matches_powerset:
             # create and propagate the new match
@@ -46,7 +45,7 @@ class KleeneClosureNode(UnaryNode):
             aggregated_event = AggregatedEvent(all_primitive_events, probability)
             self._validate_and_propagate_partial_match([aggregated_event], probability)
 
-    def _validate_new_match(self, events_for_new_match: List[Event]):
+    def _validate_new_match(self, events_for_new_match: list[Event]):
         """
         Validates the condition stored in this node on the given set of events.
         """
@@ -56,47 +55,55 @@ class KleeneClosureNode(UnaryNode):
             return False
         return self._condition.eval([e.payload for e in events_for_new_match[0].primitive_events])
 
-    def __create_child_matches_powerset(self):
+    def __create_child_matches_powerset(self, new_partial_match):
         """
         Generates subsets of partial matches using indexed retrieval and temporal validation.
         """
-        # Force immediate cleanup of expired matches to avoid processing stale data
-        storage = self._child.get_storage_unit()
-        if storage is not None and len(storage) > 0:
-            storage._clean_expired_partial_matches(
-                float(storage[-1].last_timestamp) - float(self._sliding_window.total_seconds())
-            )
+        all_child_matches = self._child.get_partial_matches()
+        filter_value = self.__extract_grouping_value_for_indexed_retrieval(new_partial_match)
+        if filter_value is not None:
+            from opencep.condition.KCCondition import KCIndexCondition
+            if self._condition and hasattr(self._condition, 'get_conditions_list'):
+                kc_conditions = [c for c in self._condition.get_conditions_list() if isinstance(c, KCIndexCondition)]
+                grouping_condition = next((c for c in kc_conditions if c.get_offset() == 1), None)
+                if grouping_condition:
+                    grouping_index = {}
+                    cutoff_timestamp = float(new_partial_match.last_timestamp) - float(self._sliding_window.total_seconds())
+                    for pm in all_child_matches:
+                        if pm.first_timestamp < cutoff_timestamp:
+                            continue
+                        if hasattr(pm, 'events') and len(pm.events) > 0 and hasattr(pm.events[0], 'payload'):
+                            grouping_value = grouping_condition._getattr_func(pm.events[0].payload)
+                            if grouping_value not in grouping_index:
+                                grouping_index[grouping_value] = []
+                            grouping_index[grouping_value].append(pm)
 
-        filter_value = self.__extract_grouping_value_for_indexed_retrieval()
-        child_partial_matches = self._child.get_partial_matches(filter_value) if filter_value is not None else self._child.get_partial_matches()
+                    child_partial_matches = grouping_index.get(filter_value, [])
+                else:
+                    child_partial_matches = all_child_matches
+            else:
+                child_partial_matches = all_child_matches
+        else:
+            child_partial_matches = all_child_matches
+
         if len(child_partial_matches) == 0:
             return []
 
         last_partial_match = child_partial_matches[-1]
         actual_max_size = self.__max_size if self.__max_size is not None else len(child_partial_matches)
-
-        # Storage already filtered by grouping attribute, skip prefiltering
         filtered_matches = child_partial_matches
-
         result_powerset = []
 
-        # Generate sequences from longest to shortest
         for seq_length in range(min(actual_max_size, len(filtered_matches)), 0, -1):
             sequence = filtered_matches[-seq_length:]
-
             if (sequence[-1] == last_partial_match and
-                len(sequence) >= self.__min_size):
-
-                if self.__is_sequence_temporally_valid(sequence):
-                    result_powerset.append(sequence)
+                len(sequence) >= self.__min_size and
+                self.__is_sequence_temporally_valid(sequence)):
+                result_powerset.append(sequence)
 
         return result_powerset
 
-    def __extract_grouping_value_for_indexed_retrieval(self):
-        """
-        Extract the grouping attribute from the most recent partial match for indexed retrieval.
-        Returns the grouping value to filter by, or None if no grouping condition exists.
-        """
+    def __extract_grouping_value_for_indexed_retrieval(self, triggering_match):
         if not self._condition or not hasattr(self._condition, 'get_conditions_list'):
             return None
 
@@ -107,75 +114,27 @@ class KleeneClosureNode(UnaryNode):
         if not grouping_condition:
             return None
 
-        storage = self._child.get_storage_unit()
-        if not storage or len(storage) == 0:
+        if not hasattr(triggering_match, 'events') or len(triggering_match.events) == 0:
             return None
 
-        recent_match = storage[-1]
-        if not hasattr(recent_match, 'events') or len(recent_match.events) == 0:
-            return None
-
-        recent_event = recent_match.events[0]
+        recent_event = triggering_match.events[0]
         if not hasattr(recent_event, 'payload'):
             return None
 
         return grouping_condition._getattr_func(recent_event.payload)
 
-    def __prefilter_by_kc_condition(self, child_matches, triggering_match):
-        """
-        Pre-filter child matches by grouping attribute to avoid building sequences
-        that will be rejected. Uses the first KCIndexCondition with offset=1 to identify
-        the grouping attribute.
-        """
-        if not self._condition or not hasattr(self._condition, 'get_conditions_list'):
-            # No condition or not a composite condition - no filtering
-            return child_matches
-
-        # Find first KCIndexCondition with offset=1 (consecutive item comparison)
-        from opencep.condition.KCCondition import KCIndexCondition
-        kc_conditions = [c for c in self._condition.get_conditions_list() if isinstance(c, KCIndexCondition)]
-        grouping_condition = next((c for c in kc_conditions if c.get_offset() == 1), None)
-
-        if not grouping_condition:
-            # No grouping condition found - no filtering
-            return child_matches
-
-        # Extract grouping attribute from triggering match
-        if not hasattr(triggering_match, 'events') or len(triggering_match.events) == 0:
-            return child_matches
-
-        triggering_event = triggering_match.events[0]
-        if not hasattr(triggering_event, 'payload'):
-            return child_matches
-
-        # Use the getattr_func from the KC condition to extract the grouping value
-        triggering_value = grouping_condition._getattr_func(triggering_event.payload)
-
-        # Filter to only matches with the same grouping value
-        filtered = []
-        for pm in child_matches:
-            if hasattr(pm, 'events') and len(pm.events) > 0:
-                event = pm.events[0]
-                if hasattr(event, 'payload'):
-                    value = grouping_condition._getattr_func(event.payload)
-                    if value == triggering_value:
-                        filtered.append(pm)
-
-        return filtered if filtered else child_matches  # Fallback to all if filtering produces nothing
-
     def __is_sequence_temporally_valid(self, sequence):
-        """
-        Checks if all events in the sequence fall within the time window.
-        """
-        if not sequence or len(sequence) == 0:
+        if not sequence:
             return False
+        time_diff = sequence[-1].last_timestamp - sequence[0].first_timestamp
+        return time_diff <= self._sliding_window.total_seconds()
 
-        first_timestamp = sequence[0].first_timestamp
-        last_timestamp = sequence[-1].last_timestamp
-        time_diff = last_timestamp - first_timestamp
-        window_seconds = self._sliding_window.total_seconds()
-
-        return time_diff <= window_seconds
+    def clean_expired_partial_matches(self, last_timestamp):
+        if not Node._is_partial_match_expiration_enabled():
+            return
+        cutoff_timestamp = float(last_timestamp) - float(self._sliding_window.total_seconds())
+        if self._partial_matches:
+            self._partial_matches._clean_expired_partial_matches(cutoff_timestamp)
 
     def apply_condition(self, condition: CompositeCondition):
         """
