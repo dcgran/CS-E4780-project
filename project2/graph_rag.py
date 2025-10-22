@@ -20,7 +20,10 @@ def _(mo):
 
 @app.cell
 def _(mo):
-    text_ui = mo.ui.text(value="Which scholars won prizes in Physics and were affiliated with University of Cambridge?", full_width=True)
+    text_ui = mo.ui.text(
+        value="Which scholars won prizes in Physics and were affiliated with University of Cambridge?",
+        full_width=True,
+    )
     return (text_ui,)
 
 
@@ -40,14 +43,16 @@ def _(KuzuDatabaseManager, mo, run_graph_rag, text_ui):
     with mo.status.spinner(title="Generating answer...") as _spinner:
         result = run_graph_rag([question], db_manager)[0]
 
-    query = result['query']
-    answer = result['answer'].response
+    query = result["query"]
+    answer = result["answer"].response
     return answer, query
 
 
 @app.cell
 def _(answer, mo, query):
-    mo.hstack([mo.md(f"""### Query\n```{query}```"""), mo.md(f"""### Answer\n{answer}""")])
+    mo.hstack(
+        [mo.md(f"""### Query\n```{query}```"""), mo.md(f"""### Answer\n{answer}""")]
+    )
     return
 
 
@@ -67,7 +72,6 @@ def _(GraphSchema, Query, dspy):
         question: str = dspy.InputField()
         input_schema: str = dspy.InputField()
         pruned_schema: GraphSchema = dspy.OutputField()
-
 
     class Text2Cypher(dspy.Signature):
         """
@@ -97,7 +101,6 @@ def _(GraphSchema, Query, dspy):
         input_schema: str = dspy.InputField()
         query: Query = dspy.OutputField()
 
-
     class AnswerQuestion(dspy.Signature):
         """
         - Use the provided question, the generated Cypher query and the context to answer the question.
@@ -109,6 +112,7 @@ def _(GraphSchema, Query, dspy):
         cypher_query: str = dspy.InputField()
         context: str = dspy.InputField()
         response: str = dspy.OutputField()
+
     return AnswerQuestion, PruneSchema, Text2Cypher
 
 
@@ -136,20 +140,30 @@ def _(kuzu):
 
         @property
         def get_schema_dict(self) -> dict[str, list[dict]]:
-            response = self.conn.execute("CALL SHOW_TABLES() WHERE type = 'NODE' RETURN *;")
+            response = self.conn.execute(
+                "CALL SHOW_TABLES() WHERE type = 'NODE' RETURN *;"
+            )
             nodes = [row[1] for row in response]  # type: ignore
-            response = self.conn.execute("CALL SHOW_TABLES() WHERE type = 'REL' RETURN *;")
+            response = self.conn.execute(
+                "CALL SHOW_TABLES() WHERE type = 'REL' RETURN *;"
+            )
             rel_tables = [row[1] for row in response]  # type: ignore
             relationships = []
             for tbl_name in rel_tables:
-                response = self.conn.execute(f"CALL SHOW_CONNECTION('{tbl_name}') RETURN *;")
+                response = self.conn.execute(
+                    f"CALL SHOW_CONNECTION('{tbl_name}') RETURN *;"
+                )
                 for row in response:
-                    relationships.append({"name": tbl_name, "from": row[0], "to": row[1]})  # type: ignore
+                    relationships.append(
+                        {"name": tbl_name, "from": row[0], "to": row[1]}
+                    )  # type: ignore
             schema = {"nodes": [], "edges": []}
 
             for node in nodes:
                 node_schema = {"label": node, "properties": []}
-                node_properties = self.conn.execute(f"CALL TABLE_INFO('{node}') RETURN *;")
+                node_properties = self.conn.execute(
+                    f"CALL TABLE_INFO('{node}') RETURN *;"
+                )
                 for row in node_properties:  # type: ignore
                     node_schema["properties"].append({"name": row[1], "type": row[2]})  # type: ignore
                 schema["nodes"].append(node_schema)
@@ -161,11 +175,14 @@ def _(kuzu):
                     "to": rel["to"],
                     "properties": [],
                 }
-                rel_properties = self.conn.execute(f"""CALL TABLE_INFO('{rel["name"]}') RETURN *;""")
+                rel_properties = self.conn.execute(
+                    f"""CALL TABLE_INFO('{rel["name"]}') RETURN *;"""
+                )
                 for row in rel_properties:  # type: ignore
                     edge["properties"].append({"name": row[1], "type": row[2]})  # type: ignore
                 schema["edges"].append(edge)
             return schema
+
     return (KuzuDatabaseManager,)
 
 
@@ -174,16 +191,13 @@ def _(BaseModel, Field):
     class Query(BaseModel):
         query: str = Field(description="Valid Cypher query with no newlines")
 
-
     class Property(BaseModel):
         name: str
         type: str = Field(description="Data type of the property")
 
-
     class Node(BaseModel):
         label: str
         properties: list[Property] | None
-
 
     class Edge(BaseModel):
         label: str = Field(description="Relationship label")
@@ -191,10 +205,10 @@ def _(BaseModel, Field):
         to: Node = Field(alias="from", description="Target node label")
         properties: list[Property] | None
 
-
     class GraphSchema(BaseModel):
         nodes: list[Node]
         edges: list[Edge]
+
     return GraphSchema, Query
 
 
@@ -222,7 +236,9 @@ def _(
         def get_cypher_query(self, question: str, input_schema: str) -> Query:
             prune_result = self.prune(question=question, input_schema=input_schema)
             schema = prune_result.pruned_schema
-            text2cypher_result = self.text2cypher(question=question, input_schema=schema)
+            text2cypher_result = self.text2cypher(
+                question=question, input_schema=schema
+            )
             cypher_query = text2cypher_result.query
             return cypher_query
 
@@ -243,14 +259,22 @@ def _(
                 results = None
             return query, results
 
-        def forward(self, db_manager: KuzuDatabaseManager, question: str, input_schema: str):
-            final_query, final_context = self.run_query(db_manager, question, input_schema)
+        def forward(
+            self, db_manager: KuzuDatabaseManager, question: str, input_schema: str
+        ):
+            final_query, final_context = self.run_query(
+                db_manager, question, input_schema
+            )
             if final_context is None:
-                print("Empty results obtained from the graph database. Please retry with a different question.")
+                print(
+                    "Empty results obtained from the graph database. Please retry with a different question."
+                )
                 return {}
             else:
                 answer = self.generate_answer(
-                    question=question, cypher_query=final_query, context=str(final_context)
+                    question=question,
+                    cypher_query=final_query,
+                    context=str(final_context),
                 )
                 response = {
                     "question": question,
@@ -259,14 +283,22 @@ def _(
                 }
                 return response
 
-        async def aforward(self, db_manager: KuzuDatabaseManager, question: str, input_schema: str):
-            final_query, final_context = self.run_query(db_manager, question, input_schema)
+        async def aforward(
+            self, db_manager: KuzuDatabaseManager, question: str, input_schema: str
+        ):
+            final_query, final_context = self.run_query(
+                db_manager, question, input_schema
+            )
             if final_context is None:
-                print("Empty results obtained from the graph database. Please retry with a different question.")
+                print(
+                    "Empty results obtained from the graph database. Please retry with a different question."
+                )
                 return {}
             else:
                 answer = self.generate_answer(
-                    question=question, cypher_query=final_query, context=str(final_context)
+                    question=question,
+                    cypher_query=final_query,
+                    context=str(final_context),
                 )
                 response = {
                     "question": question,
@@ -275,14 +307,17 @@ def _(
                 }
                 return response
 
-
-    def run_graph_rag(questions: list[str], db_manager: KuzuDatabaseManager) -> list[Any]:
+    def run_graph_rag(
+        questions: list[str], db_manager: KuzuDatabaseManager
+    ) -> list[Any]:
         schema = str(db_manager.get_schema_dict)
         rag = GraphRAG()
         # Run pipeline
         results = []
         for question in questions:
-            response = rag(db_manager=db_manager, question=question, input_schema=schema)
+            response = rag(
+                db_manager=db_manager, question=question, input_schema=schema
+            )
             results.append(response)
         return results
 

@@ -100,7 +100,9 @@ def _(max_birth_date, mo):
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md(r"""Let's use the values from the slider bar to filter on the prize values, and the calendar's values to filter on the birth dates of the laureates.""")
+    mo.md(
+        r"""Let's use the values from the slider bar to filter on the prize values, and the calendar's values to filter on the birth dates of the laureates."""
+    )
     return
 
 
@@ -184,15 +186,9 @@ def _(conn):
     conn.execute(
         "CREATE NODE TABLE IF NOT EXISTS City(name STRING PRIMARY KEY, state STRING)"
     )
-    conn.execute(
-        "CREATE NODE TABLE IF NOT EXISTS Country(name STRING PRIMARY KEY)"
-    )
-    conn.execute(
-        "CREATE NODE TABLE IF NOT EXISTS Continent(name STRING PRIMARY KEY)"
-    )
-    conn.execute(
-        "CREATE NODE TABLE IF NOT EXISTS Institution(name STRING PRIMARY KEY)"
-    )
+    conn.execute("CREATE NODE TABLE IF NOT EXISTS Country(name STRING PRIMARY KEY)")
+    conn.execute("CREATE NODE TABLE IF NOT EXISTS Continent(name STRING PRIMARY KEY)")
+    conn.execute("CREATE NODE TABLE IF NOT EXISTS Institution(name STRING PRIMARY KEY)")
     # Relationships
     conn.execute(
         "CREATE REL TABLE IF NOT EXISTS WON(FROM Scholar TO Prize, portion STRING)"
@@ -321,7 +317,7 @@ def _(conn):
         WHERE s.knownName CONTAINS $name
         RETURN s.*, p.*
         """,
-        parameters={"name": name}
+        parameters={"name": name},
     )
     res4.get_as_pl()
     return
@@ -334,6 +330,7 @@ def _():
     import polars as pl
     from pathlib import Path
     from datetime import datetime
+
     return Path, kuzu, mo, pl
 
 

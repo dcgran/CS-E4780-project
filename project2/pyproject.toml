@@ -12,3 +12,9 @@ dependencies = [
     "pyarrow>=21.0.0",
     "python-dotenv>=1.1.1",
 ]
+
+[dependency-groups]
+dev = [
+    "mypy>=1.18.2",
+    "ruff>=0.14.1",
+]

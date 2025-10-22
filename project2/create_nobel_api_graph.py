@@ -89,7 +89,9 @@ def _(max_birth_date, mo):
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md(r"""Let's use the values from the slider bar to filter on the prize values, and the calendar's values to filter on the birth dates of the laureates.""")
+    mo.md(
+        r"""Let's use the values from the slider bar to filter on the prize values, and the calendar's values to filter on the birth dates of the laureates."""
+    )
     return
 
 
@@ -136,7 +138,9 @@ def _(db_name, kuzu):
 
 @app.cell
 def _(mo):
-    mo.md(r"""Next, we'll define the schema of our graph, i.e., create the node and relationship tables.""")
+    mo.md(
+        r"""Next, we'll define the schema of our graph, i.e., create the node and relationship tables."""
+    )
     return
 
 
@@ -168,7 +172,9 @@ def _(conn):
         )
     """
     )
-    conn.execute("CREATE NODE TABLE IF NOT EXISTS City(name STRING PRIMARY KEY, state STRING)")
+    conn.execute(
+        "CREATE NODE TABLE IF NOT EXISTS City(name STRING PRIMARY KEY, state STRING)"
+    )
     conn.execute("CREATE NODE TABLE IF NOT EXISTS Country(name STRING PRIMARY KEY)")
     conn.execute("CREATE NODE TABLE IF NOT EXISTS Continent(name STRING PRIMARY KEY)")
     conn.execute("CREATE NODE TABLE IF NOT EXISTS Institution(name STRING PRIMARY KEY)")
@@ -176,16 +182,26 @@ def _(conn):
     conn.execute("CREATE REL TABLE IF NOT EXISTS BORN_IN(FROM Scholar TO City)")
     conn.execute("CREATE REL TABLE IF NOT EXISTS DIED_IN(FROM Scholar TO City)")
     conn.execute("CREATE REL TABLE IF NOT EXISTS IS_CITY_IN(FROM City TO Country)")
-    conn.execute("CREATE REL TABLE IF NOT EXISTS IS_LOCATED_IN(FROM Institution TO City)")
-    conn.execute("CREATE REL TABLE IF NOT EXISTS AFFILIATED_WITH(FROM Scholar TO Institution)")
-    conn.execute("CREATE REL TABLE IF NOT EXISTS WON(FROM Scholar TO Prize, portion STRING)")
-    conn.execute("CREATE REL TABLE IF NOT EXISTS IS_COUNTRY_IN(FROM Country TO Continent)")
+    conn.execute(
+        "CREATE REL TABLE IF NOT EXISTS IS_LOCATED_IN(FROM Institution TO City)"
+    )
+    conn.execute(
+        "CREATE REL TABLE IF NOT EXISTS AFFILIATED_WITH(FROM Scholar TO Institution)"
+    )
+    conn.execute(
+        "CREATE REL TABLE IF NOT EXISTS WON(FROM Scholar TO Prize, portion STRING)"
+    )
+    conn.execute(
+        "CREATE REL TABLE IF NOT EXISTS IS_COUNTRY_IN(FROM Country TO Continent)"
+    )
     return
 
 
 @app.cell
 def _(mo):
-    mo.md(r"""Let's now ingest the data for scholars (laureates), prizes and the relationships between them (scholar wins a prize).""")
+    mo.md(
+        r"""Let's now ingest the data for scholars (laureates), prizes and the relationships between them (scholar wins a prize)."""
+    )
     return
 
 
@@ -410,8 +426,12 @@ def _(conn, df):
         """,
         parameters={"df": df},
     )
-    num_laureate_affiliation_rels = res10.get_as_pl()["num_laureate_affiliation_rels"][0]
-    print(f"{num_laureate_affiliation_rels} laureate-affiliation relationships ingested")
+    num_laureate_affiliation_rels = res10.get_as_pl()["num_laureate_affiliation_rels"][
+        0
+    ]
+    print(
+        f"{num_laureate_affiliation_rels} laureate-affiliation relationships ingested"
+    )
     return
 
 
@@ -471,7 +491,9 @@ def _(conn, df):
         parameters={"df": df},
     )
     num_country_affiliation_rels = res13.get_as_pl()["num_country_affiliation_rels"][0]
-    print(f"{num_country_affiliation_rels} country-continent-affiliation relationships ingested")
+    print(
+        f"{num_country_affiliation_rels} country-continent-affiliation relationships ingested"
+    )
 
     return
 
@@ -505,7 +527,7 @@ def _(conn):
                c.name AS birthPlaceCity,
                i.name AS institutionName
         """,
-        parameters={"name": name}
+        parameters={"name": name},
     )
     res_a.get_as_pl()
     return
@@ -518,6 +540,7 @@ def _():
     import polars as pl
     from pathlib import Path
     from datetime import datetime
+
     return Path, kuzu, mo, pl
 
 

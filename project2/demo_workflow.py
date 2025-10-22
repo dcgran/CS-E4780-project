@@ -55,7 +55,7 @@ def _(mo):
 
 @app.cell
 def _(kuzu):
-    def get_schema_dict(conn:kuzu.Connection) -> dict[str, list[dict]]:
+    def get_schema_dict(conn: kuzu.Connection) -> dict[str, list[dict]]:
         response = conn.execute("CALL SHOW_TABLES() WHERE type = 'NODE' RETURN *;")
         nodes = [row[1] for row in response]  # type: ignore
         response = conn.execute("CALL SHOW_TABLES() WHERE type = 'REL' RETURN *;")
@@ -81,17 +81,22 @@ def _(kuzu):
                 "to": rel["to"],
                 "properties": [],
             }
-            rel_properties = conn.execute(f"""CALL TABLE_INFO('{rel["name"]}') RETURN *;""")
+            rel_properties = conn.execute(
+                f"""CALL TABLE_INFO('{rel["name"]}') RETURN *;"""
+            )
             for row in rel_properties:  # type: ignore
                 edge["properties"].append({"name": row[1], "type": row[2]})  # type: ignore
             schema["edges"].append(edge)
         return schema
+
     return (get_schema_dict,)
 
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md(r"""Below is a helper function to display the schema so that it's easier to read. A sample of the full graph schema is shown immediately after.""")
+    mo.md(
+        r"""Below is a helper function to display the schema so that it's easier to read. A sample of the full graph schema is shown immediately after."""
+    )
     return
 
 
@@ -111,7 +116,9 @@ def _(conn, get_schema_dict):
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md(r"""By default, the full schema can be quite verbose and complex, so pruning it can help narrow down the context for the LM to better interpret in a way that aligns with the question.""")
+    mo.md(
+        r"""By default, the full schema can be quite verbose and complex, so pruning it can help narrow down the context for the LM to better interpret in a way that aligns with the question."""
+    )
     return
 
 
@@ -165,6 +172,7 @@ def _(BaseModel, Field):
     class GraphSchema(BaseModel):
         nodes: list[Node]
         edges: list[Edge]
+
     return GraphSchema, Query
 
 
@@ -195,6 +203,7 @@ def _(GraphSchema, dspy):
         question: str = dspy.InputField()
         input_schema: str = dspy.InputField()
         pruned_schema: GraphSchema = dspy.OutputField()
+
     return (PruneSchema,)
 
 
@@ -211,7 +220,10 @@ def _(mo):
 
 @app.cell
 def _(mo):
-    sample_question_ui = mo.ui.text(value="Which scholars won prizes in Physics and were affiliated with University of Cambridge?", full_width=True)
+    sample_question_ui = mo.ui.text(
+        value="Which scholars won prizes in Physics and were affiliated with University of Cambridge?",
+        full_width=True,
+    )
     return (sample_question_ui,)
 
 
@@ -250,7 +262,9 @@ def _(PruneSchema, conn, dspy, get_schema_dict, sample_question_ui):
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md(r"""We can see that the returned schema is much more concise and useful for the question that was asked. Nice!""")
+    mo.md(
+        r"""We can see that the returned schema is much more concise and useful for the question that was asked. Nice!"""
+    )
     return
 
 
@@ -294,6 +308,7 @@ def _(Query, dspy):
         question: str = dspy.InputField()
         input_schema: str = dspy.InputField()
         query: Query = dspy.OutputField()
+
     return (Text2Cypher,)
 
 
@@ -301,7 +316,9 @@ def _(Query, dspy):
 def _(Text2Cypher, dspy, pruned_schema, sample_question):
     text2cypher = dspy.Predict(Text2Cypher)
 
-    text2cypher_result = text2cypher(question=sample_question, input_schema=pruned_schema)
+    text2cypher_result = text2cypher(
+        question=sample_question, input_schema=pruned_schema
+    )
     cypher_query = text2cypher_result.query.query
     cypher_query
     return (text2cypher,)
@@ -343,6 +360,7 @@ def _(kuzu, text2cypher):
             print(f"Error running query: {e}")
             results = None
         return query, results
+
     return (run_query,)
 
 
@@ -369,6 +387,7 @@ def _(dspy):
         cypher_query: str = dspy.InputField()
         context: str = dspy.InputField()
         response: str = dspy.OutputField()
+
     return (AnswerQuestion,)
 
 
@@ -379,7 +398,9 @@ def _(AnswerQuestion, conn, dspy, pruned_schema, run_query, sample_question):
     query, context = run_query(conn, sample_question, pruned_schema)
     print(context)
     if context is None:
-        print("Empty results obtained from the graph database. Please retry with a different question.")
+        print(
+            "Empty results obtained from the graph database. Please retry with a different question."
+        )
     else:
         answer = answer_generator(
             question=sample_question, cypher_query=query, context=str(context)
@@ -390,7 +411,9 @@ def _(AnswerQuestion, conn, dspy, pruned_schema, run_query, sample_question):
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md(r"""The query successfully retrieves data from the Kuzu database, and a `ChainOfThought` module in DSPy is called to reason over this context, to generate an answer in natural language. It's also possible to use a simple `Predict` module to achieve the same outcome. The idea behind this example is that it's quite simple and straightforward to begin ideating and testing your ideas in code, using marimo notebooks in this way.""")
+    mo.md(
+        r"""The query successfully retrieves data from the Kuzu database, and a `ChainOfThought` module in DSPy is called to reason over this context, to generate an answer in natural language. It's also possible to use a simple `Predict` module to achieve the same outcome. The idea behind this example is that it's quite simple and straightforward to begin ideating and testing your ideas in code, using marimo notebooks in this way."""
+    )
     return
 
 
@@ -414,6 +437,7 @@ def _():
     from typing import Any
     from pydantic import BaseModel, Field
     from dotenv import load_dotenv
+
     return BaseModel, Field, dspy, kuzu, load_dotenv, mo, os
 
 
