@@ -228,9 +228,35 @@ def _(
         on the Kuzu database, to generate a natural language response.
         """
 
+        def validate_cypher_query(self, args, pred: dspy.Prediction) -> float:
+            try:
+                q = getattr(getattr(pred, "query", None), "query", None)
+                if not q or not isinstance(q, str):
+                    return 0.0
+                q = q.strip()
+                if not q:
+                    return 0.0
+
+                dbm = getattr(self, "_db_manager", None)
+                if dbm is None or not hasattr(dbm, "conn"):
+                    print("No database manager available for query validation.")
+                    return 0.0
+
+                dbm.conn.execute(f"EXPLAIN {q}")
+                print("Valid Cypher query:", q)
+                return 1.0
+            except Exception:
+                print("Invalid Cypher query:", q)
+                return 0.0
+
         def __init__(self):
             self.prune = dspy.Predict(PruneSchema)
-            self.text2cypher = dspy.ChainOfThought(Text2Cypher)
+            self.text2cypher = dspy.BestOfN(
+                module=dspy.ChainOfThought(Text2Cypher),
+                N=3,
+                reward_fn=self.validate_cypher_query,
+                threshold=1.0,
+            )
             self.generate_answer = dspy.ChainOfThought(AnswerQuestion)
 
         def get_cypher_query(self, question: str, input_schema: str) -> Query:
@@ -240,6 +266,19 @@ def _(
                 question=question, input_schema=schema
             )
             cypher_query = text2cypher_result.query
+            # Raise an error if none of the queries were valid
+            dbm = getattr(self, "_db_manager", None)
+            if dbm is None or not hasattr(dbm, "conn"):
+                raise RuntimeError(
+                    "Database manager not available for query validation."
+                )
+            try:
+                dbm.conn.execute(f"EXPLAIN {cypher_query}")
+            except Exception as _:
+                raise RuntimeError(
+                    "Failed to generate a valid Cypher query within 3 tries."
+                )
+
             return cypher_query
 
         def run_query(
@@ -262,6 +301,7 @@ def _(
         def forward(
             self, db_manager: KuzuDatabaseManager, question: str, input_schema: str
         ):
+            self._db_manager = db_manager
             final_query, final_context = self.run_query(
                 db_manager, question, input_schema
             )
@@ -286,6 +326,7 @@ def _(
         async def aforward(
             self, db_manager: KuzuDatabaseManager, question: str, input_schema: str
         ):
+            self._db_manager = db_manager
             final_query, final_context = self.run_query(
                 db_manager, question, input_schema
             )
@@ -310,11 +351,13 @@ def _(
     def run_graph_rag(
         questions: list[str], db_manager: KuzuDatabaseManager
     ) -> list[Any]:
+        print("run_graph_rag")
         schema = str(db_manager.get_schema_dict)
         rag = GraphRAG()
         # Run pipeline
         results = []
         for question in questions:
+            print("question: ", question)
             response = rag(
                 db_manager=db_manager, question=question, input_schema=schema
             )
