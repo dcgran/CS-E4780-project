@@ -74,11 +74,6 @@ def _(mo, range_slider):
 
 
 @app.cell
-def _():
-    return
-
-
-@app.cell
 def _(mo):
     # initialize the date picker at a given date
     max_birth_date = mo.ui.date(value="1945-01-01", full_width=True)
@@ -329,7 +324,7 @@ def _():
     import kuzu
     import polars as pl
     from pathlib import Path
-    from datetime import datetime
+    # from datetime import datetime
 
     return Path, kuzu, mo, pl
 

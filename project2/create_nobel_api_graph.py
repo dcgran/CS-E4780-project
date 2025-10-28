@@ -539,7 +539,7 @@ def _():
     import kuzu
     import polars as pl
     from pathlib import Path
-    from datetime import datetime
+    # rom datetime import datetime
 
     return Path, kuzu, mo, pl
 

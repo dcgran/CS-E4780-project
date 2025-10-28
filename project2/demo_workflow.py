@@ -433,18 +433,12 @@ def _():
     import os
     import marimo as mo
     import kuzu
-    import dspy
-    from typing import Any
+    import dspy # types: ignore
+    # from typing import Any
     from pydantic import BaseModel, Field
     from dotenv import load_dotenv
 
     return BaseModel, Field, dspy, kuzu, load_dotenv, mo, os
-
-
-@app.cell
-def _():
-    return
-
 
 if __name__ == "__main__":
     app.run()
