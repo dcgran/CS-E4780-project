@@ -2,10 +2,12 @@
 Graph RAG Library - Reusable components for Text2Cypher and Graph RAG.
 """
 
+import hashlib
 from typing import Any
 
 import dspy
 import kuzu
+from cachetools import LRUCache
 from pydantic import BaseModel, Field
 
 
@@ -151,6 +153,9 @@ class GraphRAG(dspy.Module):
     5. Answer generation
     """
 
+    _prune_cache = LRUCache(maxsize=128)
+    _text2cypher_cache = LRUCache(maxsize=128)
+
     def validate_cypher_query(self, _args: dict[Any, Any], pred: dspy.Prediction) -> float:
         try:
             q = getattr(getattr(pred, "query", None), "query", None)
@@ -244,6 +249,11 @@ class GraphRAG(dspy.Module):
         self.text2cypher = knn_optimizer.compile(student=base_module)
         print(f"KNN ready with {len(trainset)} examples")
 
+    def _make_cache_key(self, question: str, schema: str) -> str:
+        q_hash = hashlib.md5(question.encode()).hexdigest()[:8]
+        s_hash = hashlib.md5(str(schema).encode()).hexdigest()[:8]
+        return f"{q_hash}_{s_hash}"
+
     def forward(
         self, db_manager: KuzuDatabaseManager, question: str, input_schema: str
     ):
@@ -258,13 +268,27 @@ class GraphRAG(dspy.Module):
         """
         self._db_manager = db_manager
 
-        # Stage 1: Schema Pruning
-        prune_result = self.prune(question=question, input_schema=input_schema)
-        schema = prune_result.pruned_schema
+        # Stage 1: Schema Pruning (with caching)
+        prune_key = self._make_cache_key(question, input_schema)
+        if prune_key in self._prune_cache:
+            print(f"Cache hit: pruning (key={prune_key})")
+            schema = self._prune_cache[prune_key]
+        else:
+            print(f"Cache miss: pruning (key={prune_key})")
+            prune_result = self.prune(question=question, input_schema=input_schema)
+            schema = prune_result.pruned_schema
+            self._prune_cache[prune_key] = schema
 
-        # Stage 2: Query Generation (with optional KNN and Refine)
-        result = self.text2cypher(question=question, input_schema=schema)
-        query_string = result.query.query
+        # Stage 2: Query Generation (with optional KNN and Refine, with caching)
+        text2cypher_key = self._make_cache_key(question, str(schema))
+        if text2cypher_key in self._text2cypher_cache:
+            print(f"Cache hit: text2cypher (key={text2cypher_key})")
+            query_string = self._text2cypher_cache[text2cypher_key]
+        else:
+            print(f"Cache miss: text2cypher (key={text2cypher_key})")
+            result = self.text2cypher(question=question, input_schema=schema)
+            query_string = result.query.query
+            self._text2cypher_cache[text2cypher_key] = query_string
 
         # Stage 3: Execute Query
         try:
