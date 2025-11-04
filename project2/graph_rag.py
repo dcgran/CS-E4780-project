@@ -24,24 +24,52 @@ def _(mo):
         value="Which scholars won prizes in Physics and were affiliated with University of Cambridge?",
         full_width=True,
     )
-    return (text_ui,)
+    use_knn_checkbox = mo.ui.checkbox(
+        value=True,
+        label="Use KNN few-shot (dynamic exemplar selection)"
+    )
+    use_validation_checkbox = mo.ui.checkbox(
+        value=True,
+        label="Use self-refinement (generate → validate → repair, max 3 iterations)"
+    )
+    return text_ui, use_knn_checkbox, use_validation_checkbox
 
 
 @app.cell
-def _(text_ui):
-    text_ui
+def _(mo, text_ui, use_knn_checkbox, use_validation_checkbox):
+    mo.vstack([text_ui, use_knn_checkbox, use_validation_checkbox])
     return
 
 
 @app.cell
-def _(KuzuDatabaseManager, mo, run_graph_rag, text_ui):
+def _(KuzuDatabaseManager):
     db_name = "nobel.kuzu"
     db_manager = KuzuDatabaseManager(db_name)
+    return db_manager,
 
+
+@app.cell
+def _(create_graph_rag, use_knn_checkbox, use_validation_checkbox):
+    # Create GraphRAG instance based on checkbox states
+    # This cell only re-runs when checkboxes change
+    use_knn = use_knn_checkbox.value
+    use_validation = use_validation_checkbox.value
+    rag_instance = create_graph_rag(use_knn=use_knn, use_validation=use_validation, k=3)
+    return rag_instance, use_knn, use_validation
+
+
+@app.cell
+def _(db_manager, mo, rag_instance, run_graph_rag, text_ui, use_knn, use_validation):
     question = text_ui.value
 
     with mo.status.spinner(title="Generating answer...") as _spinner:
-        result = run_graph_rag([question], db_manager)[0]
+        result = run_graph_rag(
+            [question],
+            db_manager,
+            rag_instance=rag_instance,
+            use_knn=use_knn,
+            use_validation=use_validation
+        )[0]
 
     query = result["query"]
     answer = result["answer"].response
@@ -73,7 +101,10 @@ def _(BAMLAdapter, OPENROUTER_API_KEY, dspy):
         api_base="https://openrouter.ai/api/v1",
         api_key=OPENROUTER_API_KEY,
     )
-    dspy.configure(lm=lm, adapter=BAMLAdapter())
+    try:
+        dspy.configure(lm=lm, adapter=BAMLAdapter())
+    except RuntimeError:
+        pass
     return
 
 
@@ -93,10 +124,11 @@ def _(graph_rag_lib):
 
 
 @app.cell
-def _(Any, KuzuDatabaseManager, graph_rag_lib):
-    # Import GraphRAG module and runner from the library
+def _(graph_rag_lib):
+    # Import GraphRAG functions from the library
+    create_graph_rag = graph_rag_lib.create_graph_rag
     run_graph_rag = graph_rag_lib.run_graph_rag
-    return (run_graph_rag,)
+    return create_graph_rag, run_graph_rag
 
 
 @app.cell
@@ -109,7 +141,6 @@ def _():
     import marimo as mo
     import os
     from pathlib import Path
-    from typing import Any
 
     import dspy
     import kuzu
@@ -123,7 +154,6 @@ def _():
 
     OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY")
     return (
-        Any,
         BAMLAdapter,
         BaseModel,
         Field,
