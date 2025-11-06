@@ -37,6 +37,24 @@ class GraphSchema(BaseModel):
     edges: list[Edge]
 
 
+class QuestionRelevance(dspy.Signature):
+    """
+    Determine if a user question is relevant to the Nobel Prize database domain.
+    
+    The database contains information about:
+    - Nobel Prize laureates (scholars/winners)
+    - Nobel Prizes (awards in different categories like Physics, Chemistry, Literature, etc.)
+    - Affiliations (universities, institutions, countries)
+    - Prize categories and years
+    
+    Only return True if the question can be answered using factual information from this Nobel Prize database.
+    Return False for any questions that are not about Nobel Prize related information.
+    """
+    
+    question: str = dspy.InputField()
+    is_relevant: bool = dspy.OutputField(description="True if question is about Nobel Prize information, False otherwise")
+
+
 class PruneSchema(dspy.Signature):
     """
     Understand the given labelled property graph schema and the given user question. Your task
@@ -74,6 +92,9 @@ class Text2Cypher(dspy.Signature):
     - When returning results, return property values rather than the entire node or relationship.
     - Do not attempt to coerce data types to number formats (e.g., integer, float) in your results.
     - NO Cypher keywords should be returned by your query.
+    - NEVER return hardcoded strings, messages, or literals using RETURN 'some message' syntax.
+    - ALWAYS query actual data from the database nodes and relationships.
+    - If you cannot construct a valid query, the system will handle the error appropriately.
     </RETURN_RESULTS>
     """
 
@@ -170,9 +191,20 @@ class GraphRAG(dspy.Module):
                 print("No database manager available for query validation.")
                 return 0.0
 
+            # Check for hardcoded string returns (common escape pattern)
+            q_lower = q.lower()
+            if "return '" in q_lower or 'return "' in q_lower:
+                # Check if it's returning a hardcoded string message
+                if any(phrase in q_lower for phrase in [
+                    "cannot answer", "don't have", "not available", 
+                    "philosophical", "outside", "beyond"
+                ]):
+                    print(f"Invalid Cypher query (hardcoded message escape): {q}")
+                    return 0.0
+
+            # Validate syntax with EXPLAIN
             dbm.conn.execute(f"EXPLAIN {q}")
 
-            q_lower = q.lower()
             if "return" not in q_lower:
                 print(f"Invalid Cypher query (no RETURN): {q}")
                 return 0.0
@@ -201,6 +233,9 @@ class GraphRAG(dspy.Module):
         self.use_validation = use_validation
         self.max_retries = 3
 
+        # Stage 0: Question relevance validation
+        self.validate_relevance = dspy.Predict(QuestionRelevance)
+        
         # Stage 1: Schema pruning
         self.prune = dspy.Predict(PruneSchema)
 
@@ -261,12 +296,26 @@ class GraphRAG(dspy.Module):
         Multi-step agent execution pipeline.
 
         Stages:
+        0. Validate question relevance to domain
         1. Prune schema to relevant elements
         2. Generate Cypher query (with optional KNN examples and Refine)
         3. Execute query on database
         4. Generate natural language answer
         """
         self._db_manager = db_manager
+
+        # Stage 0: Question Relevance Validation
+        relevance_result = self.validate_relevance(question=question)
+        if not relevance_result.is_relevant:
+            print("Question not relevant to Nobel Prize domain")
+            irrelevant_answer = dspy.Prediction(
+                response="I can only answer questions about Nobel Prize laureates, prizes, and related information."
+            )
+            return {
+                "question": question,
+                "query": "N/A - Question not relevant to domain",
+                "answer": irrelevant_answer,
+            }
 
         # Stage 1: Schema Pruning (with caching)
         prune_key = self._make_cache_key(question, input_schema)
