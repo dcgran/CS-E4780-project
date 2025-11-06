@@ -1,0 +1,131 @@
+From acfd4b70920bdb0ce6e95e1b4f39c23850da4086 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Daniel=20Granstr=C3=B6m?= <daniel@valosecurity.com>
+Date: Thu, 6 Nov 2025 06:24:26 +0200
+Subject: [PATCH] improved input validation
+
+---
+ project2/Makefile         | 11 +++++++++
+ project2/graph_rag_lib.py | 51 ++++++++++++++++++++++++++++++++++++++-
+ 2 files changed, 61 insertions(+), 1 deletion(-)
+ create mode 100644 project2/Makefile
+
+diff --git a/project2/Makefile b/project2/Makefile
+new file mode 100644
+index 0000000..96f906f
+--- /dev/null
++++ b/project2/Makefile
+@@ -0,0 +1,11 @@
++# CS-E4780 Project 1 - CEP System Makefile
++
++help:
++	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
++
++install: ## Install dependencies with uv
++	@echo "Installing dependencies with uv..."
++	uv sync
++
++run-graph-rag: ## Run graph rag
++	uv run marimo run graph_rag.py 
+\ No newline at end of file
+diff --git a/project2/graph_rag_lib.py b/project2/graph_rag_lib.py
+index 83ac8a4..0e7349f 100644
+--- a/project2/graph_rag_lib.py
++++ b/project2/graph_rag_lib.py
+@@ -37,6 +37,24 @@ class GraphSchema(BaseModel):
+     edges: list[Edge]
+ 
+ 
++class QuestionRelevance(dspy.Signature):
++    """
++    Determine if a user question is relevant to the Nobel Prize database domain.
++    
++    The database contains information about:
++    - Nobel Prize laureates (scholars/winners)
++    - Nobel Prizes (awards in different categories like Physics, Chemistry, Literature, etc.)
++    - Affiliations (universities, institutions, countries)
++    - Prize categories and years
++    
++    Only return True if the question can be answered using factual information from this Nobel Prize database.
++    Return False for any questions that are not about Nobel Prize related information.
++    """
++    
++    question: str = dspy.InputField()
++    is_relevant: bool = dspy.OutputField(description="True if question is about Nobel Prize information, False otherwise")
++
++
+ class PruneSchema(dspy.Signature):
+     """
+     Understand the given labelled property graph schema and the given user question. Your task
+@@ -74,6 +92,9 @@ class Text2Cypher(dspy.Signature):
+     - When returning results, return property values rather than the entire node or relationship.
+     - Do not attempt to coerce data types to number formats (e.g., integer, float) in your results.
+     - NO Cypher keywords should be returned by your query.
++    - NEVER return hardcoded strings, messages, or literals using RETURN 'some message' syntax.
++    - ALWAYS query actual data from the database nodes and relationships.
++    - If you cannot construct a valid query, the system will handle the error appropriately.
+     </RETURN_RESULTS>
+     """
+ 
+@@ -170,9 +191,20 @@ class GraphRAG(dspy.Module):
+                 print("No database manager available for query validation.")
+                 return 0.0
+ 
++            # Check for hardcoded string returns (common escape pattern)
++            q_lower = q.lower()
++            if "return '" in q_lower or 'return "' in q_lower:
++                # Check if it's returning a hardcoded string message
++                if any(phrase in q_lower for phrase in [
++                    "cannot answer", "don't have", "not available", 
++                    "philosophical", "outside", "beyond"
++                ]):
++                    print(f"Invalid Cypher query (hardcoded message escape): {q}")
++                    return 0.0
++
++            # Validate syntax with EXPLAIN
+             dbm.conn.execute(f"EXPLAIN {q}")
+ 
+-            q_lower = q.lower()
+             if "return" not in q_lower:
+                 print(f"Invalid Cypher query (no RETURN): {q}")
+                 return 0.0
+@@ -201,6 +233,9 @@ class GraphRAG(dspy.Module):
+         self.use_validation = use_validation
+         self.max_retries = 3
+ 
++        # Stage 0: Question relevance validation
++        self.validate_relevance = dspy.Predict(QuestionRelevance)
++        
+         # Stage 1: Schema pruning
+         self.prune = dspy.Predict(PruneSchema)
+ 
+@@ -261,6 +296,7 @@ class GraphRAG(dspy.Module):
+         Multi-step agent execution pipeline.
+ 
+         Stages:
++        0. Validate question relevance to domain
+         1. Prune schema to relevant elements
+         2. Generate Cypher query (with optional KNN examples and Refine)
+         3. Execute query on database
+@@ -268,6 +304,19 @@ class GraphRAG(dspy.Module):
+         """
+         self._db_manager = db_manager
+ 
++        # Stage 0: Question Relevance Validation
++        relevance_result = self.validate_relevance(question=question)
++        if not relevance_result.is_relevant:
++            print("Question not relevant to Nobel Prize domain")
++            irrelevant_answer = dspy.Prediction(
++                response="I can only answer questions about Nobel Prize laureates, prizes, and related information."
++            )
++            return {
++                "question": question,
++                "query": "N/A - Question not relevant to domain",
++                "answer": irrelevant_answer,
++            }
++
+         # Stage 1: Schema Pruning (with caching)
+         prune_key = self._make_cache_key(question, input_schema)
+         if prune_key in self._prune_cache:
+-- 
+2.47.0
+
