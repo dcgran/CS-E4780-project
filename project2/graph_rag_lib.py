@@ -39,20 +39,26 @@ class GraphSchema(BaseModel):
 
 class QuestionRelevance(dspy.Signature):
     """
-    Determine if a user question is relevant to the Nobel Prize database domain.
-    
-    The database contains information about:
-    - Nobel Prize laureates (scholars/winners)
-    - Nobel Prizes (awards in different categories like Physics, Chemistry, Literature, etc.)
-    - Affiliations (universities, institutions, countries)
-    - Prize categories and years
-    
-    Only return True if the question can be answered using factual information from this Nobel Prize database.
-    Return False for any questions that are not about Nobel Prize related information.
+    Check if a question is about Nobel Prizes. Be very permissive - only reject obviously unrelated questions.
+
+    Return True for ANY question that mentions:
+    - Nobel Prize, Nobel, laureate, winner
+    - Physics, Chemistry, Literature, Peace, Economics (prize categories)
+    - Scientists, scholars, researchers, academics
+    - Universities, institutions, countries, affiliations
+    - Years, awards, prizes
+
+    Return False ONLY for clearly unrelated questions like:
+    - General knowledge questions not related to Nobel Prizes or laureates
+    - Personal questions about the user
+
+    When in doubt, return True. It's better to try answering than to reject.
     """
-    
+
     question: str = dspy.InputField()
-    is_relevant: bool = dspy.OutputField(description="True if question is about Nobel Prize information, False otherwise")
+    is_relevant: bool = dspy.OutputField(
+        description="True unless question is clearly unrelated to Nobel Prize information"
+    )
 
 
 class PruneSchema(dspy.Signature):
@@ -177,7 +183,9 @@ class GraphRAG(dspy.Module):
     _prune_cache = LRUCache(maxsize=128)
     _text2cypher_cache = LRUCache(maxsize=128)
 
-    def validate_cypher_query(self, _args: dict[Any, Any], pred: dspy.Prediction) -> float:
+    def validate_cypher_query(
+        self, _args: dict[Any, Any], pred: dspy.Prediction
+    ) -> float:
         try:
             q = getattr(getattr(pred, "query", None), "query", None)
             if not q or not isinstance(q, str):
@@ -195,10 +203,17 @@ class GraphRAG(dspy.Module):
             q_lower = q.lower()
             if "return '" in q_lower or 'return "' in q_lower:
                 # Check if it's returning a hardcoded string message
-                if any(phrase in q_lower for phrase in [
-                    "cannot answer", "don't have", "not available", 
-                    "philosophical", "outside", "beyond"
-                ]):
+                if any(
+                    phrase in q_lower
+                    for phrase in [
+                        "cannot answer",
+                        "don't have",
+                        "not available",
+                        "philosophical",
+                        "outside",
+                        "beyond",
+                    ]
+                ):
                     print(f"Invalid Cypher query (hardcoded message escape): {q}")
                     return 0.0
 
@@ -235,7 +250,7 @@ class GraphRAG(dspy.Module):
 
         # Stage 0: Question relevance validation
         self.validate_relevance = dspy.Predict(QuestionRelevance)
-        
+
         # Stage 1: Schema pruning
         self.prune = dspy.Predict(PruneSchema)
 
@@ -261,7 +276,9 @@ class GraphRAG(dspy.Module):
         if use_knn_fewshot:
             config_parts.append(f"KNN few-shot (k={k})")
         if use_validation:
-            config_parts.append(f"Refine self-refinement (max {self.max_retries} iterations)")
+            config_parts.append(
+                f"Refine self-refinement (max {self.max_retries} iterations)"
+            )
         if not config_parts:
             config_parts.append("baseline")
 
@@ -302,10 +319,29 @@ class GraphRAG(dspy.Module):
         3. Execute query on database
         4. Generate natural language answer
         """
+        import time
+
         self._db_manager = db_manager
+        timing_info = {}
 
         # Stage 0: Question Relevance Validation
+        relevance_start = time.time()
+        print(f"Starting relevance check for: {question[:50]}...")
+
+        # Add debug info to see what DSPy is actually doing
+        import dspy
+
+        print(f"Current LM: {dspy.settings.lm}")
+
         relevance_result = self.validate_relevance(question=question)
+        relevance_time = time.time() - relevance_start
+        timing_info["relevance_check"] = relevance_time
+
+        print(
+            f"Relevance check completed in {relevance_time:.3f}s, result: {relevance_result.is_relevant}"
+        )
+        print(f"DSPy prediction object: {type(relevance_result)}")
+
         if not relevance_result.is_relevant:
             print("Question not relevant to Nobel Prize domain")
             irrelevant_answer = dspy.Prediction(
@@ -315,36 +351,50 @@ class GraphRAG(dspy.Module):
                 "question": question,
                 "query": "N/A - Question not relevant to domain",
                 "answer": irrelevant_answer,
+                "timing_info": timing_info,
             }
 
         # Stage 1: Schema Pruning (with caching)
+        prune_start = time.time()
         prune_key = self._make_cache_key(question, input_schema)
         if prune_key in self._prune_cache:
             print(f"Cache hit: pruning (key={prune_key})")
             schema = self._prune_cache[prune_key]
+            cache_hit_prune = True
         else:
             print(f"Cache miss: pruning (key={prune_key})")
             prune_result = self.prune(question=question, input_schema=input_schema)
             schema = prune_result.pruned_schema
             self._prune_cache[prune_key] = schema
+            cache_hit_prune = False
+        timing_info["schema_pruning"] = time.time() - prune_start
+        timing_info["cache_hit_prune"] = cache_hit_prune
 
         # Stage 2: Query Generation (with optional KNN and Refine, with caching)
+        query_start = time.time()
         text2cypher_key = self._make_cache_key(question, str(schema))
         if text2cypher_key in self._text2cypher_cache:
             print(f"Cache hit: text2cypher (key={text2cypher_key})")
             query_string = self._text2cypher_cache[text2cypher_key]
+            cache_hit_query = True
         else:
             print(f"Cache miss: text2cypher (key={text2cypher_key})")
             result = self.text2cypher(question=question, input_schema=schema)
             query_string = result.query.query
             self._text2cypher_cache[text2cypher_key] = query_string
+            cache_hit_query = False
+        timing_info["query_generation"] = time.time() - query_start
+        timing_info["cache_hit_query"] = cache_hit_query
 
         # Stage 3: Execute Query
+        exec_start = time.time()
         try:
             query_result = db_manager.conn.execute(query_string)
             context = [item for row in query_result for item in row]
         except Exception as e:
             print(f"Error executing query: {e}")
+            timing_info["query_execution"] = time.time() - exec_start
+            timing_info["answer_generation"] = 0
             error_answer = dspy.Prediction(
                 response="I don't have enough information to answer this question."
             )
@@ -352,11 +402,14 @@ class GraphRAG(dspy.Module):
                 "question": question,
                 "query": query_string,
                 "answer": error_answer,
+                "timing_info": timing_info,
             }
+        timing_info["query_execution"] = time.time() - exec_start
 
         # Stage 4: Generate Answer
         if not context:
             print("Empty results from database")
+            timing_info["answer_generation"] = 0
             empty_answer = dspy.Prediction(
                 response="No results were found for this query."
             )
@@ -364,18 +417,22 @@ class GraphRAG(dspy.Module):
                 "question": question,
                 "query": query_string,
                 "answer": empty_answer,
+                "timing_info": timing_info,
             }
 
+        answer_start = time.time()
         answer = self.generate_answer(
             question=question,
             cypher_query=query_string,
             context=str(context),
         )
+        timing_info["answer_generation"] = time.time() - answer_start
 
         return {
             "question": question,
             "query": query_string,
             "answer": answer,
+            "timing_info": timing_info,
         }
 
 
@@ -397,9 +454,7 @@ def run_graph_rag(
 
     if rag_instance is None:
         print(f"Creating GraphRAG (knn={use_knn}, validation={use_validation}, k={k})")
-        rag = GraphRAG(
-            use_knn_fewshot=use_knn, use_validation=use_validation, k=k
-        )
+        rag = GraphRAG(use_knn_fewshot=use_knn, use_validation=use_validation, k=k)
     else:
         rag = rag_instance
 

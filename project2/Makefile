@@ -9,3 +9,9 @@ install: ## Install dependencies with uv
 
 run-graph-rag: ## Run graph rag
 	uv run marimo run graph_rag.py
+
+benchmark-baseline: ## Run baseline benchmark (no KNN, no validation)
+	uv run python benchmark.py baseline
+
+benchmark-knn: ## Run KNN benchmark (with KNN few-shot and validation)
+	uv run python benchmark.py knn
