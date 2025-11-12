@@ -1,0 +1,279 @@
+%%
+%% This is file `main.tex' based on `sample-sigconf.tex' (q.v. for spurce of that,
+%%
+%% IMPORTANT NOTICE:
+%% 
+%% For the copyright see the original source file `sample-sigconf.tex'
+%% in the `Sample' folder.
+%%
+%% For distribution of the original source see the terms
+%% for copying and modification in the file samples.dtx.
+%% 
+%% This generated file may be distributed as long as the
+%% original source files, as listed above, are part of the
+%% same distribution. (The sources need not necessarily be
+%% in the same archive or directory.)
+%%
+%% Commands for TeXCount
+%TC:macro \cite [option:text,text]
+%TC:macro \citep [option:text,text]
+%TC:macro \citet [option:text,text]
+%TC:envir table 0 1
+%TC:envir table* 0 1
+%TC:envir tabular [ignore] word
+%TC:envir displaymath 0 word
+%TC:envir math 0 word
+%TC:envir comment 0 0
+%%
+%%
+%% The first command in your LaTeX source must be the \documentclass command.
+
+%% NOTE that a single column version is required for 
+%% submission and peer review. This can be done by changing
+%% the \doucmentclass[...]{acmart} in this template to 
+%%\documentclass[manuscript,review,anonymous]{acmart}
+%% This version is used for drafting and final submission
+\documentclass[sigconf]{acmart}
+
+%% 
+%% To ensure 100% compatibility, please check the white list of
+%% approved LaTeX packages to be used with the Master Article Template at
+%% https://www.acm.org/publications/taps/whitelist-of-latex-packages 
+%% before creating your document. The white list page provides 
+%% information on how to submit additional LaTeX packages for 
+%% review and adoption.
+%% Fonts used in the template cannot be substituted; margin 
+%% adjustments are not allowed.
+
+%%
+%% \BibTeX command to typeset BibTeX logo in the docs
+\AtBeginDocument{%
+  \providecommand\BibTeX{{%
+    \normalfont B\kern-0.5em{\scshape i\kern-0.25em b}\kern-0.8em\TeX}}}
+
+%% Rights management information.  This information is sent to you
+%% when you complete the rights form.  These commands have SAMPLE
+%% values in them; it is your responsibility as an author to replace
+%% the commands and values with those provided to you when you
+%% complete the rights form.
+%\setcopyright{acmlicensed}
+\copyrightyear{2025}
+\acmYear{2025}
+\acmDOI{}
+\setcopyright{none}
+
+
+%% These commands are for a PROCEEDINGS abstract or paper.
+\acmConference[CS-E4780]{CS-E4780 Course Project Evaluation Tables}{October 10,
+  2025}{Aalto University}
+%
+%  Uncomment \acmBooktitle if th title of the proceedings is different
+%  from ``Proceedings of ...''!
+%
+%\acmBooktitle{Woodstock '18: ACM Symposium on Neural Gaze Detection,
+%  June 03--05, 2018, Woodstock, NY} 
+%\acmISBN{978-1-4503-XXXX-X/18/06}
+
+
+%%
+%% Submission ID.
+%% Use this when submitting an article to a sponsored event. You'll
+%% receive a unique submission ID from the organizers
+%% of the event, and this ID should be used as the parameter to this command.
+%%\acmSubmissionID{123-A56-BU3}
+
+%%
+%% For managing citations, it is recommended to use bibliography
+%% files in BibTeX format.
+%%
+%% You can then either use BibTeX with the ACM-Reference-Format style,
+%% or BibLaTeX with the acmnumeric or acmauthoryear sytles, that include
+%% support for advanced citation of software artefact from the
+%% biblatex-software package, also separately available on CTAN.
+%%
+%% Look at the sample-*-biblatex.tex files for templates showcasing
+%% the biblatex styles.
+%%
+
+%%
+%% The majority of ACM publications use numbered citations and
+%% references.  The command \citestyle{authoryear} switches to the
+%% "author year" style.
+%%
+%% If you are preparing content for an event
+%% sponsored by ACM SIGGRAPH, you must use the "author year" style of
+%% citations and references.
+%% Uncommenting
+%% the next command will enable that style.
+%%\citestyle{acmauthoryear}
+
+%%
+%% end of the preamble, start of the body of the document source.
+
+%% % Location of your graphics files for figures, here a sub-folder to the main project folder
+\graphicspath{{./images/}}
+
+\usepackage{listings}
+\usepackage{booktabs}
+
+\begin{document}
+
+%%
+%% The "title" command has an optional parameter,
+%% allowing the author to define a "short title" to be used in page headers.
+\title[Project Report]{Project Report: Enhancing LLM Inference with GraphRAG}
+
+
+%%
+%% The "author" command and its associated commands are used to define
+%% the authors and their affiliations.
+%% Of note is the shared affiliation of the first two authors, and the
+%% "authornote" and "authornotemark" commands
+%% used to denote shared contribution to the research.
+
+\author{Daniel Granstr{\"o}m}
+\affiliation{%
+  \institution{Aalto University}
+  \city{Espoo}
+  \country{Finland}}
+\email{daniel.granstrom@aalto.fi}
+
+
+\author{Joonatan Korpela}
+\affiliation{%
+  \institution{Aalto University}
+  \city{Espoo}
+  \country{Finland}
+}
+\email{joonatan.korpela@aalto.fi}
+
+\author{Mikael Siidorow}
+\affiliation{%
+  \institution{Aalto University}
+  \city{Espoo}
+  \country{Finland}
+}
+\email{mikael.siidorow@aalto.fi}
+
+%%
+%% By default, the full list of authors will be used in the page
+%% headers. Often, this list is too long, and will overlap
+%% other information printed in the page headers. This command allows
+%% the author to define a more concise list
+%% of authors' names for this purpose.
+\renewcommand{\shortauthors}{Granström, Korpela, Siidorow}
+
+%%
+%% The abstract is a short summary of the work to be presented in the
+%% article.
+\begin{abstract}
+
+  The course project is available at \url{https://github.com/dcgran/CS-E4780-project}~\cite{CS-E4780-project}.
+
+
+\end{abstract}
+
+%%
+%% The code below is generated by the tool at: http://dl.acm.org/ccs.cfm
+%% Please copy and paste the code instead of the example below.
+%%
+
+%% \begin{CCSXML}
+%%   <ccs2012>
+%%   <concept>
+%%   <concept_id>00000000.0000000.0000000</concept_id>
+%%   <concept_desc>Do Not Use This Code, Generate the Correct Terms for Your Paper</concept_desc>
+%%   <concept_significance>500</concept_significance>
+%%   </concept>
+%%   <concept>
+%%   <concept_id>00000000.00000000.00000000</concept_id>
+%%   <concept_desc>Do Not Use This Code, Generate the Correct Terms for Your Paper</concept_desc>
+%%   <concept_significance>300</concept_significance>
+%%   </concept>
+%%   <concept>
+%%   <concept_id>00000000.00000000.00000000</concept_id>
+%%   <concept_desc>Do Not Use This Code, Generate the Correct Terms for Your Paper</concept_desc>
+%%   <concept_significance>100</concept_significance>
+%%   </concept>
+%%   <concept>
+%%   <concept_id>00000000.00000000.00000000</concept_id>
+%%   <concept_desc>Do Not Use This Code, Generate the Correct Terms for Your Paper</concept_desc>
+%%   <concept_significance>100</concept_significance>
+%%   </concept>
+%%   </ccs2012>
+%% \end{CCSXML}
+
+%% \ccsdesc[500]{Do Not Use This Code~Generate the Correct Terms for Your Paper}
+%% \ccsdesc[300]{Do Not Use This Code~Generate the Correct Terms for Your Paper}
+%% \ccsdesc{Do Not Use This Code~Generate the Correct Terms for Your Paper}
+%% \ccsdesc[100]{Do Not Use This Code~Generate the Correct Terms for Your Paper}
+
+%%
+%% Keywords. The author(s) should pick words that accurately describe
+%% the work being presented. Separate the keywords with commas.
+\keywords{Large-Language Models}
+
+%% The following are not a requirement, delete if not using
+%\received{20 February 2024}  %% inital submission date
+%\received[revised]{12 March 2024} %% interim new draft
+%\received[accepted]{5 June 2024}  %% publication version
+
+%%
+%% This command processes the author and affiliation and title
+%% information and builds the first part of the formatted document.
+\maketitle
+
+\section{Introduction}
+
+\dots
+
+\section{System Architecture}
+
+\dots
+
+\section{Implementation}
+
+\dots
+
+\section{Performance Evaluation}
+
+\dots
+
+\subsection{Results}
+
+Table~\ref{tab:results} shows performance across configurations.
+
+\begin{table*}
+  \caption{Performance Evaluation Results}
+  \label{tab:results}
+  \begin{tabular}{lrrrrrr}
+    \toprule
+    Some & Data \\
+    ??   & ??   \\
+    \bottomrule
+  \end{tabular}
+\end{table*}
+
+\section{Conclusion}
+
+
+%%
+%% The acknowledgments section is defined using the "acks" environment
+%% (and NOT an unnumbered section). This ensures the proper
+%% identification of the section in the article metadata, and the
+%% consistent spelling of the heading.
+%% \begin{acks}
+%%   Acknowledgements go here. Delete enclosing begin/end markers if there are no acknowledgements.
+%% \end{acks}
+
+%%
+%% The next two lines define the bibliography style to be used, and
+%% the bibliography file.
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{references.bib}
+
+%%
+\end{document}
+\endinput
+%%
+%% End of file `main.tex'.
