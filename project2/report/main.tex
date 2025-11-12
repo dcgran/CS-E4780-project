@@ -35,6 +35,9 @@
 %% This version is used for drafting and final submission
 \documentclass[sigconf]{acmart}
 
+\usepackage{tikz}
+\usetikzlibrary{positioning,shapes.multipart}
+
 %% 
 %% To ensure 100% compatibility, please check the white list of
 %% approved LaTeX packages to be used with the Master Article Template at
@@ -116,6 +119,7 @@
 \usepackage{listings}
 \usepackage{booktabs}
 
+
 \begin{document}
 
 %%
@@ -162,6 +166,14 @@
 %% the author to define a more concise list
 %% of authors' names for this purpose.
 \renewcommand{\shortauthors}{Granström, Korpela, Siidorow}
+
+% Project 1 feedback:
+% Weak points:
+% W1. The report lacks a detailed description of memory utilization measurement. The reported size of 41.7M seems to only reflect the Python objects involved. A more comprehensive description of memory usage would strengthen the analysis.
+% W2. The report is shorter than 4 pages. It would benefit from more details on the testbed setup, implementation, and throughput measurement and analysis.
+
+
+% Please see the weak points as opportunities for improvements for the next course project. Thank you. 
 
 %%
 %% The abstract is a short summary of the work to be presented in the
@@ -217,7 +229,7 @@
 %%
 %% Keywords. The author(s) should pick words that accurately describe
 %% the work being presented. Separate the keywords with commas.
-\keywords{Large-Language Models}
+\keywords{Large Language Models, Retrieval-Augmented Generation}
 
 %% The following are not a requirement, delete if not using
 %\received{20 February 2024}  %% inital submission date
@@ -230,18 +242,134 @@
 \maketitle
 
 \section{Introduction}
-\begin{itemize}
-  \item Graph-based RAG vs traditional RAG background
-  \item Nobel Laureates dataset overview
-  \item Task 1: Text2Cypher enhancement
-  \item Task 2: Caching and performance benchmarking
-  \item Report organization
-\end{itemize}
+
+Retrieval-Augmented Generation (RAG) systems enhance Large Language Model (LLM) inference by incorporating external knowledge sources to improve factual accuracy and reduce hallucinations. Traditional RAG approaches rely on semantic similarity search over unstructured text chunks, which works well for many tasks but struggles to capture the rich relational structure underlying complex domains such as scientific collaboration networks, enterprise knowledge bases, and multi-hop reasoning problems. GraphRAG addresses this limitation by integrating graph representations of knowledge into the retrieval process~\cite{han2025retrievalaugmentedgenerationgraphsgraphrag}, enabling LLMs to reason over structured relationships and perform multi-hop queries that would be difficult to express through text-based retrieval alone.
+
+This project implements a GraphRAG system using the Nobel Laureates dataset, which contains mentorship relationships spanning from the 16th century to 2021, enriched with biographical data from the official Nobel Prize API. The dataset is stored in Kuzu, a graph database that supports efficient pattern matching through the Cypher query language. The system pipeline consists of four main stages: schema pruning to identify relevant graph structure, Text2Cypher generation to translate natural language questions into Cypher queries, query execution against the graph database, and response generation by the LLM based on retrieved results.
+
+We address two primary objectives in this work. First, we enhance the Text2Cypher component to improve query generation accuracy through three techniques: (1) dynamic few-shot exemplar selection based on semantic similarity to the input question, (2) a self-refinement loop that validates generated queries using dry-run execution and repairs syntax errors iteratively, and (3) rule-based post-processing to enforce common patterns such as case-insensitive string matching. Second, we optimize system performance by implementing an LRU cache keyed on question and schema hashes, and conduct comprehensive benchmarking to characterize latency across all pipeline stages and quantify memory utilization.
+
+Our evaluation includes an ablation study examining all meaningful combinations of Text2Cypher enhancements, quantifying the accuracy-latency trade-offs inherent in each approach. We measure both syntax correctness and semantic correctness against a diverse test set, and analyze cache performance under different workload patterns. The results provide practical insights into which optimizations yield the best balance between response quality and system efficiency.
+
+The remainder of this report is organized as follows. Section~2 describes the system architecture and design decisions. Section~3 details the implementation of both tasks, including testbed setup and measurement methodology. Section~4 presents our experimental evaluation with comprehensive performance analysis. Section~5 discusses key findings and lessons learned, and Section~6 concludes.
+
 
 \section{System Architecture}
+
+\subsection{GraphRAG Pipeline}
+
+Our GraphRAG system implements a five-stage pipeline that transforms natural language questions into structured graph queries and generates contextually grounded responses. Figure~\ref{fig:pipeline} illustrates the complete workflow.
+
+\textbf{Stage 1: Schema Retrieval.} The system begins by extracting the complete graph schema from Kuzu, including all node types, relationship types, and their associated properties. This schema provides a comprehensive structural description of the knowledge graph that will be used in subsequent stages.
+
+\textbf{Stage 2: Schema Pruning.} Given a user question, the system uses an LLM to identify which subset of the schema is relevant to answering that question. This pruning step reduces the context size for downstream stages, improving both accuracy and latency. The pruned schema is serialized and hashed to serve as part of the cache key, enabling reuse across questions that involve the same graph structure.
+
+\textbf{Stage 3: Text2Cypher Generation.} The pruned schema and user question are passed to the Text2Cypher component, which generates a syntactically and semantically valid Cypher query. This stage incorporates three enhancement mechanisms (detailed in Section~3.2): similarity-based few-shot exemplar selection, self-refinement with validation feedback, and rule-based post-processing. The generated query is cached using a composite key of question hash and schema hash.
+
+\textbf{Stage 4: Query Execution.} The generated Cypher query is executed against the Kuzu database. Kuzu's columnar storage and optimized query engine enable efficient pattern matching over the graph structure. The query results are returned as structured data (e.g., lists of nodes, relationships, or aggregated values).
+
+\textbf{Stage 5: Response Generation.} Finally, an LLM synthesizes a natural language response based on the original question, the generated query, and the structured results from the database. This stage translates the retrieved facts into a coherent, human-readable answer that directly addresses the user's information need.
+
+% Placeholder for pipeline diagram
+% \begin{figure}[t]
+%   \centering
+%   \includegraphics[width=\columnwidth]{pipeline.pdf}
+%   \caption{GraphRAG pipeline showing the five stages from user question to natural language response. Cache lookup occurs at Stage 3 for previously seen question-schema combinations.}
+%   \label{fig:pipeline}
+% \end{figure}
+
+\subsection{Knowledge Graph Schema}
+
+The Nobel Laureates knowledge graph represents prize winners, their institutional affiliations, and geographic metadata. The graph is constructed from the official Nobel Prize API, which provides comprehensive biographical and institutional data for all laureates from 1901 to 2021 across four prize categories. Figure~\ref{fig:schema} illustrates the complete schema.
+
+\textbf{Node Types.} The schema defines six entity types:
 \begin{itemize}
-  \item Overall GraphRAG pipeline diagram
-  \item Knowledge graph schema (Kuzu)
+  \item \textbf{Scholar}: Represents Nobel Prize laureates. Properties include \texttt{id}, \texttt{knownName}, \texttt{fullName}, \texttt{gender}, \texttt{birthDate}, \texttt{deathDate}, and \texttt{scholar\_type} (set to ``laureate'' for all nodes from the API data).
+  \item \textbf{Prize}: Represents individual Nobel Prize awards in a given year and category. Properties include \texttt{prize\_id} (composite key of year and category), \texttt{awardYear}, \texttt{category} (physics, chemistry, medicine, economics), \texttt{dateAwarded}, \texttt{motivation}, \texttt{prizeAmount}, and \texttt{prizeAmountAdjusted}.
+  \item \textbf{Institution}: Academic and research institutions affiliated with scholars. Properties include \texttt{name} (standardized current name).
+  \item \textbf{City}: Geographic locations representing cities associated with scholar birthplaces and institutional locations. Properties include \texttt{name} and \texttt{state}.
+  \item \textbf{Country}: National-level geographic entities. Properties include \texttt{name}.
+  \item \textbf{Continent}: Continental-level geographic entities for regional analysis. Properties include \texttt{name}.
+\end{itemize}
+
+\textbf{Relationship Types.} The schema defines seven relationship types connecting entities:
+\begin{itemize}
+  \item \texttt{WON}: Connects a Scholar to a Prize they received. Includes a \texttt{portion} property indicating the share of the prize (e.g., ``1/2'' for shared prizes).
+  \item \texttt{BORN\_IN}: Connects a Scholar to their birth City.
+  \item \texttt{DIED\_IN}: Connects a Scholar to the City where they died (defined but sparsely populated in current data).
+  \item \texttt{AFFILIATED\_WITH}: Connects a Scholar to an Institution they were associated with at the time of receiving the prize.
+  \item \texttt{IS\_LOCATED\_IN}: Connects an Institution to its host City.
+  \item \texttt{IS\_CITY\_IN}: Connects a City to its Country.
+  \item \texttt{IS\_COUNTRY\_IN}: Connects a Country to its Continent.
+\end{itemize}
+
+This schema enables multi-hop queries such as: \textit{``How many Physics laureates were born in cities located in European countries?''} or \textit{``Which institutions affiliated with the most Chemistry prize winners are located in the United States?''} The hierarchical geographic structure (City $\rightarrow$ Country $\rightarrow$ Continent) supports analysis at multiple spatial granularities, while the institutional affiliations enable studies of knowledge production across research organizations.
+
+\begin{figure*}[t]
+  \centering
+  \begin{tikzpicture}[
+      scale=0.7,
+      every node/.style={transform shape},
+      class/.style={rectangle split, rectangle split parts=2, draw, text width=2.2cm, align=center},
+      arrow/.style={->,>=latex}
+    ]
+
+    % Top row: Scholar and Prize
+    \node[class] (scholar) {
+      \textbf{Scholar}
+      \nodepart{second}
+      {\small id\\ knownName\\ fullName\\ gender\\ birthDate\\ deathDate}
+    };
+
+    \node[class, right=3cm of scholar] (prize) {
+      \textbf{Prize}
+      \nodepart{second}
+      {\small prize\_id\\ category\\ awardYear\\ motivation\\ prizeAmount}
+    };
+
+    % Middle row: Institution and City
+    \node[class, below=2cm of scholar] (institution) {
+      \textbf{Institution}
+      \nodepart{second}
+      {\small name}
+    };
+
+    \node[class, right=3cm of institution] (city) {
+      \textbf{City}
+      \nodepart{second}
+      {\small name\\ state}
+    };
+
+    % Bottom row: Country and Continent
+    \node[class, below left=2cm of city] (country) {
+      \textbf{Country}
+      \nodepart{second}
+      {\small name}
+    };
+
+    \node[class, right=3cm of country] (continent) {
+      \textbf{Continent}
+      \nodepart{second}
+      {\small name}
+    };
+
+    % Relationships
+    \draw[arrow] (scholar) -- node[above] {\small WON} (prize);
+    \draw[arrow] (scholar) -- node[left] {\small AFFILIATED\_WITH} (institution);
+    \draw[arrow] (scholar) to[bend right=15] node[right] {\small BORN\_IN} (city);
+    \draw[arrow] (institution) -- node[above] {\small IS\_LOCATED\_IN} (city);
+    \draw[arrow] (city) -- node[above left] {\small IS\_CITY\_IN} (country);
+    \draw[arrow] (country) -- node[above] {\small IS\_COUNTRY\_IN} (continent);
+
+  \end{tikzpicture}
+  \caption{Knowledge graph schema showing node types and relationships in the Nobel Laureates dataset. The schema supports multi-hop queries across prize winners, their institutional affiliations, and hierarchical geographic locations.}
+  \Description{A directed graph diagram showing six entity types (Scholar, Prize, Institution, City, Country, Continent) as boxes with their properties listed inside. Arrows connect the entities showing relationships: Scholar connects to Prize via WON, Scholar connects to Institution via AFFILIATED_WITH, Scholar connects to City via BORN_IN, Institution connects to City via IS_LOCATED_IN, City connects to Country via IS_CITY_IN, and Country connects to Continent via IS_COUNTRY_IN.}
+  \label{fig:schema}
+\end{figure*}
+
+\subsection{Component Interactions}
+
+\begin{itemize}
   \item Component interactions
   \item Design decisions and rationale for each task
 \end{itemize}
@@ -321,23 +449,6 @@ Table~\ref{tab:latency} shows the pipeline stage latency breakdown.
   \end{tabular}
 \end{table*}
 
-Table~\ref{tab:memory} shows the memory utilization breakdown.
-
-\begin{table*}
-  \caption{Memory Utilization Breakdown (MB)}
-  \label{tab:memory}
-  \begin{tabular}{lcc}
-    \toprule
-    Component        & Memory & Measurement Method \\
-    \midrule
-    Kuzu database    & XX     & psutil RSS         \\
-    Python runtime   & XX     & psutil RSS         \\
-    LRU cache        & XX     & pympler.asizeof    \\
-    Embedding model  & XX     & Model footprint    \\
-    Peak working set & XX     & Max RSS            \\
-    \bottomrule
-  \end{tabular}
-\end{table*}
 
 \begin{itemize}
   \item Cache hit rate analysis
