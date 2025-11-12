@@ -171,6 +171,12 @@
   The course project is available at \url{https://github.com/dcgran/CS-E4780-project}~\cite{CS-E4780-project}.
 
 
+  \begin{itemize}
+    \item GraphRAG implementation on Nobel Laureates dataset
+    \item Text2Cypher accuracy improvements + performance optimization
+    \item Key metrics: accuracy, latency, cache hit rate, memory usage
+    \item GitHub repository: \url{https://github.com/dcgran/CS-E4780-project}~\cite{CS-E4780-project}
+  \end{itemize}
 \end{abstract}
 
 %%
@@ -224,37 +230,136 @@
 \maketitle
 
 \section{Introduction}
-
-\dots
+\begin{itemize}
+  \item Graph-based RAG vs traditional RAG background
+  \item Nobel Laureates dataset overview
+  \item Task 1: Text2Cypher enhancement
+  \item Task 2: Caching and performance benchmarking
+  \item Report organization
+\end{itemize}
 
 \section{System Architecture}
-
-\dots
+\begin{itemize}
+  \item Overall GraphRAG pipeline diagram
+  \item Knowledge graph schema (Kuzu)
+  \item Component interactions
+  \item Design decisions and rationale for each task
+\end{itemize}
 
 \section{Implementation}
 
-\dots
+\subsection{Testbed Setup}
+\begin{itemize}
+  \item Hardware specifications
+  \item Software environment (Python, Kuzu, LLM API)
+  \item Test query dataset
+\end{itemize}
+
+\subsection{Task 1: Text2Cypher Enhancement}
+\begin{itemize}
+  \item Dynamic few-shot exemplar selection
+  \item Self-refinement loop (generate $\rightarrow$ validate $\rightarrow$ repair)
+  \item Rule-based post-processing
+  \item Implementation details for each component
+\end{itemize}
+
+\subsection{Task 2: Caching and Performance}
+\begin{itemize}
+  \item LRU cache design (key computation, data structure)
+  \item Benchmarking infrastructure
+  \item Memory measurement methodology (process-level, object-level, database-level)
+\end{itemize}
 
 \section{Performance Evaluation}
 
-\dots
+\subsection{Task 1: Text2Cypher Accuracy and Latency}
 
-\subsection{Results}
-
-Table~\ref{tab:results} shows performance across configurations.
+Table~\ref{tab:ablation} presents the ablation study showing accuracy-latency trade-offs.
 
 \begin{table*}
-  \caption{Performance Evaluation Results}
-  \label{tab:results}
-  \begin{tabular}{lrrrrrr}
+  \caption{Ablation Study - Accuracy vs Latency Trade-offs}
+  \label{tab:ablation}
+  \begin{tabular}{lcccc}
     \toprule
-    Some & Data \\
-    ??   & ??   \\
+    Configuration                & Syntax Correct (\%) & Semantic Correct (\%) & Avg Latency (ms) & Avg Iterations \\
+    \midrule
+    Baseline (static few-shot)   & XX                  & XX                    & XXX              & 1.0            \\
+    Only Few-shot selection      & XX                  & XX                    & XXX              & 1.0            \\
+    Only Self-refinement         & XX                  & XX                    & XXX              & X.X            \\
+    Only Post-processing         & XX                  & XX                    & XXX              & 1.0            \\
+    Few-shot + Post-processing   & XX                  & XX                    & XXX              & 1.0            \\
+    Few-shot + Refinement        & XX                  & XX                    & XXX              & X.X            \\
+    Refinement + Post-processing & XX                  & XX                    & XXX              & X.X            \\
+    \textbf{All enhancements}    & \textbf{XX}         & \textbf{XX}           & \textbf{XXX}     & \textbf{X.X}   \\
     \bottomrule
   \end{tabular}
 \end{table*}
 
+\begin{itemize}
+  \item Analysis of accuracy-latency trade-offs
+  \item Which combinations are most effective?
+  \item Example success/failure cases
+\end{itemize}
+
+\subsection{Task 2: Performance and Efficiency}
+
+Table~\ref{tab:latency} shows the pipeline stage latency breakdown.
+
+\begin{table*}
+  \caption{Pipeline Stage Latency Breakdown (ms)}
+  \label{tab:latency}
+  \begin{tabular}{lccc}
+    \toprule
+    Stage               & Without Cache & With Cache (hit) & With Cache (miss) \\
+    \midrule
+    Schema Pruning      & XX            & XX               & XX                \\
+    Text2Cypher         & XXX           & <1               & XXX               \\
+    Query Execution     & XX            & XX               & XX                \\
+    Response Generation & XX            & XX               & XX                \\
+    \textbf{Total}      & \textbf{XXX}  & \textbf{XX}      & \textbf{XXX}      \\
+    \bottomrule
+  \end{tabular}
+\end{table*}
+
+Table~\ref{tab:memory} shows the memory utilization breakdown.
+
+\begin{table*}
+  \caption{Memory Utilization Breakdown (MB)}
+  \label{tab:memory}
+  \begin{tabular}{lcc}
+    \toprule
+    Component        & Memory & Measurement Method \\
+    \midrule
+    Kuzu database    & XX     & psutil RSS         \\
+    Python runtime   & XX     & psutil RSS         \\
+    LRU cache        & XX     & pympler.asizeof    \\
+    Embedding model  & XX     & Model footprint    \\
+    Peak working set & XX     & Max RSS            \\
+    \bottomrule
+  \end{tabular}
+\end{table*}
+
+\begin{itemize}
+  \item Cache hit rate analysis
+  \item Speedup quantification
+  \item Performance visualization (flamegraph/bar chart)
+  \item Bottleneck identification
+\end{itemize}
+
+\section{Discussion}
+\begin{itemize}
+  \item Key findings from ablation study
+  \item Optimal configuration recommendation
+  \item Challenges encountered and solutions
+  \item Lessons learned
+\end{itemize}
+
 \section{Conclusion}
+\begin{itemize}
+  \item Summary of Task 1 and Task 2 achievements
+  \item Key contributions
+  \item Practical insights
+\end{itemize}
 
 
 %%
