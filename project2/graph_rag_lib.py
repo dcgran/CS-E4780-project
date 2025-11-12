@@ -186,6 +186,15 @@ class GraphRAG(dspy.Module):
     def validate_cypher_query(
         self, _args: dict[Any, Any], pred: dspy.Prediction
     ) -> float:
+        """Reward function for Refine; also counts validation attempts.
+
+        Side effect: increments self._validation_calls so we can later report
+        how many refinement iterations were used for a query. This enables
+        benchmarking of the self-refinement loop effectiveness.
+        """
+        # Track number of times validation was invoked for the current query
+        if hasattr(self, "_validation_calls"):
+            self._validation_calls += 1
         try:
             q = getattr(getattr(pred, "query", None), "query", None)
             if not q or not isinstance(q, str):
@@ -231,7 +240,12 @@ class GraphRAG(dspy.Module):
             return 0.0
 
     def __init__(
-        self, use_knn_fewshot: bool = False, use_validation: bool = True, k: int = 3
+        self,
+        use_knn_fewshot: bool = False,
+        use_validation: bool = True,
+        k: int = 3,
+        knn_static: bool = False,
+        use_postprocessing: bool = False,
     ):
         """
         Initialize multi-step GraphRAG agent.
@@ -247,6 +261,10 @@ class GraphRAG(dspy.Module):
         self.use_knn = use_knn_fewshot
         self.use_validation = use_validation
         self.max_retries = 3
+        self.knn_static = knn_static
+        self.use_postprocessing = use_postprocessing
+        # Counter used during validation to record refinement iterations
+        self._validation_calls = 0
 
         # Stage 0: Question relevance validation
         self.validate_relevance = dspy.Predict(QuestionRelevance)
@@ -256,7 +274,7 @@ class GraphRAG(dspy.Module):
 
         # Stage 2: Query generation (with optional KNN)
         if use_knn_fewshot:
-            self._setup_knn(k)
+            self._setup_knn(k, static=self.knn_static)
         else:
             self.text2cypher = dspy.ChainOfThought(Text2Cypher)
 
@@ -274,32 +292,71 @@ class GraphRAG(dspy.Module):
 
         config_parts: list[str] = []
         if use_knn_fewshot:
-            config_parts.append(f"KNN few-shot (k={k})")
+            fewshot_mode = "static" if self.knn_static else "KNN"
+            config_parts.append(f"{fewshot_mode} few-shot (k={k})")
         if use_validation:
             config_parts.append(
                 f"Refine self-refinement (max {self.max_retries} iterations)"
             )
+        if use_postprocessing:
+            config_parts.append("Post-processing")
         if not config_parts:
             config_parts.append("baseline")
 
         print(f"GraphRAG agent: {' + '.join(config_parts)}")
 
-    def _setup_knn(self, k: int):
-        """Set up KNN few-shot optimizer for query generation."""
+    def _setup_knn(self, k: int, static: bool = False):
+        """Set up few-shot optimizer for query generation.
+
+        If static=True, we simulate a static few-shot prompt by using a constant
+        vectorizer so that the first k examples are always selected deterministically.
+        """
         from sentence_transformers import SentenceTransformer
         from trainset import get_trainset
 
-        print(f"Loading KNN optimizer with k={k}...")
-        embedder = SentenceTransformer("all-MiniLM-L6-v2")
         trainset = get_trainset()
 
-        knn_optimizer = dspy.KNNFewShot(
-            k=k, trainset=trainset, vectorizer=dspy.Embedder(embedder.encode)
-        )
+        if static:
+            print(f"Loading STATIC few-shot with k={k} (deterministic selection)...")
+
+            class _ConstVectorizer:
+                def __call__(self, texts):
+                    # Return zero vectors of fixed size; KNN will pick first k
+                    if isinstance(texts, str):
+                        texts = [texts]
+                    import numpy as np
+
+                    return np.zeros((len(texts), 384), dtype=float)
+
+            knn_optimizer = dspy.KNNFewShot(
+                k=k, trainset=trainset, vectorizer=_ConstVectorizer()
+            )
+        else:
+            print(f"Loading KNN optimizer with k={k}...")
+            embedder = SentenceTransformer("all-MiniLM-L6-v2")
+            knn_optimizer = dspy.KNNFewShot(
+                k=k, trainset=trainset, vectorizer=dspy.Embedder(embedder.encode)
+            )
 
         base_module = dspy.ChainOfThought(Text2Cypher)
         self.text2cypher = knn_optimizer.compile(student=base_module)
-        print(f"KNN ready with {len(trainset)} examples")
+        print(f"Few-shot ready with {len(trainset)} examples")
+
+    def _post_process_query(self, q: str) -> str:
+        """Apply light, safe post-processing to improve query robustness.
+
+        - Trim whitespace and semicolons
+        - Collapse newlines to spaces
+        - Ensure single space between tokens
+        - Leave semantics unchanged (no risky rewrites)
+        """
+        if not q or not isinstance(q, str):
+            return q
+        import re
+
+        q2 = q.strip().rstrip(";")
+        q2 = re.sub(r"\s+", " ", q2)
+        return q2
 
     def _make_cache_key(self, question: str, schema: str) -> str:
         q_hash = hashlib.md5(question.encode()).hexdigest()[:8]
@@ -373,24 +430,40 @@ class GraphRAG(dspy.Module):
         # Stage 2: Query Generation (with optional KNN and Refine, with caching)
         query_start = time.time()
         text2cypher_key = self._make_cache_key(question, str(schema))
+        # Reset validation counter for this new query attempt
+        self._validation_calls = 0
         if text2cypher_key in self._text2cypher_cache:
             print(f"Cache hit: text2cypher (key={text2cypher_key})")
             query_string = self._text2cypher_cache[text2cypher_key]
             cache_hit_query = True
+            refine_iterations = 0  # Cached result implies no refinement this call
         else:
             print(f"Cache miss: text2cypher (key={text2cypher_key})")
             result = self.text2cypher(question=question, input_schema=schema)
             query_string = result.query.query
             self._text2cypher_cache[text2cypher_key] = query_string
             cache_hit_query = False
+            # If validation was enabled, number of refinement iterations equals validation calls
+            refine_iterations = self._validation_calls if self.use_validation else 0
         timing_info["query_generation"] = time.time() - query_start
         timing_info["cache_hit_query"] = cache_hit_query
+        timing_info["refine_iterations"] = refine_iterations
+
+        # Optional post-processing stage
+        if getattr(self, "use_postprocessing", False):
+            pp_start = time.time()
+            original_query = query_string
+            query_string = self._post_process_query(query_string)
+            timing_info["post_processing"] = time.time() - pp_start
+            if original_query != query_string:
+                print("Applied post-processing to query")
 
         # Stage 3: Execute Query
         exec_start = time.time()
         try:
             query_result = db_manager.conn.execute(query_string)
             context = [item for row in query_result for item in row]
+            timing_info["result_count"] = len(context)
         except Exception as e:
             print(f"Error executing query: {e}")
             timing_info["query_execution"] = time.time() - exec_start
@@ -403,8 +476,11 @@ class GraphRAG(dspy.Module):
                 "query": query_string,
                 "answer": error_answer,
                 "timing_info": timing_info,
+                "query_length": len(query_string.split()),
+                "context": [],
             }
         timing_info["query_execution"] = time.time() - exec_start
+        timing_info["query_length"] = len(query_string.split())
 
         # Stage 4: Generate Answer
         if not context:
@@ -418,6 +494,8 @@ class GraphRAG(dspy.Module):
                 "query": query_string,
                 "answer": empty_answer,
                 "timing_info": timing_info,
+                "query_length": len(query_string.split()),
+                "context": [],
             }
 
         answer_start = time.time()
@@ -433,13 +511,25 @@ class GraphRAG(dspy.Module):
             "query": query_string,
             "answer": answer,
             "timing_info": timing_info,
+            "query_length": len(query_string.split()),
+            "context": context,
         }
 
 
 def create_graph_rag(
-    use_knn: bool = False, use_validation: bool = True, k: int = 3
+    use_knn: bool = False,
+    use_validation: bool = True,
+    k: int = 3,
+    knn_static: bool = False,
+    use_postprocessing: bool = False,
 ) -> GraphRAG:
-    return GraphRAG(use_knn_fewshot=use_knn, use_validation=use_validation, k=k)
+    return GraphRAG(
+        use_knn_fewshot=use_knn,
+        use_validation=use_validation,
+        k=k,
+        knn_static=knn_static,
+        use_postprocessing=use_postprocessing,
+    )
 
 
 def run_graph_rag(
@@ -449,12 +539,22 @@ def run_graph_rag(
     use_knn: bool = False,
     use_validation: bool = True,
     k: int = 3,
+    knn_static: bool = False,
+    use_postprocessing: bool = False,
 ) -> list[Any]:
     schema = str(db_manager.get_schema_dict)
 
     if rag_instance is None:
-        print(f"Creating GraphRAG (knn={use_knn}, validation={use_validation}, k={k})")
-        rag = GraphRAG(use_knn_fewshot=use_knn, use_validation=use_validation, k=k)
+        print(
+            f"Creating GraphRAG (knn={use_knn}, validation={use_validation}, k={k}, static={knn_static}, postproc={use_postprocessing})"
+        )
+        rag = GraphRAG(
+            use_knn_fewshot=use_knn,
+            use_validation=use_validation,
+            k=k,
+            knn_static=knn_static,
+            use_postprocessing=use_postprocessing,
+        )
     else:
         rag = rag_instance
 
