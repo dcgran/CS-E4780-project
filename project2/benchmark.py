@@ -124,13 +124,39 @@ class GraphRAGBenchmark:
         # If we reach here, execution succeeded and basic intent is reflected in the query
         return True
 
-    def run_benchmark(self, config_name: str, **rag_kwargs) -> dict[str, Any]:
+    def run_benchmark(
+        self, config_name: str, warmup_count: int = 1, **rag_kwargs
+    ) -> dict[str, Any]:
         """Run benchmark for a specific configuration using the proper GraphRAG interface."""
         print(f"Running {config_name} benchmark...")
 
         rag = GraphRAG(**rag_kwargs)
         results = []
         total_start = time.time()
+
+        # Optional per-config warm-up: run a question once and exclude from stats
+        # This warms LM/DSPy, KNN embedder, and DB caches without polluting per-question caches
+        # for measured items (we use a warm-up question not present in the test set).
+        if warmup_count and warmup_count > 0:
+            warmup_questions = [
+                "Who won a Nobel Prize in Physics?",
+            ]
+            # If caller asks for more than one warm-up, repeat the warm-up question
+            warmup_questions = (warmup_questions * warmup_count)[:warmup_count]
+            try:
+                print(
+                    f"  Performing {len(warmup_questions)} warm-up run(s) (excluded from stats)..."
+                )
+                from graph_rag_lib import run_graph_rag
+
+                _ = run_graph_rag(
+                    questions=warmup_questions,
+                    db_manager=self.db_manager,
+                    rag_instance=rag,
+                )
+            except Exception as e:
+                # Warm-up is best-effort; continue even if it fails
+                print(f"  Warm-up skipped due to error: {str(e)[:80]}...")
 
         for question in self.test_questions:
             print(f"  Testing: {question[:60]}...")

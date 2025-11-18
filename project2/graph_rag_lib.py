@@ -180,8 +180,7 @@ class GraphRAG(dspy.Module):
     5. Answer generation
     """
 
-    _prune_cache = LRUCache(maxsize=128)
-    _text2cypher_cache = LRUCache(maxsize=128)
+    # Note: Caches are instance-scoped to avoid cross-configuration warm-cache effects in benchmarks
 
     def validate_cypher_query(
         self, _args: dict[Any, Any], pred: dspy.Prediction
@@ -265,6 +264,9 @@ class GraphRAG(dspy.Module):
         self.use_postprocessing = use_postprocessing
         # Counter used during validation to record refinement iterations
         self._validation_calls = 0
+        # Instance-level caches
+        self._prune_cache: LRUCache = LRUCache(maxsize=128)
+        self._text2cypher_cache: LRUCache = LRUCache(maxsize=128)
 
         # Stage 0: Question relevance validation
         self.validate_relevance = dspy.Predict(QuestionRelevance)
@@ -304,6 +306,11 @@ class GraphRAG(dspy.Module):
             config_parts.append("baseline")
 
         print(f"GraphRAG agent: {' + '.join(config_parts)}")
+
+    def clear_caches(self) -> None:
+        """Clear instance caches for schema pruning and text-to-Cypher."""
+        self._prune_cache.clear()
+        self._text2cypher_cache.clear()
 
     def _setup_knn(self, k: int, static: bool = False):
         """Set up few-shot optimizer for query generation.
