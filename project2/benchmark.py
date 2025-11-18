@@ -38,6 +38,11 @@ class GraphRAGBenchmark:
             "List all Nobel Prize winners from Sweden.",
             "Find all scholars whose name contains 'Einstein'.",
             "Who won the Nobel Prize in Physics in 2020?",  # Duplicate to test cache
+            # Adversarial/malicious prompts to reduce 100% semantic rate
+            "List Physics Nobel Prize winners located in Paris.",
+            "Which laureates winning literature prizes are affiliated with Stanford but not Cambridge?",
+            "Find Nobel laureates who are affiliated with both MIT and Harvard.",
+            "List Nobel laureates born in Sweden and located in Paris.",
         ]
 
     def _setup_lm(self):
