@@ -1,0 +1,41 @@
+Config,Stage,WithoutCache_ms,WithCacheHit_ms
+Baseline (static few-shot),Schema Pruning,2473.2,0.0
+Baseline (static few-shot),Text2Cypher,2307.4,0.1
+Baseline (static few-shot),Query Execution,5.8,2.3
+Baseline (static few-shot),Response Generation,130.5,2.7
+Baseline (static few-shot),Total,4916.9,5.1
+Only Few-shot selection,Schema Pruning,1510.8,0.0
+Only Few-shot selection,Text2Cypher,5476.9,0.1
+Only Few-shot selection,Query Execution,7.6,3.0
+Only Few-shot selection,Response Generation,200.3,4.9
+Only Few-shot selection,Total,7195.599999999999,8.0
+Only Self-refinement,Schema Pruning,1685.1,0.0
+Only Self-refinement,Text2Cypher,9840.4,0.1
+Only Self-refinement,Query Execution,7.5,3.0
+Only Self-refinement,Response Generation,1021.9,3.8
+Only Self-refinement,Total,12554.9,6.8999999999999995
+Only Post-processing,Schema Pruning,1558.7,0.2
+Only Post-processing,Text2Cypher,8.0,0.1
+Only Post-processing,Query Execution,4.8,3.6
+Only Post-processing,Response Generation,186.5,4.0
+Only Post-processing,Total,1758.0,7.9
+Few-shot + Post-processing,Schema Pruning,1291.8,0.0
+Few-shot + Post-processing,Text2Cypher,37.8,0.1
+Few-shot + Post-processing,Query Execution,4.9,2.4
+Few-shot + Post-processing,Response Generation,236.6,2.7
+Few-shot + Post-processing,Total,1571.1,5.2
+Few-shot + Refinement,Schema Pruning,1531.5,0.0
+Few-shot + Refinement,Text2Cypher,161.0,0.1
+Few-shot + Refinement,Query Execution,4.6,2.2
+Few-shot + Refinement,Response Generation,556.4,2.9
+Few-shot + Refinement,Total,2253.5,5.2
+Refinement + Post-processing,Schema Pruning,1781.6,0.0
+Refinement + Post-processing,Text2Cypher,96.0,0.1
+Refinement + Post-processing,Query Execution,5.3,2.3
+Refinement + Post-processing,Response Generation,532.5,2.6
+Refinement + Post-processing,Total,2415.4,5.0
+All refinements,Schema Pruning,1447.3,0.0
+All refinements,Text2Cypher,121.7,0.1
+All refinements,Query Execution,4.4,2.6
+All refinements,Response Generation,199.0,3.8
+All refinements,Total,1772.3999999999999,6.5
