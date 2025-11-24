@@ -264,6 +264,7 @@ Our GraphRAG system implements a five-stage pipeline that transforms natural lan
   \centering
   \includegraphics[width=0.6\linewidth]{images/GraphRAG-pipeline.png}
   \caption{Flowchart depicting the complete workflow of the GraphRAG pipeline}
+  \Description{A flowchart showing the five stages of the GraphRAG pipeline: Schema Retrieval extracts the graph structure, Schema Pruning filters relevant schema elements, Text2Cypher generates a Cypher query from the user question, Query Execution runs the query against Kuzu, and Response Generation synthesizes the final answer using the LLM.}
   \label{fig:pipeline}
 \end{figure*}
 
@@ -384,37 +385,52 @@ Supporting modules handle the details behind these steps. They load the database
 
 This design is built around the concept of separation of concerns, which keeps each part of the system focused on a single job. The core GraphRAG module handles the overall question-to-answer flow, while the database manager takes care of connections and schema, and the DSPy components define the configurations for pruning, query generation, and answer creation. This separation keeps the core logic simple, makes the system easier to debug, and allows the evaluation scripts to run many configurations without touching the core pipeline. Strongly typed schema objects also help guide the LLM, which makes validation more predictable.
 
-\begin{itemize}
-  \item Component interactions
-  \item Design decisions and rationale for each task
-\end{itemize}
-
 \section{Implementation}
 
 \subsection{Testbed Setup}
+
+\textbf{Hardware Environment.} Experiments were conducted on a machine with [TODO: CPU model], [TODO: RAM] GB of memory, running [TODO: OS]. However, hardware specifications have limited impact on end-to-end latency in this system, as the LLM inference---which dominates execution time---is performed remotely via API calls rather than locally.
+
+\textbf{Software Environment.} The system is implemented in Python 3.13 using the following key dependencies:
 \begin{itemize}
-  \item Hardware specifications
-  \item Software environment (Python, Kuzu, LLM API)
-  \item Test query dataset
+  \item \textbf{Kuzu} (v0.11.1): Embedded graph database supporting the Cypher query language, used for storing and querying the Nobel Laureates knowledge graph.
+  \item \textbf{DSPy} (v3.0.1): Framework for building LLM-powered pipelines with structured prompts, used to orchestrate schema pruning, query generation, and answer synthesis.
+  \item \textbf{Sentence Transformers} (v3.0.0): Provides the \texttt{all-MiniLM-L6-v2} embedding model for computing semantic similarity in KNN-based few-shot exemplar selection.
+  \item \textbf{cachetools} (v6.1.0): Implements the LRU cache for storing query generation results.
 \end{itemize}
+
+\textbf{LLM Configuration.} All LLM inference is performed via the OpenRouter API using the \texttt{google/gemini-2.5-flash} model. This remote inference setup means that observed latencies are influenced by network conditions and API response times, which introduces variability across runs. We mitigate this by averaging results over multiple executions.
+
+\textbf{Test Query Dataset.} We evaluate the system using a benchmark suite of 10 natural language questions designed to cover diverse query patterns:
+\begin{itemize}
+  \item \textit{Entity lookup}: ``Who won the Nobel Prize in Physics in 2020?''
+  \item \textit{Multi-hop with constraints}: ``Which scholars won prizes in Physics and were affiliated with University of Cambridge?''
+  \item \textit{Aggregation}: ``How many Nobel Prizes have been awarded in Chemistry?''
+  \item \textit{Geographic filtering}: ``List all Nobel Prize winners from Sweden.''
+  \item \textit{String matching}: ``Find all scholars whose name contains `Einstein'.''
+  \item \textit{Adversarial queries}: Questions designed to stress-test the system, such as ``List Nobel laureates born in Sweden and located in Paris'' (requires correct join semantics) and ``Which laureates winning literature prizes are affiliated with Stanford but not Cambridge?'' (references non-existent prize category).
+\end{itemize}
+One query is duplicated to measure cache hit behavior. The adversarial queries help identify failure modes in query generation and schema understanding.
 
 \subsection{Task 1: Text2Cypher Enhancement}
 
+\textbf{Dynamic Few-Shot Exemplar Selection.} We implement dynamic exemplar selection using K-nearest neighbors (KNN) retrieval over a trainset of 15 curated question-query pairs covering diverse query patterns. At inference time, the user's question is embedded using Sentence Transformers (\texttt{all-MiniLM-L6-v2}), and the $k=3$ most similar examples are retrieved and included as few-shot context. This is implemented via DSPy's \texttt{KNNFewShot} optimizer. We also support a static baseline that always selects the first $k$ examples for comparison.
+
 \begin{itemize}
-  \item Dynamic few-shot exemplar selection
-  \item Self-refinement loop (generate $\rightarrow$ validate $\rightarrow$ repair)
-  \item Rule-based post-processing
-  \item Implementation details for each component
+  \item [TODO: Rule-based post-processing]
 \end{itemize}
 
-We implemented a self-refinement loop that improves the generated Cypher query until it passes a validation check. The validation works by running EXPLAIN <query> on the generated query, and the query is accepted if it does not raise an error. It also ensures that the answer is not a hard-coded string, e.g., RETURN "Cannot answer". The self-refinement loop is run a maximum of 3 times, after which it rejects the query.
+\textbf{Self-Refinement Loop.} We implemented a self-refinement loop that improves the generated Cypher query until it passes a validation check. The validation works by running EXPLAIN <query> on the generated query, and the query is accepted if it does not raise an error. It also ensures that the answer is not a hard-coded string, e.g., RETURN "Cannot answer". The self-refinement loop is run a maximum of 3 times, after which it rejects the query.
 
 \subsection{Task 2: Caching and Performance}
-\begin{itemize}
-  \item LRU cache design (key computation, data structure)
-  \item Benchmarking infrastructure
-  \item Memory measurement methodology (process-level, object-level, database-level)
-\end{itemize}
+
+\textbf{LRU Cache Design.} We implement caching at two stages of the pipeline using the \texttt{cachetools.LRUCache} data structure with a maximum capacity of 128 entries each. The first cache stores schema pruning results, avoiding repeated LLM calls when the same question is asked against the same graph schema. The second cache stores generated Cypher queries, eliminating redundant query generation for previously seen question-schema combinations.
+
+Cache keys are computed as a composite of question and schema hashes. Specifically, we compute the MD5 hash of the question text and the MD5 hash of the serialized schema, then concatenate the first 8 hexadecimal characters of each to form a key in the format \texttt{<q\_hash>\_<s\_hash>}. This design ensures that identical questions produce cache hits only when the underlying schema is also unchanged, which is important for correctness when the graph structure evolves. The caches are scoped to each \texttt{GraphRAG} instance rather than shared globally, which prevents warm-cache effects from contaminating benchmark comparisons across different enhancement configurations.
+
+\textbf{Benchmarking Infrastructure.} [TODO: Describe the benchmarking setup, how timing data is collected, and how results are aggregated.]
+
+\textbf{Memory Measurement.} [TODO: Describe memory measurement methodology if applicable.]
 
 \section{Performance Evaluation}
 
@@ -476,12 +492,6 @@ All configurations except the baseline were able to produce a semantically corre
   \end{tabular}
 \end{table*}
 
-\begin{itemize}
-  \item Analysis of accuracy-latency trade-offs
-  \item Which combinations are most effective?
-  \item Example success/failure cases
-\end{itemize}
-
 \subsection{Task 2: Performance and Efficiency}
 
 Table~\ref{tab:latency} shows the pipeline stage latency breakdown. It was generated using a separate script that aggregates the data from the benchmarking suite. From the table, we can see that there is a significant difference between cold runs and cache hits. Schema pruning, which is normally the slowest step, drops from about 1.45 seconds to essentially zero when cached. Query generation shows a similar pattern, falling from 121.7 ms to 0.1 ms. Response generation also becomes much faster, though not fully eliminated, and query execution sees only a small improvement. Together, these changes reduce end-to-end latency from 1.77 seconds to just 6.5 ms on cache hits.
@@ -489,10 +499,8 @@ Table~\ref{tab:latency} shows the pipeline stage latency breakdown. It was gener
 In cold runs, schema pruning is the clear bottleneck, as it is responsible for more than 80\% of the total latency. Response generation and query synthesis are next, while database execution remains negligible. However, on cache hits, the effect of pruning and query generation on the latency pretty much disappear, and the remaining time comes mostly from lightweight response formatting and a few milliseconds of query execution.
 
 \begin{itemize}
-  \item Cache hit rate analysis
-  \item Speedup quantification
-  \item Performance visualization (flamegraph/bar chart)
-  \item Bottleneck identification
+  \item [TODO: Cache hit rate analysis]
+  \item [TODO: Performance visualization (flamegraph/bar chart)]
 \end{itemize}
 
 \section{Discussion}
