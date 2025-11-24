@@ -350,19 +350,43 @@ class GraphRAG(dspy.Module):
         print(f"Few-shot ready with {len(trainset)} examples")
 
     def _post_process_query(self, q: str) -> str:
-        """Apply light, safe post-processing to improve query robustness.
+        """Apply rule-based post-processing to improve query robustness.
 
-        - Trim whitespace and semicolons
-        - Collapse newlines to spaces
-        - Ensure single space between tokens
-        - Leave semantics unchanged (no risky rewrites)
+        Rules applied:
+        1. Trim whitespace and semicolons
+        2. Collapse newlines to single spaces
+        3. Enforce lowercase comparisons with CONTAINS for string properties
+           - Converts: x.name = 'Value' -> lower(x.name) CONTAINS 'value'
+           - Converts: lower(x.name) = 'value' -> lower(x.name) CONTAINS 'value'
         """
         if not q or not isinstance(q, str):
             return q
         import re
 
+        # Step 1: Basic whitespace normalization
         q2 = q.strip().rstrip(";")
         q2 = re.sub(r"\s+", " ", q2)
+
+        # Step 2: String properties that should use lowercase CONTAINS
+        # Based on schema: name, knownName, fullName, category, motivation
+        string_props = r"(name|knownName|fullName|category|motivation)"
+
+        # Rule 2a: Convert x.prop = 'Value' to lower(x.prop) CONTAINS 'value'
+        # Matches: s.knownName = 'Einstein' or p.category = "Physics"
+        q2 = re.sub(
+            rf"(\w+)\.{string_props}\s*=\s*['\"]([^'\"]+)['\"]",
+            lambda m: f"lower({m.group(1)}.{m.group(2)}) CONTAINS '{m.group(3).lower()}'",
+            q2,
+        )
+
+        # Rule 2b: Convert lower(x.prop) = 'value' to lower(x.prop) CONTAINS 'value'
+        # Fixes cases where LLM used lower() but with = instead of CONTAINS
+        q2 = re.sub(
+            r"lower\(([^)]+)\)\s*=\s*['\"]([^'\"]+)['\"]",
+            lambda m: f"lower({m.group(1)}) CONTAINS '{m.group(2).lower()}'",
+            q2,
+        )
+
         return q2
 
     def _make_cache_key(self, question: str, schema: str) -> str:
