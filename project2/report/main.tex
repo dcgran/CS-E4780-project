@@ -35,6 +35,7 @@
 %% This version is used for drafting and final submission
 \documentclass[sigconf]{acmart}
 
+\usepackage{microtype}
 \usepackage{tikz}
 \usetikzlibrary{positioning,shapes.multipart}
 
@@ -247,16 +248,18 @@ Retrieval-Augmented Generation (RAG) systems enhance Large Language Model (LLM) 
 
 This project implements a GraphRAG system using the Nobel Laureates dataset, which contains mentorship relationships spanning from the 16th century to 2021, enriched with biographical data from the official Nobel Prize API. The dataset is stored in Kuzu, a graph database that supports efficient pattern matching through the Cypher query language. The system pipeline consists of four main stages: schema pruning to identify relevant graph structure, Text2Cypher generation to translate natural language questions into Cypher queries, query execution against the graph database, and response generation by the LLM based on retrieved results.
 
-We address two primary objectives in this work. First, we enhance the Text2Cypher component to improve query generation accuracy through three techniques: (1) dynamic few-shot exemplar selection based on semantic similarity to the input question, (2) a self-refinement loop that validates generated queries using dry-run execution and repairs syntax errors iteratively, and (3) rule-based post-processing to enforce common patterns such as case-insensitive string matching. Second, we optimize system performance by implementing an LRU cache keyed on question and schema hashes, and conduct comprehensive benchmarking to characterize latency across all pipeline stages and quantify memory utilization.
+We address two primary objectives in this work. First, we enhance the Text2Cypher component to improve query generation accuracy through dynamic few-shot exemplar selection, self-refinement with validation feedback, and rule-based post-processing. Second, we optimize system performance through LRU caching and conduct comprehensive benchmarking to characterize latency across all pipeline stages.
 
 Our evaluation includes an ablation study examining all meaningful combinations of Text2Cypher enhancements, quantifying the accuracy-latency trade-offs inherent in each approach. We measure both syntax correctness and semantic correctness against a diverse test set, and analyze cache performance under different workload patterns. The results provide practical insights into which optimizations yield the best balance between response quality and system efficiency.
 
-The remainder of this report is organized as follows. Section~2 describes the system architecture and design decisions. Section~3 details the implementation of both tasks, including testbed setup and measurement methodology. Section~4 presents our experimental evaluation with comprehensive performance analysis. Section~5 discusses key findings and lessons learned, and Section~6 concludes.
+The remainder of this report is organized as follows. Section~\ref{sec:architecture} describes the system architecture and design decisions. Section~\ref{sec:implementation} details the implementation of both tasks, including testbed setup and measurement methodology. Section~\ref{sec:evaluation} presents our experimental evaluation with comprehensive performance analysis. Section~\ref{sec:discussion} discusses key findings and lessons learned, and Section~\ref{sec:conclusion} concludes.
 
 
 \section{System Architecture}
+\label{sec:architecture}
 
 \subsection{GraphRAG Pipeline}
+\label{sec:pipeline}
 
 Our GraphRAG system implements a five-stage pipeline that transforms natural language questions into structured graph queries and generates contextually grounded responses. Figure~\ref{fig:pipeline} illustrates the complete workflow.
 
@@ -270,9 +273,9 @@ Our GraphRAG system implements a five-stage pipeline that transforms natural lan
 
 \textbf{Stage 1: Schema Retrieval.} The system begins by extracting the complete graph schema from Kuzu, including all node types, relationship types, and their associated properties. This schema provides a comprehensive structural description of the knowledge graph that will be used in subsequent stages.
 
-\textbf{Stage 2: Schema Pruning.} Given a user question, the system uses an LLM to identify which subset of the schema is relevant to answering that question. This pruning step reduces the context size for downstream stages, improving both accuracy and latency. The pruned schema is serialized and hashed to serve as part of the cache key, enabling reuse across questions that involve the same graph structure.
+\textbf{Stage 2: Schema Pruning.} Given a user question, the system uses an LLM to identify which subset of the schema is relevant to answering that question. This pruning step reduces the context size for downstream stages, improving both accuracy and latency.
 
-\textbf{Stage 3: Text2Cypher Generation.} The pruned schema and user question are passed to the Text2Cypher component, which generates a syntactically and semantically valid Cypher query. This stage incorporates three enhancement mechanisms (detailed in Section~3.2): similarity-based few-shot exemplar selection, self-refinement with validation feedback, and rule-based post-processing. The generated query is cached using a composite key of question hash and schema hash.
+\textbf{Stage 3: Text2Cypher Generation.} The pruned schema and user question are passed to the Text2Cypher component, which generates a syntactically and semantically valid Cypher query. This stage incorporates three enhancement mechanisms (detailed in Section~\ref{sec:task1}): similarity-based few-shot exemplar selection, self-refinement with validation feedback, and rule-based post-processing.
 
 \textbf{Stage 4: Query Execution.} The generated Cypher query is executed against the Kuzu database. Kuzu's columnar storage and optimized query engine enable efficient pattern matching over the graph structure. The query results are returned as structured data (e.g., lists of nodes, relationships, or aggregated values).
 
@@ -287,31 +290,13 @@ Our GraphRAG system implements a five-stage pipeline that transforms natural lan
 % \end{figure}
 
 \subsection{Knowledge Graph Schema}
+\label{sec:schema}
 
-The Nobel Laureates knowledge graph represents prize winners, their institutional affiliations, and geographic metadata. The graph is constructed from the official Nobel Prize API, which provides comprehensive biographical and institutional data for all laureates from 1901 to 2021 across four prize categories. Figure~\ref{fig:schema} illustrates the complete schema.
+The Nobel Laureates knowledge graph represents prize winners, their institutional affiliations, and geographic metadata. The graph is constructed from the official Nobel Prize API, which provides biographical and institutional data for laureates from 1901 to 2021. Figure~\ref{fig:schema} illustrates the complete schema with all node types and properties.
 
-\textbf{Node Types.} The schema defines six entity types:
-\begin{itemize}
-  \item \textbf{Scholar}: Represents Nobel Prize laureates. Properties include \texttt{id}, \texttt{knownName}, \texttt{fullName}, \texttt{gender}, \texttt{birthDate}, \texttt{deathDate}, and \texttt{scholar\_type} (set to ``laureate'' for all nodes from the API data).
-  \item \textbf{Prize}: Represents individual Nobel Prize awards in a given year and category. Properties include \texttt{prize\_id} (composite key of year and category), \texttt{awardYear}, \texttt{category} (physics, chemistry, medicine, economics), \texttt{dateAwarded}, \texttt{motivation}, \texttt{prizeAmount}, and \texttt{prizeAmountAdjusted}.
-  \item \textbf{Institution}: Academic and research institutions affiliated with scholars. Properties include \texttt{name} (standardized current name).
-  \item \textbf{City}: Geographic locations representing cities associated with scholar birthplaces and institutional locations. Properties include \texttt{name} and \texttt{state}.
-  \item \textbf{Country}: National-level geographic entities. Properties include \texttt{name}.
-  \item \textbf{Continent}: Continental-level geographic entities for regional analysis. Properties include \texttt{name}.
-\end{itemize}
+The schema defines six node types: \textbf{Scholar} (laureate biographical data), \textbf{Prize} (award year, category, motivation, amount), \textbf{Institution} (affiliated organizations), and geographic entities \textbf{City}, \textbf{Country}, and \textbf{Continent}. Seven relationship types connect these entities: \texttt{WON} (Scholar$\rightarrow$Prize), \texttt{BORN\_IN} and \texttt{DIED\_IN} (Scholar$\rightarrow$City), \texttt{AFFILIATED\_WITH} (Scholar$\rightarrow$Institution), \texttt{IS\_LOCATED\_IN} (Institution$\rightarrow$City), and the geographic hierarchy \texttt{IS\_CITY\_IN} (City$\rightarrow$Country) and \texttt{IS\_COUNTRY\_IN} (Country$\rightarrow$Continent).
 
-\textbf{Relationship Types.} The schema defines seven relationship types connecting entities:
-\begin{itemize}
-  \item \texttt{WON}: Connects a Scholar to a Prize they received. Includes a \texttt{portion} property indicating the share of the prize (e.g., ``1/2'' for shared prizes).
-  \item \texttt{BORN\_IN}: Connects a Scholar to their birth City.
-  \item \texttt{DIED\_IN}: Connects a Scholar to the City where they died (defined but sparsely populated in current data).
-  \item \texttt{AFFILIATED\_WITH}: Connects a Scholar to an Institution they were associated with at the time of receiving the prize.
-  \item \texttt{IS\_LOCATED\_IN}: Connects an Institution to its host City.
-  \item \texttt{IS\_CITY\_IN}: Connects a City to its Country.
-  \item \texttt{IS\_COUNTRY\_IN}: Connects a Country to its Continent.
-\end{itemize}
-
-This schema enables multi-hop queries such as: \textit{``How many Physics laureates were born in cities located in European countries?''} or \textit{``Which institutions affiliated with the most Chemistry prize winners are located in the United States?''} The hierarchical geographic structure (City $\rightarrow$ Country $\rightarrow$ Continent) supports analysis at multiple spatial granularities, while the institutional affiliations enable studies of knowledge production across research organizations.
+This structure enables multi-hop queries such as: \textit{``How many Physics laureates were born in European countries?''} or \textit{``Which institutions with Chemistry winners are in the United States?''}
 
 \begin{figure*}[t]
   \centering
@@ -376,18 +361,15 @@ This schema enables multi-hop queries such as: \textit{``How many Physics laurea
 \end{figure*}
 
 \subsection{Component Interactions}
+\label{sec:components}
 
-The system is made up of three main components: the core Graph RAG pipeline that turns questions into answers, supporting modules for schema handling, few-shot retrieval, validation, caching, and post-processing, and separate benchmarking tools that measure accuracy, latency, and internal behavior.
-
-The core Graph RAG pipeline handles the flow from a user question to a final answer. It first checks whether a question is relevant, prunes the graph schema to the parts that matter, generates a Cypher query, and optionally retries the query if it fails a validation check. Then, it runs the query in Kuzu and turns the results into a readable answer. Finally, the result post-processing fixes any formatting issues. The pipeline also caches schema pruning and query generation so repeated or similar questions run faster.
-
-Supporting modules handle the details behind these steps. They load the database schema, manage connections, and define DSPy components for pruning, query generation, and answer creation. For few-shot prompting, the system uses a KNN retriever to pull in examples that guide the query generation. For the query validation, the system keeps retrying the query generation until the LLM produces a query that passes an EXPLAIN check. During the run, the system collects timing data, cache hits, and other metadata for later benchmarking.
-
-This design is built around the concept of separation of concerns, which keeps each part of the system focused on a single job. The core GraphRAG module handles the overall question-to-answer flow, while the database manager takes care of connections and schema, and the DSPy components define the configurations for pruning, query generation, and answer creation. This separation keeps the core logic simple, makes the system easier to debug, and allows the evaluation scripts to run many configurations without touching the core pipeline. Strongly typed schema objects also help guide the LLM, which makes validation more predictable.
+The system follows a separation of concerns design with three main components: the core GraphRAG pipeline (question-to-answer flow), supporting modules (schema handling, few-shot retrieval, validation, caching), and benchmarking tools (accuracy and latency measurement). The core GraphRAG module orchestrates the pipeline stages, while the database manager handles connections and schema extraction, and DSPy components define structured prompts for pruning, query generation, and answer synthesis. This separation keeps the core logic simple and allows the evaluation scripts to run multiple configurations without modifying the pipeline. Strongly typed schema objects help guide the LLM toward valid outputs.
 
 \section{Implementation}
+\label{sec:implementation}
 
 \subsection{Testbed Setup}
+\label{sec:testbed}
 
 \textbf{Hardware Environment.} Experiments were conducted on a machine with [TODO: CPU model], [TODO: RAM] GB of memory, running [TODO: OS]. However, hardware specifications have limited impact on end-to-end latency in this system, as the LLM inference---which dominates execution time---is performed remotely via API calls rather than locally.
 
@@ -413,6 +395,7 @@ This design is built around the concept of separation of concerns, which keeps e
 One query is duplicated to measure cache hit behavior. The adversarial queries help identify failure modes in query generation and schema understanding.
 
 \subsection{Task 1: Text2Cypher Enhancement}
+\label{sec:task1}
 
 \textbf{Dynamic Few-Shot Exemplar Selection.} We implement dynamic exemplar selection using K-nearest neighbors (KNN) retrieval over a trainset of 15 curated question-query pairs covering diverse query patterns. At inference time, the user's question is embedded using Sentence Transformers (\texttt{all-MiniLM-L6-v2}), and the $k=3$ most similar examples are retrieved and included as few-shot context. This is implemented via DSPy's \texttt{KNNFewShot} optimizer. We also support a static baseline that always selects the first $k$ examples for comparison.
 
@@ -423,6 +406,7 @@ One query is duplicated to measure cache hit behavior. The adversarial queries h
 \textbf{Self-Refinement Loop.} We implemented a self-refinement loop that improves the generated Cypher query until it passes a validation check. The validation works by running EXPLAIN <query> on the generated query, and the query is accepted if it does not raise an error. It also ensures that the answer is not a hard-coded string, e.g., RETURN "Cannot answer". The self-refinement loop is run a maximum of 3 times, after which it rejects the query.
 
 \subsection{Task 2: Caching and Performance}
+\label{sec:task2}
 
 \textbf{LRU Cache Design.} We implement caching at two stages of the pipeline using the \texttt{cachetools.LRUCache} data structure with a maximum capacity of 128 entries each. The first cache stores schema pruning results, avoiding repeated LLM calls when the same question is asked against the same graph schema. The second cache stores generated Cypher queries, eliminating redundant query generation for previously seen question-schema combinations.
 
@@ -433,25 +417,12 @@ Cache keys are computed as a composite of question and schema hashes. Specifical
 \textbf{Memory Measurement.} [TODO: Describe memory measurement methodology if applicable.]
 
 \section{Performance Evaluation}
+\label{sec:evaluation}
 
 \subsection{Task 1: Text2Cypher Accuracy and Latency}
+\label{sec:eval-task1}
 
-The performance of the system is evaluated using a benchmarking suite that runs a set of prompts on the system with 8 different enhancement configurations. These propmts cover different kinds of queries, including entity lookup, multi-hop reasoning, boolean constraints, and schema disambiguation. The following prompts were used for the benchmarking suite:
-
-\begin{itemize}
-  \item Who won the Nobel Prize in Physics in 2020?
-  \item Which scholars won prizes in Physics and were affiliated with University of Cambridge?
-  \item How many Nobel Prizes have been awarded in Chemistry?
-  \item List all Nobel Prize winners from Sweden.
-  \item Find all scholars whose name contains 'Einstein'.
-  \item Who won the Nobel Prize in Physics in 2020?
-  \item List Physics Nobel Prize winners located in Paris.
-  \item Which laureates winning literature prizes are affiliated with Stanford but not Cambridge?
-  \item Find Nobel laureates who are affiliated with both MIT and Harvard.
-  \item List Nobel laureates born in Sweden and located in Paris.
-\end{itemize}
-
-Table~\ref{tab:ablation} presents the ablation study showing accuracy-latency trade-offs. The Few-shot + Post-processing setting provided the best overall balance, achieving 100\% success and syntax validity, 90\% semantic correctness, and the lowest average latency (~1.43 s). The All refinements configuration performed similarly but at a slightly slower average latency (~1.61 s), which suggests that the additional refinement steps add overhead without improving the quality of the query's semantics.
+Using the benchmark suite described in Section~\ref{sec:testbed}, we evaluate 8 enhancement configurations covering entity lookup, multi-hop reasoning, boolean constraints, and schema disambiguation queries. Table~\ref{tab:ablation} presents the ablation study showing accuracy-latency trade-offs. The Few-shot + Post-processing setting provided the best overall balance, achieving 100\% success and syntax validity, 90\% semantic correctness, and the lowest average latency (~1.43 s). The All refinements configuration performed similarly but at a slightly slower average latency (~1.61 s), which suggests that the additional refinement steps add overhead without improving the quality of the query's semantics.
 
 The baseline configuration was clearly the worst, as it achieved only 80\% across all correctness metrics and was more than three times slower than the best performing configurations. The self refinement only configuration was also inefficient, since while it maintained 100\% success and validity with 90\% semantic correctness, its average latency rose to ~11.32 seconds. This is probably because of it running the expensive query generation multiple times.
 
@@ -493,6 +464,7 @@ All configurations except the baseline were able to produce a semantically corre
 \end{table*}
 
 \subsection{Task 2: Performance and Efficiency}
+\label{sec:eval-task2}
 
 Table~\ref{tab:latency} shows the pipeline stage latency breakdown. It was generated using a separate script that aggregates the data from the benchmarking suite. From the table, we can see that there is a significant difference between cold runs and cache hits. Schema pruning, which is normally the slowest step, drops from about 1.45 seconds to essentially zero when cached. Query generation shows a similar pattern, falling from 121.7 ms to 0.1 ms. Response generation also becomes much faster, though not fully eliminated, and query execution sees only a small improvement. Together, these changes reduce end-to-end latency from 1.77 seconds to just 6.5 ms on cache hits.
 
@@ -504,6 +476,8 @@ In cold runs, schema pruning is the clear bottleneck, as it is responsible for m
 \end{itemize}
 
 \section{Discussion}
+\label{sec:discussion}
+
 \begin{itemize}
   \item Key findings from ablation study
   \item Optimal configuration recommendation
@@ -512,6 +486,8 @@ In cold runs, schema pruning is the clear bottleneck, as it is responsible for m
 \end{itemize}
 
 \section{Conclusion}
+\label{sec:conclusion}
+
 \begin{itemize}
   \item Summary of Task 1 and Task 2 achievements
   \item Key contributions
