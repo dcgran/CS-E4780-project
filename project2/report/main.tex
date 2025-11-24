@@ -260,6 +260,13 @@ The remainder of this report is organized as follows. Section~2 describes the sy
 
 Our GraphRAG system implements a five-stage pipeline that transforms natural language questions into structured graph queries and generates contextually grounded responses. Figure~\ref{fig:pipeline} illustrates the complete workflow.
 
+\begin{figure*}
+  \centering
+  \includegraphics[width=0.6\linewidth]{images/GraphRAG-pipeline.png}
+  \caption{Flowchart depicting the complete workflow of the GraphRAG pipeline}
+  \label{fig:pipeline}
+\end{figure*}
+
 \textbf{Stage 1: Schema Retrieval.} The system begins by extracting the complete graph schema from Kuzu, including all node types, relationship types, and their associated properties. This schema provides a comprehensive structural description of the knowledge graph that will be used in subsequent stages.
 
 \textbf{Stage 2: Schema Pruning.} Given a user question, the system uses an LLM to identify which subset of the schema is relevant to answering that question. This pruning step reduces the context size for downstream stages, improving both accuracy and latency. The pruned schema is serialized and hashed to serve as part of the cache key, enabling reuse across questions that involve the same graph structure.
@@ -369,6 +376,14 @@ This schema enables multi-hop queries such as: \textit{``How many Physics laurea
 
 \subsection{Component Interactions}
 
+The system is made up of three main components: the core Graph RAG pipeline that turns questions into answers, supporting modules for schema handling, few-shot retrieval, validation, caching, and post-processing, and separate benchmarking tools that measure accuracy, latency, and internal behavior.
+
+The core Graph RAG pipeline handles the flow from a user question to a final answer. It first checks whether a question is relevant, prunes the graph schema to the parts that matter, generates a Cypher query, and optionally retries the query if it fails a validation check. Then, it runs the query in Kuzu and turns the results into a readable answer. Finally, the result post-processing fixes any formatting issues. The pipeline also caches schema pruning and query generation so repeated or similar questions run faster.
+
+Supporting modules handle the details behind these steps. They load the database schema, manage connections, and define DSPy components for pruning, query generation, and answer creation. For few-shot prompting, the system uses a KNN retriever to pull in examples that guide the query generation. For the query validation, the system keeps retrying the query generation until the LLM produces a query that passes an EXPLAIN check. During the run, the system collects timing data, cache hits, and other metadata for later benchmarking.
+
+This design is built around the concept of separation of concerns, which keeps each part of the system focused on a single job. The core GraphRAG module handles the overall question-to-answer flow, while the database manager takes care of connections and schema, and the DSPy components define the configurations for pruning, query generation, and answer creation. This separation keeps the core logic simple, makes the system easier to debug, and allows the evaluation scripts to run many configurations without touching the core pipeline. Strongly typed schema objects also help guide the LLM, which makes validation more predictable.
+
 \begin{itemize}
   \item Component interactions
   \item Design decisions and rationale for each task
@@ -384,12 +399,15 @@ This schema enables multi-hop queries such as: \textit{``How many Physics laurea
 \end{itemize}
 
 \subsection{Task 1: Text2Cypher Enhancement}
+
 \begin{itemize}
   \item Dynamic few-shot exemplar selection
   \item Self-refinement loop (generate $\rightarrow$ validate $\rightarrow$ repair)
   \item Rule-based post-processing
   \item Implementation details for each component
 \end{itemize}
+
+We implemented a self-refinement loop that improves the generated Cypher query until it passes a validation check. The validation works by running EXPLAIN <query> on the generated query, and the query is accepted if it does not raise an error. It also ensures that the answer is not a hard-coded string, e.g., RETURN "Cannot answer". The self-refinement loop is run a maximum of 3 times, after which it rejects the query.
 
 \subsection{Task 2: Caching and Performance}
 \begin{itemize}
@@ -402,7 +420,26 @@ This schema enables multi-hop queries such as: \textit{``How many Physics laurea
 
 \subsection{Task 1: Text2Cypher Accuracy and Latency}
 
-Table~\ref{tab:ablation} presents the ablation study showing accuracy-latency trade-offs.
+The performance of the system is evaluated using a benchmarking suite that runs a set of prompts on the system with 8 different enhancement configurations. These propmts cover different kinds of queries, including entity lookup, multi-hop reasoning, boolean constraints, and schema disambiguation. The following prompts were used for the benchmarking suite:
+
+\begin{itemize}
+  \item Who won the Nobel Prize in Physics in 2020?
+  \item Which scholars won prizes in Physics and were affiliated with University of Cambridge?
+  \item How many Nobel Prizes have been awarded in Chemistry?
+  \item List all Nobel Prize winners from Sweden.
+  \item Find all scholars whose name contains 'Einstein'.
+  \item Who won the Nobel Prize in Physics in 2020?
+  \item List Physics Nobel Prize winners located in Paris.
+  \item Which laureates winning literature prizes are affiliated with Stanford but not Cambridge?
+  \item Find Nobel laureates who are affiliated with both MIT and Harvard.
+  \item List Nobel laureates born in Sweden and located in Paris.
+\end{itemize}
+
+Table~\ref{tab:ablation} presents the ablation study showing accuracy-latency trade-offs. The Few-shot + Post-processing setting provided the best overall balance, achieving 100\% success and syntax validity, 90\% semantic correctness, and the lowest average latency (~1.43 s). The All refinements configuration performed similarly but at a slightly slower average latency (~1.61 s), which suggests that the additional refinement steps add overhead without improving the quality of the query's semantics.
+
+The baseline configuration was clearly the worst, as it achieved only 80\% across all correctness metrics and was more than three times slower than the best performing configurations. The self refinement only configuration was also inefficient, since while it maintained 100\% success and validity with 90\% semantic correctness, its average latency rose to ~11.32 seconds. This is probably because of it running the expensive query generation multiple times.
+
+All configurations except the baseline were able to produce a semantically correct query for 9 out of the 10 prompts. The only query that proved difficult was "List Nobel laureates born in Sweden and located in Paris." This is because the generated queries either connect Paris to the birth city or use a union instead of an intersection, and they don’t include the expected edge is\_located\_in.
 
 \begin{table*}
   \caption{Ablation Study - Accuracy vs Latency Trade-offs}
@@ -411,14 +448,30 @@ Table~\ref{tab:ablation} presents the ablation study showing accuracy-latency tr
     \toprule
     Configuration                & Syntax Correct (\%) & Semantic Correct (\%) & Avg Latency (ms) & Avg Iterations \\
     \midrule
-    Baseline (static few-shot)   & XX                  & XX                    & XXX              & 1.0            \\
-    Only Few-shot selection      & XX                  & XX                    & XXX              & 1.0            \\
-    Only Self-refinement         & XX                  & XX                    & XXX              & X.X            \\
-    Only Post-processing         & XX                  & XX                    & XXX              & 1.0            \\
-    Few-shot + Post-processing   & XX                  & XX                    & XXX              & 1.0            \\
-    Few-shot + Refinement        & XX                  & XX                    & XXX              & X.X            \\
-    Refinement + Post-processing & XX                  & XX                    & XXX              & X.X            \\
-    \textbf{All enhancements}    & \textbf{XX}         & \textbf{XX}           & \textbf{XXX}     & \textbf{X.X}   \\
+    Baseline (static few-shot)   & 80                  & 80                    & 4728             & -              \\
+    Only Few-shot selection      & 100                 & 90                    & 6494             & -              \\
+    Only Self-refinement         & 100                 & 90                    & 11316            & 1.0            \\
+    Only Post-processing         & 90                  & 90                    & 1600             & -              \\
+    Few-shot + Post-processing   & 100                 & 90                    & 1430             & -              \\
+    Few-shot + Refinement        & 100                 & 90                    & 2043             & 0.9            \\
+    Refinement + Post-processing & 100                 & 90                    & 2189             & 1.0            \\
+    \textbf{All enhancements}    & \textbf{100}        & \textbf{90}           & \textbf{1610}    & \textbf{0.9}   \\
+    \bottomrule
+  \end{tabular}
+\end{table*}
+
+\begin{table*}
+  \caption{Pipeline Stage Latency Breakdown With All Refinements (ms)}
+  \label{tab:latency}
+  \begin{tabular}{lccc}
+    \toprule
+    Stage               & Without Cache   & With Cache Hit \\
+    \midrule
+    Schema Pruning      & 1447,3          & 0,0            \\
+    Text2Cypher         & 121,7           & 0,1            \\
+    Query Execution     & 4,4             & 2,6            \\
+    Response Generation & 199,0           & 3,8            \\
+    \textbf{Total}      & \textbf{1772,4} & \textbf{6,5}   \\
     \bottomrule
   \end{tabular}
 \end{table*}
@@ -431,24 +484,9 @@ Table~\ref{tab:ablation} presents the ablation study showing accuracy-latency tr
 
 \subsection{Task 2: Performance and Efficiency}
 
-Table~\ref{tab:latency} shows the pipeline stage latency breakdown.
+Table~\ref{tab:latency} shows the pipeline stage latency breakdown. It was generated using a separate script that aggregates the data from the benchmarking suite. From the table, we can see that there is a significant difference between cold runs and cache hits. Schema pruning, which is normally the slowest step, drops from about 1.45 seconds to essentially zero when cached. Query generation shows a similar pattern, falling from 121.7 ms to 0.1 ms. Response generation also becomes much faster, though not fully eliminated, and query execution sees only a small improvement. Together, these changes reduce end-to-end latency from 1.77 seconds to just 6.5 ms on cache hits.
 
-\begin{table*}
-  \caption{Pipeline Stage Latency Breakdown (ms)}
-  \label{tab:latency}
-  \begin{tabular}{lccc}
-    \toprule
-    Stage               & Without Cache & With Cache (hit) & With Cache (miss) \\
-    \midrule
-    Schema Pruning      & XX            & XX               & XX                \\
-    Text2Cypher         & XXX           & <1               & XXX               \\
-    Query Execution     & XX            & XX               & XX                \\
-    Response Generation & XX            & XX               & XX                \\
-    \textbf{Total}      & \textbf{XXX}  & \textbf{XX}      & \textbf{XXX}      \\
-    \bottomrule
-  \end{tabular}
-\end{table*}
-
+In cold runs, schema pruning is the clear bottleneck, as it is responsible for more than 80\% of the total latency. Response generation and query synthesis are next, while database execution remains negligible. However, on cache hits, the effect of pruning and query generation on the latency pretty much disappear, and the remaining time comes mostly from lightweight response formatting and a few milliseconds of query execution.
 
 \begin{itemize}
   \item Cache hit rate analysis
