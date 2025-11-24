@@ -180,16 +180,7 @@
 %% The abstract is a short summary of the work to be presented in the
 %% article.
 \begin{abstract}
-
-  The course project is available at \url{https://github.com/dcgran/CS-E4780-project}~\cite{CS-E4780-project}.
-
-
-  \begin{itemize}
-    \item GraphRAG implementation on Nobel Laureates dataset
-    \item Text2Cypher accuracy improvements + performance optimization
-    \item Key metrics: accuracy, latency, cache hit rate, memory usage
-    \item GitHub repository: \url{https://github.com/dcgran/CS-E4780-project}~\cite{CS-E4780-project}
-  \end{itemize}
+  We present a GraphRAG system that enhances LLM inference by integrating knowledge graph retrieval with natural language question answering. The system operates on the Nobel Laureates dataset, translating user questions into Cypher queries executed against an embedded Kuzu graph database. We address two core challenges: improving Text2Cypher accuracy through dynamic few-shot exemplar selection, self-refinement with validation feedback, and rule-based post-processing; and optimizing system performance via LRU caching at the schema pruning and query generation stages. Our ablation study across eight enhancement configurations demonstrates that the combination of few-shot selection and post-processing achieves the best accuracy-latency trade-off, with 100\% syntax validity, 90\% semantic correctness, and average latency under 1.5 seconds. LRU caching reduces end-to-end latency from 1.77 seconds to 6.5 milliseconds on cache hits, a 270x improvement. The implementation and evaluation code are available at \url{https://github.com/dcgran/CS-E4780-project}~\cite{CS-E4780-project}.
 \end{abstract}
 
 %%
@@ -399,11 +390,9 @@ One query is duplicated to measure cache hit behavior. The adversarial queries h
 
 \textbf{Dynamic Few-Shot Exemplar Selection.} We implement dynamic exemplar selection using K-nearest neighbors (KNN) retrieval over a trainset of 15 curated question-query pairs covering diverse query patterns. At inference time, the user's question is embedded using Sentence Transformers (\texttt{all-MiniLM-L6-v2}), and the $k=3$ most similar examples are retrieved and included as few-shot context. This is implemented via DSPy's \texttt{KNNFewShot} optimizer. We also support a static baseline that always selects the first $k$ examples for comparison.
 
-\begin{itemize}
-  \item [TODO: Rule-based post-processing]
-\end{itemize}
-
 \textbf{Self-Refinement Loop.} We implemented a self-refinement loop that improves the generated Cypher query until it passes a validation check. The validation works by running EXPLAIN <query> on the generated query, and the query is accepted if it does not raise an error. It also ensures that the answer is not a hard-coded string, e.g., RETURN "Cannot answer". The self-refinement loop is run a maximum of 3 times, after which it rejects the query.
+
+\textbf{Rule-Based Post-Processing.} After query generation, we apply regex-based transformations to convert string equality checks into case-insensitive CONTAINS patterns (e.g., \texttt{s.name = 'Einstein'} becomes \texttt{lower(s.name) CONTAINS 'einstein'}). This handles case mismatches and partial string matches on properties like \texttt{name}, \texttt{fullName}, and \texttt{category}.
 
 \subsection{Task 2: Caching and Performance}
 \label{sec:task2}
@@ -478,21 +467,16 @@ In cold runs, schema pruning is the clear bottleneck, as it is responsible for m
 \section{Discussion}
 \label{sec:discussion}
 
-\begin{itemize}
-  \item Key findings from ablation study
-  \item Optimal configuration recommendation
-  \item Challenges encountered and solutions
-  \item Lessons learned
-\end{itemize}
+The key insight from our ablation study is that lightweight techniques---few-shot selection and post-processing---outperform expensive self-refinement while achieving comparable accuracy. Self-refinement's validation loop is most valuable for complex multi-hop queries, but its latency cost (11+ seconds) makes it impractical as a default. Post-processing provides robust case-insensitive matching at negligible cost, which is critical since entity names often differ between user questions and database values.
+
+A consistent challenge was ambiguous geographic queries. The test case ``List Nobel laureates born in Sweden and located in Paris'' failed across configurations because ``located'' could mean birth location, institution location, or residence---highlighting that Text2Cypher accuracy is bounded by question clarity.
+
+For production deployments, we recommend Few-shot + Post-processing with LRU caching. This achieves 90\% semantic accuracy at minimal latency, with cache hits providing 270x speedup for repeated queries.
 
 \section{Conclusion}
 \label{sec:conclusion}
 
-\begin{itemize}
-  \item Summary of Task 1 and Task 2 achievements
-  \item Key contributions
-  \item Practical insights
-\end{itemize}
+We presented a GraphRAG system addressing Text2Cypher accuracy and performance. For Task 1, we implemented KNN-based few-shot selection, EXPLAIN-based self-refinement, and rule-based post-processing. Our ablation study showed that few-shot selection combined with post-processing achieves the best accuracy-latency trade-off. For Task 2, LRU caching at schema pruning and query generation stages reduces latency from 1.77 seconds to 6.5 milliseconds on cache hits. The practical takeaway is that lightweight post-processing can substitute for expensive iterative refinement, and caching is essential for interactive GraphRAG systems.
 
 
 %%
