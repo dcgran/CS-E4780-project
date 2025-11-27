@@ -362,15 +362,22 @@ The system follows a separation of concerns design with three main components: t
 \subsection{Testbed Setup}
 \label{sec:testbed}
 
-\textbf{Hardware Environment.} Experiments were conducted on a machine with [TODO: e.g., ``Intel i7-12700H'' or ``Apple M2''], [TODO: e.g., ``16''] GB of memory, running [TODO: e.g., ``Ubuntu 22.04'' or ``macOS 14'']. However, hardware specifications have limited impact on end-to-end latency in this system, as the LLM inference---which dominates execution time---is performed remotely via API calls rather than locally.
+\textbf{Hardware Environment.} Experiments were conducted on a x86\_64 Ubuntu 25.10 machine with 32GB RAM (DDR5 5600 MT/s) and Intel Core Ultra 5 @ 4.80GHz. However, hardware has limited impact as LLM inference occurs remotely via API.
 
-\textbf{Software Environment.} The system is implemented in Python 3.13 using the following key dependencies:
-\begin{itemize}
-  \item \textbf{Kuzu} (v0.11.1): Embedded graph database supporting the Cypher query language, used for storing and querying the Nobel Laureates knowledge graph.
-  \item \textbf{DSPy} (v3.0.1): Framework for building LLM-powered pipelines with structured prompts, used to orchestrate schema pruning, query generation, and answer synthesis.
-  \item \textbf{Sentence Transformers} (v3.0.0): Provides the \texttt{all-MiniLM-L6-v2} embedding model for computing semantic similarity in KNN-based few-shot exemplar selection.
-  \item \textbf{cachetools} (v6.1.0): Implements the LRU cache for storing query generation results.
-\end{itemize}
+% \begin{table}
+%   \caption{Benchmarking Environment Specifications}
+%   \label{tab:specs}
+%   \begin{tabular}{ll}
+%     \toprule
+%     OS              & Ubuntu 25.10 x86\_64 \\
+%     CPU             & Intel Core Ultra 5 225U (14) @ 4.80 GHz \\
+%     Memory          & 2x 16GB DDR5 5600 MT/s  \\    
+%     \bottomrule
+%   \end{tabular}
+% \end{table}
+
+
+\textbf{Software Environment.} Python 3.13 with Kuzu v0.11.1 (graph database), DSPy v3.0.1 (LLM pipelines), Sentence Transformers v3.0.0 (\texttt{all-MiniLM-L6-v2} embeddings), and cachetools v6.1.0 (LRU cache).
 
 \textbf{LLM Configuration.} All LLM inference is performed via the OpenRouter API using the \texttt{google/gemini-2.5-flash} model. This remote inference setup means that observed latencies are influenced by network conditions and API response times, which introduces variability across runs. We mitigate this by averaging results over multiple executions.
 
@@ -401,9 +408,9 @@ One query is duplicated to measure cache hit behavior. The adversarial queries h
 
 Cache keys are computed as a composite of question and schema hashes. Specifically, we compute the MD5 hash of the question text and the MD5 hash of the serialized schema, then concatenate the first 8 hexadecimal characters of each to form a key in the format \texttt{<q\_hash>\_<s\_hash>}. This design ensures that identical questions produce cache hits only when the underlying schema is also unchanged, which is important for correctness when the graph structure evolves. The caches are scoped to each \texttt{GraphRAG} instance rather than shared globally, which prevents warm-cache effects from contaminating benchmark comparisons across different enhancement configurations.
 
-\textbf{Benchmarking Infrastructure.} Timing data is collected using \texttt{time.perf\_counter()} around each pipeline stage. [TODO: Specify number of runs per query (e.g., 10), warm-up runs excluded (e.g., 1), and aggregation method (e.g., mean/median).]
+\textbf{Benchmarking Infrastructure.} Timing data is collected using \texttt{time.perf\_counter()} around each pipeline stage. For each benchmarking configuration, 10 queries are run one time, excluding warm-up queries. Before each benchmarking run, 1 warm-up query is executed in order to avoid the impact of cold-starts in latency measurements. The benchmarking results are aggregated by calculating the mean of the results of all 10 queries.
 
-\textbf{Memory Measurement.} [TODO: Either describe memory profiling method (e.g., tracemalloc, psutil for Kuzu DB footprint) OR state ``Memory profiling was not performed as LLM inference occurs remotely via API.'']
+\textbf{Memory Measurement.} Memory profiling was not performed as LLM inference occurs remotely via API.
 
 \section{Performance Evaluation}
 \label{sec:evaluation}
@@ -413,28 +420,30 @@ Cache keys are computed as a composite of question and schema hashes. Specifical
 
 Using the benchmark suite described in Section~\ref{sec:testbed}, we evaluate 8 enhancement configurations covering entity lookup, multi-hop reasoning, boolean constraints, and schema disambiguation queries. Table~\ref{tab:ablation} presents the ablation study showing accuracy-latency trade-offs. The Few-shot + Post-processing setting provided the best overall balance, achieving 100\% success and syntax validity, 90\% semantic correctness, and the lowest average latency (~1.43 s). The All refinements configuration performed similarly but at a slightly slower average latency (~1.61 s), which suggests that the additional refinement steps add overhead without improving the quality of the query's semantics.
 
-The baseline configuration achieved only 80\% across all correctness metrics. Our enhancements improved semantic accuracy from 80\% to 90\%, a 12.5\% relative improvement, while also reducing latency by over 3x compared to baseline. The self refinement only configuration was also inefficient, since while it maintained 100\% success and validity with 90\% semantic correctness, its average latency rose to ~11.32 seconds. This is probably because of it running the expensive query generation multiple times.
+The baseline configuration achieved only 80\% across all correctness metrics. Our enhancements improved semantic accuracy from 80\% to 90\% while also reducing latency by over 3x compared to baseline. The self refinement only configuration was also inefficient, since while it maintained 100\% success and validity with 90\% semantic correctness, its average latency rose to ~11.32 seconds. This is probably because of it running the expensive query generation multiple times.
 
 All configurations except the baseline were able to produce a semantically correct query for 9 out of the 10 prompts. The only query that proved difficult was "List Nobel laureates born in Sweden and located in Paris." This is because the generated queries either connect Paris to the birth city or use a union instead of an intersection, and they don’t include the expected edge is\_located\_in.
 
-\begin{table*}
+\begin{table}
   \caption{Ablation Study - Accuracy vs Latency Trade-offs}
   \label{tab:ablation}
   \begin{tabular}{lcccc}
     \toprule
-    Configuration                & Syntax Correct (\%) & Semantic Correct (\%) & Avg Latency (ms) & Avg Iterations \\
+    Config            & Syntax (\%)  & Semantic (\%) & Latency (ms)  & Iters        \\
     \midrule
-    Baseline (static few-shot)   & 80                  & 80                    & 4728             & -              \\
-    Only Few-shot selection      & 100                 & 90                    & 6494             & -              \\
-    Only Self-refinement         & 100                 & 90                    & 11316            & 1.0            \\
-    Only Post-processing         & 90                  & 90                    & 1600             & -              \\
-    Few-shot + Post-processing   & 100                 & 90                    & 1430             & -              \\
-    Few-shot + Refinement        & 100                 & 90                    & 2043             & 0.9            \\
-    Refinement + Post-processing & 100                 & 90                    & 2189             & 1.0            \\
-    \textbf{All enhancements}    & \textbf{100}        & \textbf{90}           & \textbf{1610}    & \textbf{0.9}   \\
+    Baseline          & 80           & 80            & 4728          & -            \\
+    FS only           & 100          & 90            & 6494          & -            \\
+    SR only           & 100          & 90            & 11316         & 1.0          \\
+    PP only           & 90           & 90            & 1600          & -            \\
+    FS + PP           & 100          & 90            & 1430          & -            \\
+    FS + SR           & 100          & 90            & 2043          & 0.9          \\
+    SR + PP           & 100          & 90            & 2189          & 1.0          \\
+    \textbf{FS+SR+PP} & \textbf{100} & \textbf{90}   & \textbf{1610} & \textbf{0.9} \\
     \bottomrule
   \end{tabular}
-\end{table*}
+  \vspace{2mm}
+  {\footnotesize FS=Few-shot, SR=Self-refinement, PP=Post-processing}
+\end{table}
 
 \begin{table}
   \caption{Pipeline Stage Latency Breakdown (ms)}
@@ -457,7 +466,7 @@ All configurations except the baseline were able to produce a semantically corre
 
 Table~\ref{tab:latency} shows the pipeline stage latency breakdown. It was generated using a separate script that aggregates the data from the benchmarking suite. From the table, we can see that there is a significant difference between cold runs and cache hits. Schema pruning, which is normally the slowest step, drops from about 1.45 seconds to essentially zero when cached. Query generation shows a similar pattern, falling from 121.7 ms to 0.1 ms. Response generation also becomes much faster, though not fully eliminated, and query execution sees only a small improvement. Together, these changes reduce end-to-end latency from 1.77 seconds to just 6.5 ms on cache hits.
 
-In cold runs, schema pruning is the clear bottleneck, responsible for over 80\% of total latency. On cache hits, pruning and query generation latency effectively disappear. Figure~\ref{fig:latency} visualizes this breakdown, showing the dramatic reduction from cold to cached execution. Cache hit rates averaged 10\% in our benchmark due to the diverse query set; production workloads with repeated queries would see substantially higher rates.
+In cold runs, schema pruning is the clear bottleneck, responsible for over 80\% of total latency. On cache hits, pruning and query generation latency effectively disappear. Figure~\ref{fig:latency} visualizes this breakdown, showing the dramatic reduction from cold to cached execution. Cache hit rates averaged 10\% in our benchmark due to there being 1 duplicate query in the set of 10 queries. Production workloads with repeated queries would see substantially higher rates.
 
 \begin{figure}[t]
   \centering
@@ -477,16 +486,20 @@ In cold runs, schema pruning is the clear bottleneck, responsible for over 80\% 
         legend style={at={(0.5,1.02)},anchor=south,legend columns=2,font=\small},
         bar width=8pt,
         enlarge x limits=0.2,
+        ymajorgrids=true,
+        grid style={dashed,gray!30},
       ]
-      \addplot[fill=blue!70] coordinates {(Pruning,1447.3) (Text2Cypher,121.7) (Execution,4.4) (Response,199.0)};
-      \addplot[fill=green!60] coordinates {(Pruning,0.01) (Text2Cypher,0.1) (Execution,2.6) (Response,3.8)};
+      \addplot[fill=orange!75] coordinates {(Pruning,1447.3) (Text2Cypher,121.7) (Execution,4.4) (Response,199.0)};
+      \addplot[fill=teal!70] coordinates {(Pruning,0.01) (Text2Cypher,0.1) (Execution,2.6) (Response,3.8)};
       \legend{Cold,Cache Hit}
     \end{axis}
   \end{tikzpicture}
   \caption{Pipeline stage latency comparison: cold execution vs. cache hit (log scale). Caching eliminates schema pruning and query generation overhead.}
-  \Description{Bar chart showing latency per pipeline stage. Cold runs show Schema Pruning at 1447ms dominating, while cache hits reduce all stages to under 4ms.}
+  \Description{Bar chart showing latency per pipeline stage. Cold runs show Schema Pruning at 1447ms dominating, while cache hits reduce all stages to
+    under 4ms.}
   \label{fig:latency}
 \end{figure}
+
 
 \section{Discussion}
 \label{sec:discussion}
@@ -501,6 +514,14 @@ For production deployments, we recommend Few-shot + Post-processing with LRU cac
 \label{sec:conclusion}
 
 We presented a GraphRAG system addressing Text2Cypher accuracy and performance. For Task 1, we implemented KNN-based few-shot selection, EXPLAIN-based self-refinement, and rule-based post-processing. Our ablation study showed that few-shot selection combined with post-processing achieves the best accuracy-latency trade-off. For Task 2, LRU caching at schema pruning and query generation stages reduces latency from 1.77 seconds to 6.5 milliseconds on cache hits. The practical takeaway is that lightweight post-processing can substitute for expensive iterative refinement, and caching is essential for interactive GraphRAG systems.
+
+\subsection*{Team Contributions}
+
+\textbf{Individual Contributions.} The team organized weekly working sessions every Monday (2-3 hours) where we ideated the solution together. Two weeks we hosted a shorter remote meeting due to prior commitments by the team members. Siidorow implemented KNN few-shot selection, LRU caching, and enhanced rule-based post-processing. Korpela implemented the self-refinement loop, designed the benchmarking suite across eight configurations, and added adversarial test queries. Granström created the Makefile infrastructure, contributed to performance evaluation, and implemented input validation. All team members contributed to writing the report.
+
+\textbf{Design Decisions.} The most important decisions our group made about the system design include implementing each enhancement as independently toggleable components to enable a complete ablation study, placing LRU caches at both schema pruning and query generation stages, and prioritizing lightweight post-processing over expensive iterative refinement after discovering self-refinement's 11-second latency cost only improved one query.
+
+\textbf{Challenges.} The primary challenges were the lack of course-provided API credits, requiring team members to use personal OpenRouter accounts which limited experimentation scope. Technically, we discovered that combining self-refinement and KNN produced worse results than either alone, and handling ambiguous geographic queries proved difficult across all configurations. Implementing semantic correctness evaluation required manual inspection since no automated ground-truth metric exists for Text2Cypher.
 
 
 %%
